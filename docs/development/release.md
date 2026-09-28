@@ -2,13 +2,13 @@
 
 ## 版本号
 
-- po0-clash 使用独立的语义化版本，从 `1.0.0` 开始，与上游 FlClash 的版本号无关（决策见
-  [ADR 0006](../adr/0006-standalone-app-identity.md)）。
-- 唯一的版本来源是 `pubspec.yaml` 的 `version`，格式 `X.Y.Z+<build>`，例如 `1.0.0+2026092801`：
+- po0-clash 使用独立的语义化版本，与上游 FlClash 的版本号无关（决策见
+  [ADR 0006](../adr/0006-standalone-app-identity.md)）。本仓库的第一个版本是 `5.0.0`，每次发版的版本号由维护者确定。
+- 唯一的版本来源是 `pubspec.yaml` 的 `version`，格式 `X.Y.Z+<build>`，例如 `5.0.0+2026092901`：
   - `X.Y.Z`：修复递增 `Z`，新功能递增 `Y`，不兼容的改动（例如配置无法沿用）递增 `X`。
   - `+` 后的构建号即 Android `versionCode`，必须单调递增，沿用 `YYYYMMDDNN` 形式（当天第 `NN` 次构建）。
     同一台设备上的 APK 只能用更大的 `versionCode` 覆盖升级。
-- 发版标签为 `v<X.Y.Z>`，即 `pubspec.yaml` 版本去掉 `+<build>`，例如 `v1.0.0`、`v1.0.1`。
+- 发版标签为 `v<X.Y.Z>`，即 `pubspec.yaml` 版本去掉 `+<build>`，例如 `v5.0.0`、`v5.0.1`。
   `scripts/check-release-tag.sh` 校验二者一致；`release.yaml` 在构建标签时先运行它，不一致直接失败。
 - 旧的 `v0.8.98-po0.N` 标签属于已停用的 FlClash-po0 构建，不再使用，也不要再打 `-po0.N` 形式的标签。
 - 应用内「检查更新」指向本仓库（`lib/common/constant.dart` 的 `repository`），按语义化版本比较本机版本与
@@ -27,14 +27,14 @@
 2. 通过 PR 合入 `main`（需人工审阅）。
 3. 在 `main` 的该提交上打标签并推送：
    ```bash
-   bash scripts/check-release-tag.sh v1.0.1
-   git tag v1.0.1
-   git push origin v1.0.1
+   bash scripts/check-release-tag.sh v5.0.1
+   git tag v5.0.1
+   git push origin v5.0.1
    ```
 4. 标签推送触发 `.github/workflows/release.yaml`：
    - 并行构建 Android（`ubuntu-latest`，三个 ABI 的 APK）、Windows x64（`exe` 安装包与 `zip`）、
      macOS arm64 与 x64（`dmg`），全部使用 `dart setup.dart <platform> --env stable`；
-   - 全部成功后创建标题为 `po0-clash v1.0.1` 的 Release（说明取自 `docs/release-notes.md`），上传所有产物与
+   - 全部成功后创建标题为 `po0-clash v5.0.1` 的 Release（说明取自 `docs/release-notes.md`），上传所有产物与
      `scripts/install-macos.sh`。
    Release 已存在时只追加 / 覆盖产物，不改说明。任一平台失败时不会发布，修复后删除标签重新推送，或在 Actions
    页面手动运行并填写 `tag`。
@@ -49,6 +49,6 @@
 | macOS arm64 / x64 | `po0-clash-<ver>-macos-{arm64,amd64}.dmg` | 终端命令，见 [install.md](../install.md) |
 | Android | `po0-clash-<ver>-android-{arm64-v8a,armeabi-v7a,x86_64}.apk` | 直接安装 APK |
 
-`<ver>` 为不含 `v` 的版本号，例如 `po0-clash-1.0.1-android-arm64-v8a.apk`。
+`<ver>` 为不含 `v` 的版本号，例如 `po0-clash-5.0.1-android-arm64-v8a.apk`。
 
 发布说明需包含：本次新增与修复、升级注意事项、已知限制（例如 Android 首次开启加白后需重启 VPN）。

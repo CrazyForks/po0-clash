@@ -1,18 +1,20 @@
-po0-clash v1.0.0：第一个独立发布的版本，基于上游 FlClash v0.8.98。
+po0-clash v5.0.0：迁到新仓库后的第一个版本，基于上游 FlClash v0.8.98。
 
 ## 本次更新
 
-- 改名为 po0-clash，成为独立应用：应用 ID、安装标识、进程名、服务名和数据目录都与官方 FlClash 不同
-- 可以与官方 FlClash 同时安装、同时运行，Windows 安装包不再覆盖官方版，Android 无需先卸载官方版
-- 版本号独立，从 1.0.0 开始，不再使用 0.8.98-po0.N 形式
-- Android APK 改由 GitHub Actions 与桌面端一起构建发布
-- 移除 Firebase / Crashlytics，应用不再上报任何崩溃或统计数据
+- 版本号从 5.0.0 起算
+- 项目迁到 yuuuki-creation/po0-clash，检查更新和 macOS 安装脚本都指向新仓库
+- 应用 ID 改为 io.github.yuuukicreation.po0clash，Android 使用新的签名证书
+- 可与官方 FlClash 同时安装、同时运行，互不覆盖
+- 不包含 Firebase / Crashlytics，应用不上报任何崩溃或统计数据
 
-## 从旧版 FlClash-po0 迁移
+## 从旧版迁移（先读再装）
 
-- po0-clash 不会覆盖或升级旧的 FlClash-po0（0.8.98-po0.1～po0.6），两者作为不同应用共存
-- 在旧版「备份与恢复」中导出本地备份文件，再在 po0-clash 中导入即可带回订阅、设置和 po0 token；也可以直接重新填写 token
-- 确认新版正常后请自行卸载旧版，旧版不会再收到更新
+- 旧版 po0-clash 1.0.0 和 FlClash-po0（0.8.98-po0.N）都收不到本版本的更新提示，请手动下载安装
+- 应用 ID 和数据目录都已更换，旧版的订阅、设置和 po0 token 不会自动带过来
+- 安装前先在旧版「备份与恢复」导出本地备份，装好后在本版本导入；也可以直接重新填写 token
+- Windows / macOS：本版本会替换已安装的 po0-clash 1.0.0 程序，所以务必先导出备份；FlClash-po0 与本版本共存
+- Android：签名证书已更换，本版本作为新应用安装，不会覆盖旧版；确认正常后请自行卸载旧版
 
 ## 功能
 
@@ -24,9 +26,9 @@ po0-clash v1.0.0：第一个独立发布的版本，基于上游 FlClash v0.8.98
 
 ## 安装
 
-- Windows：po0-clash-1.0.0-windows-amd64-setup.exe（安装包）或 .zip（免安装）
+- Windows：po0-clash-5.0.0-windows-amd64-setup.exe（安装包）或 .zip（免安装）
 - macOS：curl -fsSL https://raw.githubusercontent.com/yuuuki-creation/po0-clash/main/scripts/install-macos.sh | bash
-- Android：po0-clash-1.0.0-android-arm64-v8a.apk（主流机型），可与官方 FlClash 共存
+- Android：po0-clash-5.0.0-android-arm64-v8a.apk（主流机型），可与官方 FlClash 共存
 
 ## 已知限制
 
@@ -35,4 +37,3 @@ po0-clash v1.0.0：第一个独立发布的版本，基于上游 FlClash v0.8.98
 - 同时在用的网段超过白名单容量（5 减去固定槽位数）时，各设备会互相挤占
 - 与其他代理客户端同时开启系统代理或 TUN 会互相抢占，请只在一个应用里开启
 - macOS 版本未经 Apple 公证，安装脚本会移除隔离属性
-- 旧版 FlClash-po0 的检查更新即使提示了本版本，安装后也是作为新应用共存，不会替换旧版
