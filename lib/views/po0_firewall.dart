@@ -814,21 +814,13 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _toneColors(context, tone);
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: colors.container,
-        shape: AppShape.full,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Text(
-          label,
-          style: context.textTheme.labelMedium?.copyWith(
-            color: colors.onContainer,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+    return Chip(
+      label: Text(label),
+      labelStyle: TextStyle(color: colors.onContainer),
+      backgroundColor: colors.container,
+      side: BorderSide.none,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }
@@ -841,44 +833,23 @@ class _EntryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
     final colors = _toneColors(context, _Tone.primary);
-    final foreground = isCurrent ? colors.onContainer : colorScheme.onSurface;
     final slot = entry.slot;
-    final chip = DecoratedBox(
-      decoration: ShapeDecoration(
-        color: isCurrent ? colors.container : colorScheme.surfaceContainerHigh,
-        shape: AppShape.full,
+    final chip = Chip(
+      avatar: isCurrent
+          ? const Icon(Icons.my_location)
+          : slot != null
+          ? const Icon(Icons.push_pin)
+          : null,
+      label: Text(slot == null ? entry.ip : '${entry.ip} · $slot'),
+      labelStyle: TextStyle(
+        fontFamily: 'JetBrainsMono',
+        color: isCurrent ? colors.onContainer : null,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isCurrent) ...[
-              Icon(Icons.my_location, size: 14, color: foreground),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              entry.ip,
-              style: context.textTheme.labelMedium?.copyWith(
-                color: foreground,
-                fontFamily: 'JetBrainsMono',
-              ),
-            ),
-            if (slot != null) ...[
-              const SizedBox(width: 6),
-              Icon(Icons.push_pin, size: 13, color: foreground),
-              Text(
-                '$slot',
-                style: context.textTheme.labelSmall?.copyWith(
-                  color: foreground,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+      backgroundColor: isCurrent ? colors.container : null,
+      side: isCurrent ? BorderSide.none : null,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
     return isCurrent
         ? Tooltip(message: context.appLocalizations.po0CurrentExit, child: chip)

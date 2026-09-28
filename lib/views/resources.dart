@@ -276,9 +276,7 @@ class _GeoResourceListItemState extends ConsumerState<_GeoResourceListItem> {
                           )
                         : CommonPopupBox(
                             key: const ValueKey('menu'),
-                            popupBuilder: (_) => CommonPopupMenu(
-                              items: _menuItems(context, url),
-                            ),
+                            items: _menuItems(context, url),
                             targetBuilder: (open) {
                               return IconButton(
                                 tooltip: context.appLocalizations.more,

@@ -446,8 +446,7 @@ class _ProfileFileItem extends StatelessWidget {
                       title: Text(appLocalizations.profile),
                       subtitle: _buildMetadata(context, fileInfo),
                       trailing: CommonPopupBox(
-                        popupBuilder: (_) =>
-                            CommonPopupMenu(items: _menuItems(context)),
+                        items: _menuItems(context),
                         targetBuilder: (open) {
                           return IconButton(
                             tooltip: appLocalizations.more,

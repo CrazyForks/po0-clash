@@ -65,7 +65,7 @@ void main() {
   test('navigation providers select items for width and current page', () {
     container
         .read(viewSizeProvider.notifier)
-        .update((_) => Size(maxMobileWidth - 1, 800));
+        .update((_) => const Size(maxMobileWidth - 1, 800));
     final mobile = container.read(currentNavigationItemsStateProvider).value;
     expect(container.read(navigationStateProvider).viewMode, ViewMode.mobile);
     expect(

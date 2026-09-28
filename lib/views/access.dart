@@ -307,53 +307,49 @@ class _AccessViewState extends ConsumerState<AccessView> {
           return IconButton(
             tooltip: appLocalizations.more,
             onPressed: () {
-              open(offset: const Offset(0, 0));
+              open();
             },
             icon: const Icon(Icons.more_vert),
           );
         },
-        popupBuilder: (_) => CommonPopupMenu(
-          items: [
-            CommonPopupMenuItem(
-              icon: Icons.swap_horiz,
-              label: enable
-                  ? appLocalizations.turnOff
-                  : appLocalizations.turnOn,
-              onPressed: _handleToggle,
-            ),
-            CommonPopupMenuItem(
-              icon: Icons.search,
-              label: appLocalizations.search,
-              onPressed: _handleSearch,
-            ),
-            CommonPopupMenuItem(
-              icon: Icons.tune,
-              label: appLocalizations.settings,
-              onPressed: _handleToSetting,
-            ),
-            CommonPopupMenuItem(
-              icon: Icons.emergency_outlined,
-              label: appLocalizations.action,
-              subItems: [
-                CommonPopupMenuItem(
-                  icon: Icons.auto_awesome,
-                  label: appLocalizations.intelligentSelected,
-                  onPressed: _intelligentSelected,
-                ),
-                CommonPopupMenuItem(
-                  icon: Icons.content_copy,
-                  label: appLocalizations.clipboardExport,
-                  onPressed: _exportToClipboard,
-                ),
-                CommonPopupMenuItem(
-                  icon: Icons.paste,
-                  label: appLocalizations.clipboardImport,
-                  onPressed: _importFormClipboard,
-                ),
-              ],
-            ),
-          ],
-        ),
+        items: [
+          CommonPopupMenuItem(
+            icon: Icons.swap_horiz,
+            label: enable ? appLocalizations.turnOff : appLocalizations.turnOn,
+            onPressed: _handleToggle,
+          ),
+          CommonPopupMenuItem(
+            icon: Icons.search,
+            label: appLocalizations.search,
+            onPressed: _handleSearch,
+          ),
+          CommonPopupMenuItem(
+            icon: Icons.tune,
+            label: appLocalizations.settings,
+            onPressed: _handleToSetting,
+          ),
+          CommonPopupMenuItem(
+            icon: Icons.emergency_outlined,
+            label: appLocalizations.action,
+            subItems: [
+              CommonPopupMenuItem(
+                icon: Icons.auto_awesome,
+                label: appLocalizations.intelligentSelected,
+                onPressed: _intelligentSelected,
+              ),
+              CommonPopupMenuItem(
+                icon: Icons.content_copy,
+                label: appLocalizations.clipboardExport,
+                onPressed: _exportToClipboard,
+              ),
+              CommonPopupMenuItem(
+                icon: Icons.paste,
+                label: appLocalizations.clipboardImport,
+                onPressed: _importFormClipboard,
+              ),
+            ],
+          ),
+        ],
       ),
     ];
   }

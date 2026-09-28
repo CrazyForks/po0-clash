@@ -39,7 +39,6 @@ export 'side_sheet.dart';
 export 'subscription_info_view.dart';
 export 'super_grid.dart';
 export 'surface_card.dart';
-export 'tab.dart';
 export 'text.dart';
 export 'theme.dart';
 export 'wave.dart';

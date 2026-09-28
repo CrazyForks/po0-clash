@@ -430,8 +430,7 @@ class ProfileItem extends ConsumerWidget {
                       )
                     : CommonPopupBox(
                         key: const ValueKey('menu'),
-                        popupBuilder: (_) =>
-                            CommonPopupMenu(items: _menuItems(context, ref)),
+                        items: _menuItems(context, ref),
                         targetBuilder: (open) {
                           return IconButton(
                             style: IconButton.styleFrom(

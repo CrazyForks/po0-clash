@@ -305,47 +305,42 @@ class _EditorMenuAction extends ConsumerWidget {
           targetBuilder: (open) {
             return IconButton(
               tooltip: context.appLocalizations.more,
-              onPressed: () {
-                final isMobile = ref.read(isMobileViewProvider);
-                open(offset: Offset(0, isMobile ? 0 : 20));
-              },
+              onPressed: open,
               icon: const Icon(Icons.more_vert),
             );
           },
-          popupBuilder: (_) => CommonPopupMenu(
-            items: [
+          items: [
+            CommonPopupMenuItem(
+              icon: Icons.search,
+              label: appLocalizations.search,
+              onPressed: onSearch,
+            ),
+            CommonPopupMenuItem(
+              icon: Icons.undo,
+              label: appLocalizations.undo,
+              onPressed: controller.canUndo ? controller.undo : null,
+            ),
+            CommonPopupMenuItem(
+              icon: Icons.redo,
+              label: appLocalizations.redo,
+              onPressed: controller.canRedo ? controller.redo : null,
+            ),
+            if (supportRemoteDownload && !readOnly)
               CommonPopupMenuItem(
-                icon: Icons.search,
-                label: appLocalizations.search,
-                onPressed: onSearch,
+                icon: Icons.arrow_downward,
+                label: appLocalizations.externalFetch,
+                subItems: [
+                  CommonPopupMenuItem(
+                    label: appLocalizations.importUrl,
+                    onPressed: onImportFromUrl,
+                  ),
+                  CommonPopupMenuItem(
+                    label: appLocalizations.importFile,
+                    onPressed: onImportFromFile,
+                  ),
+                ],
               ),
-              CommonPopupMenuItem(
-                icon: Icons.undo,
-                label: appLocalizations.undo,
-                onPressed: controller.canUndo ? controller.undo : null,
-              ),
-              CommonPopupMenuItem(
-                icon: Icons.redo,
-                label: appLocalizations.redo,
-                onPressed: controller.canRedo ? controller.redo : null,
-              ),
-              if (supportRemoteDownload && !readOnly)
-                CommonPopupMenuItem(
-                  icon: Icons.arrow_downward,
-                  label: appLocalizations.externalFetch,
-                  subItems: [
-                    CommonPopupMenuItem(
-                      label: appLocalizations.importUrl,
-                      onPressed: onImportFromUrl,
-                    ),
-                    CommonPopupMenuItem(
-                      label: appLocalizations.importFile,
-                      onPressed: onImportFromFile,
-                    ),
-                  ],
-                ),
-            ],
-          ),
+          ],
         );
       },
     );
