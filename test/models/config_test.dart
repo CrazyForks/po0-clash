@@ -91,6 +91,21 @@ void main() {
   });
 
   group('AppSettingProps JSON round-trip', () {
+    test(
+      'a fresh install starts in Simplified Chinese with the rail extended',
+      () {
+        final config = Config.realFromJson(null);
+        expect(config.appSettingProps.locale, 'zh_CN');
+        expect(config.appSettingProps.showLabel, isTrue);
+
+        final followSystem = roundTrip(
+          () => const AppSettingProps().toJson(),
+          AppSettingProps.fromJson,
+        );
+        expect(followSystem.locale, isNull);
+      },
+    );
+
     test('default values survive round-trip', () {
       const props = AppSettingProps();
       final restored = roundTrip(
@@ -105,7 +120,7 @@ void main() {
       expect(restored.closeConnections, true);
       expect(restored.isAnimateToPage, true);
       expect(restored.autoCheckUpdate, true);
-      expect(restored.showLabel, false);
+      expect(restored.showLabel, true);
       expect(restored.minimizeOnExit, true);
       expect(restored.restoreStrategy, RestoreStrategy.compatible);
       expect(restored.customUserAgent, '');
@@ -319,6 +334,30 @@ void main() {
       expect(props.themeMode, ThemeMode.dark);
       expect(props.pureBlack, false);
       expect(props.textScale.scale, 1.0);
+    });
+
+    test('the default variant keeps the seed color', () {
+      expect(const ThemeProps().schemeVariant, DynamicSchemeVariant.fidelity);
+    });
+
+    test('a theme still on the 5.0.0 default moves to the current one', () {
+      final migrated = ThemeProps.safeFromJson({
+        'primaryColor': 0xFFD8C0C3,
+        'primaryColors': [0xFF795548, 0xFFD8C0C3],
+        'schemeVariant': 'content',
+      });
+      expect(migrated.primaryColor, defaultPrimaryColor);
+      expect(migrated.primaryColors, [0xFF795548, defaultPrimaryColor]);
+      expect(migrated.schemeVariant, DynamicSchemeVariant.fidelity);
+    });
+
+    test('a theme the user changed is left alone', () {
+      final kept = ThemeProps.safeFromJson({
+        'primaryColor': 0xFF123456,
+        'schemeVariant': 'content',
+      });
+      expect(kept.primaryColor, 0xFF123456);
+      expect(kept.schemeVariant, DynamicSchemeVariant.content);
     });
 
     test('safeFromJson returns default on null', () {

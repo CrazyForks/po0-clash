@@ -55,4 +55,39 @@ void main() {
       expect(theme.menuTheme.style, isNull);
     });
   });
+
+  group('seededColorScheme', () {
+    ColorScheme seeded(Color seed, DynamicSchemeVariant variant) =>
+        ColorScheme.fromSeed(seedColor: seed, dynamicSchemeVariant: variant);
+
+    test(
+      'the default seed pairs navy actions with Android green selection',
+      () {
+        const variant = DynamicSchemeVariant.fidelity;
+        final scheme = seededColorScheme(
+          const Color(defaultPrimaryColor),
+          Brightness.light,
+          variant,
+        );
+        final green = seeded(const Color(0xFF3DDC84), variant);
+        expect(
+          scheme.primary,
+          seeded(const Color(defaultPrimaryColor), variant).primary,
+        );
+        expect(scheme.secondaryContainer, green.primaryContainer);
+        expect(scheme.primaryContainer, green.primaryContainer);
+      },
+    );
+
+    test('any other seed is a plain seeded scheme', () {
+      expect(
+        seededColorScheme(
+          Colors.teal,
+          Brightness.light,
+          DynamicSchemeVariant.tonalSpot,
+        ),
+        seeded(Colors.teal, DynamicSchemeVariant.tonalSpot),
+      );
+    });
+  });
 }
