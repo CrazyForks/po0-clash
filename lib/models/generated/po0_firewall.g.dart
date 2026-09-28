@@ -23,7 +23,7 @@ _Po0FirewallProps _$Po0FirewallPropsFromJson(Map<String, dynamic> json) =>
               ?.map((e) => Po0TokenEntry.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      pollSeconds: (json['pollSeconds'] as num?)?.toInt() ?? 1,
+      pollSeconds: (json['pollSeconds'] as num?)?.toInt() ?? 5,
     );
 
 Map<String, dynamic> _$Po0FirewallPropsToJson(_Po0FirewallProps instance) =>

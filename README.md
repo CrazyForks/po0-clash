@@ -18,7 +18,7 @@ installs and runs side by side with official FlClash.
 ## Features
 
 - **po0 auto-whitelist**: add a `pgnfw_` token for each po0 machine. While the app is open it checks the whitelist at
-  the refresh interval (1 second by default) and adds your exit IP as soon as it is missing, whether or not the proxy is
+  the refresh interval (5 seconds by default) and adds your exit IP as soon as it is missing, whether or not the proxy is
   on. The request always goes direct, so the real exit is whitelisted rather than the proxy's.
 - **HeroUI-style desktop UI**: grouped settings cards, page fades and sidebar motion.
 - Everything FlClash already does: ClashMeta core, subscription import, WebDAV sync, dark mode and more.

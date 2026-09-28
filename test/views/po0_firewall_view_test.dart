@@ -142,7 +142,7 @@ void main() {
 
     expect(find.text('1/2 whitelisted'), findsOneWidget);
     expect(find.text('Exit 45.82.120.0/24'), findsOneWidget);
-    expect(find.text('Every 1 s'), findsOneWidget);
+    expect(find.text('Every 5 s'), findsOneWidget);
     expect(find.text('pgnfw_1a2b3c…'), findsNWidgets(2));
     expect(find.text('Whitelisted'), findsOneWidget);
     expect(find.text('Failed'), findsOneWidget);
@@ -163,7 +163,7 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('pgnfw_1a2b3c…'), findsOneWidget);
     expect(find.text('pgnfw_9f8e7d…'), findsOneWidget);
-    expect(find.text('1 second'), findsOneWidget);
+    expect(find.text('5 seconds'), findsOneWidget);
   });
 
   testWidgets('adds a token with a name', (tester) async {

@@ -490,7 +490,7 @@ return $default(_that.enable,_that.tokenEntries,_that.pollSeconds);case _:
 @JsonSerializable()
 
 class _Po0FirewallProps implements Po0FirewallProps {
-  const _Po0FirewallProps({this.enable = false,  List<Po0TokenEntry> tokenEntries = const [], this.pollSeconds = 1}): _tokenEntries = tokenEntries;
+  const _Po0FirewallProps({this.enable = false,  List<Po0TokenEntry> tokenEntries = const [], this.pollSeconds = 5}): _tokenEntries = tokenEntries;
   factory _Po0FirewallProps.fromJson(Map<String, dynamic> json) => _$Po0FirewallPropsFromJson(json);
 
 @override@JsonKey() final  bool enable;

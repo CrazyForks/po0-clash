@@ -25,7 +25,7 @@ abstract class Po0FirewallProps with _$Po0FirewallProps {
   const factory Po0FirewallProps({
     @Default(false) bool enable,
     @Default([]) List<Po0TokenEntry> tokenEntries,
-    @Default(1) int pollSeconds,
+    @Default(5) int pollSeconds,
   }) = _Po0FirewallProps;
 
   factory Po0FirewallProps.fromJson(Map<String, Object?> json) =>
