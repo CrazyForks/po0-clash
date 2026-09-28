@@ -22,7 +22,7 @@ bash scripts/vps/provision.sh
 ```
 
 脚本把工具链装到 `/opt/flclash-toolchain`，并写入 `/etc/profile.d/flclash-toolchain.sh`。
-仓库通过**只读 deploy key** 克隆到 `/root/FlClash-po0`（`~/.ssh/config` 中的 `github-flclash-po0` 主机别名），
+仓库是公开的，VPS 直接用 HTTPS（`https://github.com/yuuuki-creation/po0-clash.git`）克隆到 `/root/FlClash-po0`，不需要 deploy key；
 子模块 `core/Clash.Meta` 通过 `url.https://github.com/.insteadOf git@github.com:` 走 HTTPS。
 
 ```bash
