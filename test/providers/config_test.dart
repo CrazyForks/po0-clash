@@ -252,11 +252,7 @@ void main() {
                       po0FirewallProps: const Po0FirewallProps(
                         enable: true,
                         tokenEntries: [
-                          Po0TokenEntry(
-                            token: 'pgnfw_a',
-                            name: 'home',
-                            slot: 0,
-                          ),
+                          Po0TokenEntry(token: 'pgnfw_a', name: 'home'),
                         ],
                         pollSeconds: 5,
                       ),
@@ -267,7 +263,7 @@ void main() {
             as Map<String, Object?>,
       );
       expect(restored.po0FirewallProps.tokenEntries, const [
-        Po0TokenEntry(token: 'pgnfw_a', name: 'home', slot: 0),
+        Po0TokenEntry(token: 'pgnfw_a', name: 'home'),
       ]);
       expect(restored.po0FirewallProps.pollSeconds, 5);
     });
@@ -287,7 +283,7 @@ void main() {
           enable: true,
           tokenEntries: [
             Po0TokenEntry(token: 'pgnfw_a'),
-            Po0TokenEntry(token: 'pgnfw_b', slot: 0),
+            Po0TokenEntry(token: 'pgnfw_b'),
           ],
         ),
       );
@@ -304,6 +300,20 @@ void main() {
         ],
       });
       expect(props.tokenEntries, const [Po0TokenEntry(token: 'pgnfw_new')]);
+    });
+
+    test('a slot saved by an older version is dropped on load', () {
+      final props = Po0FirewallProps.safeFromJson({
+        'tokenEntries': [
+          {'token': 'pgnfw_a', 'name': 'home', 'slot': 0},
+        ],
+      });
+      expect(props.tokenEntries, const [
+        Po0TokenEntry(token: 'pgnfw_a', name: 'home'),
+      ]);
+      expect(jsonDecode(jsonEncode(props.toJson()))['tokenEntries'], [
+        {'token': 'pgnfw_a', 'name': 'home'},
+      ]);
     });
   });
 

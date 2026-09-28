@@ -10,15 +10,10 @@ _Po0TokenEntry _$Po0TokenEntryFromJson(Map<String, dynamic> json) =>
     _Po0TokenEntry(
       token: json['token'] as String,
       name: json['name'] as String? ?? '',
-      slot: (json['slot'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$Po0TokenEntryToJson(_Po0TokenEntry instance) =>
-    <String, dynamic>{
-      'token': instance.token,
-      'name': instance.name,
-      'slot': instance.slot,
-    };
+    <String, dynamic>{'token': instance.token, 'name': instance.name};
 
 _Po0FirewallProps _$Po0FirewallPropsFromJson(Map<String, dynamic> json) =>
     _Po0FirewallProps(
@@ -28,7 +23,7 @@ _Po0FirewallProps _$Po0FirewallPropsFromJson(Map<String, dynamic> json) =>
               ?.map((e) => Po0TokenEntry.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      pollSeconds: (json['pollSeconds'] as num?)?.toInt() ?? 1,
+      pollSeconds: (json['pollSeconds'] as num?)?.toInt() ?? 5,
     );
 
 Map<String, dynamic> _$Po0FirewallPropsToJson(_Po0FirewallProps instance) =>

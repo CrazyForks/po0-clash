@@ -1,6 +1,6 @@
 # 0004. 每秒只读轮询白名单
 
-- 状态：已采纳（刷新间隔与 token 存储由 [0005](0005-token-list-and-poll-interval.md) 修订）
+- 状态：已采纳（刷新间隔与 token 存储由 [0005](0005-token-list-and-poll-interval.md) 修订，固定槽位部分已取代，见 [0007](0007-remove-fixed-slots.md)）
 - 日期：2026-09-28
 
 ## 背景

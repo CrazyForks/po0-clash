@@ -5210,16 +5210,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Slot conflict: this exit already holds another slot; delete it in the po0 panel first`
-  String get po0ResultConflict {
-    return Intl.message(
-      'Slot conflict: this exit already holds another slot; delete it in the po0 panel first',
-      name: 'po0ResultConflict',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Rejected: {message}`
   String po0ResultRejected(Object message) {
     return Intl.message(
@@ -5248,11 +5238,6 @@ class AppLocalizations {
       desc: '',
       args: [used, limit],
     );
-  }
-
-  /// `Slot {slot}`
-  String po0Slot(Object slot) {
-    return Intl.message('Slot $slot', name: 'po0Slot', desc: '', args: [slot]);
   }
 
   /// `Requests go straight to 124.221.69.228. While enabled, po0-clash routes that address DIRECT and keeps it out of TUN, so the real exit is whitelisted instead of the proxy's. On Android, restart the VPN once after enabling.`
@@ -5375,16 +5360,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Slot conflict`
-  String get po0ChipConflict {
-    return Intl.message(
-      'Slot conflict',
-      name: 'po0ChipConflict',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Rejected`
   String get po0ChipRejected {
     return Intl.message(
@@ -5455,26 +5430,6 @@ class AppLocalizations {
     return Intl.message(
       'Name (optional)',
       name: 'po0TokenName',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Fixed slot (optional)`
-  String get po0TokenSlot {
-    return Intl.message(
-      'Fixed slot (optional)',
-      name: 'po0TokenSlot',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Pins this exit to slot N (usually 0–4) so FIFO never evicts it. Leave empty for normal entries`
-  String get po0TokenSlotHelp {
-    return Intl.message(
-      'Pins this exit to slot N (usually 0–4) so FIFO never evicts it. Leave empty for normal entries',
-      name: 'po0TokenSlotHelp',
       desc: '',
       args: [],
     );

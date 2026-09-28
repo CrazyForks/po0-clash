@@ -60,9 +60,7 @@ enum _Tone { success, warning, danger, primary, neutral }
 _Tone _toneOf(Po0ResultType type) => switch (type) {
   Po0ResultType.applied => _Tone.success,
   Po0ResultType.notApplied || Po0ResultType.disabled => _Tone.warning,
-  Po0ResultType.conflict ||
-  Po0ResultType.rejected ||
-  Po0ResultType.error => _Tone.danger,
+  Po0ResultType.rejected || Po0ResultType.error => _Tone.danger,
 };
 
 class _Section extends StatelessWidget {
@@ -525,15 +523,10 @@ class _TokenEntryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     final label = Po0Token(entry.token).label;
-    final slot = entry.slot;
-    final details = [
-      if (entry.name.isNotEmpty) label,
-      ?slot == null ? null : appLocalizations.po0Slot(slot),
-    ];
     return ListItem(
       leading: const Icon(Icons.key_outlined),
       title: Text(entry.name.isNotEmpty ? entry.name : label),
-      subtitle: details.isEmpty ? null : Text(details.join(' · ')),
+      subtitle: entry.name.isEmpty ? null : Text(label),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -570,15 +563,11 @@ class _TokenEntryDialogState extends State<_TokenEntryDialog> {
     text: widget.entry?.token,
   );
   late final _nameController = TextEditingController(text: widget.entry?.name);
-  late final _slotController = TextEditingController(
-    text: widget.entry?.slot?.toString(),
-  );
 
   @override
   void dispose() {
     _tokenController.dispose();
     _nameController.dispose();
-    _slotController.dispose();
     super.dispose();
   }
 
@@ -597,16 +586,6 @@ class _TokenEntryDialogState extends State<_TokenEntryDialog> {
     return null;
   }
 
-  String? _validateSlot(String? value) {
-    final slot = value?.trim() ?? '';
-    if (slot.isEmpty || int.tryParse(slot) != null) {
-      return null;
-    }
-    return context.appLocalizations.numberTip(
-      context.appLocalizations.po0TokenSlot,
-    );
-  }
-
   void _submit() {
     if (_formKey.currentState?.validate() != true) {
       return;
@@ -615,7 +594,6 @@ class _TokenEntryDialogState extends State<_TokenEntryDialog> {
       Po0TokenEntry(
         token: _tokenController.text.trim(),
         name: _nameController.text.trim(),
-        slot: int.tryParse(_slotController.text.trim()),
       ),
     );
   }
@@ -661,20 +639,6 @@ class _TokenEntryDialogState extends State<_TokenEntryDialog> {
                 decoration: InputDecoration(
                   labelText: appLocalizations.po0TokenName,
                 ),
-                onFieldSubmitted: (_) => _submit(),
-              ),
-              TextFormField(
-                controller: _slotController,
-                keyboardType: TextInputType.number,
-                inputFormatters: TextInputLimits.digitsOnly(
-                  TextInputLimits.port,
-                ),
-                decoration: InputDecoration(
-                  labelText: appLocalizations.po0TokenSlot,
-                  helperText: appLocalizations.po0TokenSlotHelp,
-                  helperMaxLines: 3,
-                ),
-                validator: _validateSlot,
                 onFieldSubmitted: (_) => _submit(),
               ),
             ],
@@ -724,7 +688,6 @@ class _TokenCard extends StatelessWidget {
       Po0ResultType.applied => appLocalizations.po0ResultApplied(ip),
       Po0ResultType.notApplied => appLocalizations.po0ResultNotApplied(ip),
       Po0ResultType.disabled => appLocalizations.po0ResultDisabled,
-      Po0ResultType.conflict => appLocalizations.po0ResultConflict,
       Po0ResultType.rejected => appLocalizations.po0ResultRejected(message),
       Po0ResultType.error => appLocalizations.po0ResultError(message),
     };
@@ -735,7 +698,6 @@ class _TokenCard extends StatelessWidget {
     final appLocalizations = context.appLocalizations;
     final textTheme = context.textTheme;
     final colorScheme = context.colorScheme;
-    final slot = result.slot;
     final limit = result.limit;
     final used = result.whitelist.length;
     return SurfaceCard(
@@ -762,21 +724,12 @@ class _TokenCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (slot != null) ...[
-                _Pill(
-                  icon: Icons.push_pin_outlined,
-                  label: appLocalizations.po0Slot(slot),
-                  tone: _Tone.neutral,
-                ),
-                const SizedBox(width: 8),
-              ],
               _Pill(
                 label: switch (result.type) {
                   Po0ResultType.applied => appLocalizations.po0ChipApplied,
                   Po0ResultType.notApplied =>
                     appLocalizations.po0ChipNotApplied,
                   Po0ResultType.disabled => appLocalizations.po0ChipDisabled,
-                  Po0ResultType.conflict => appLocalizations.po0ChipConflict,
                   Po0ResultType.rejected => appLocalizations.po0ChipRejected,
                   Po0ResultType.error => appLocalizations.po0ChipError,
                 },
@@ -841,16 +794,14 @@ class _TokenCard extends StatelessWidget {
 }
 
 class _Pill extends StatelessWidget {
-  const _Pill({required this.label, required this.tone, this.icon});
+  const _Pill({required this.label, required this.tone});
 
   final String label;
   final _Tone tone;
-  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     final colors = _toneColors(context, tone);
-    final icon = this.icon;
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: colors.container,
@@ -858,21 +809,12 @@ class _Pill extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 14, color: colors.color),
-              const SizedBox(width: 4),
-            ],
-            Text(
-              label,
-              style: context.textTheme.labelMedium?.copyWith(
-                color: colors.color,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          style: context.textTheme.labelMedium?.copyWith(
+            color: colors.color,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

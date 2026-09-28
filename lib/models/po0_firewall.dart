@@ -14,7 +14,6 @@ abstract class Po0TokenEntry with _$Po0TokenEntry {
   const factory Po0TokenEntry({
     required String token,
     @Default('') String name,
-    int? slot,
   }) = _Po0TokenEntry;
 
   factory Po0TokenEntry.fromJson(Map<String, Object?> json) =>
@@ -26,7 +25,7 @@ abstract class Po0FirewallProps with _$Po0FirewallProps {
   const factory Po0FirewallProps({
     @Default(false) bool enable,
     @Default([]) List<Po0TokenEntry> tokenEntries,
-    @Default(1) int pollSeconds,
+    @Default(5) int pollSeconds,
   }) = _Po0FirewallProps;
 
   factory Po0FirewallProps.fromJson(Map<String, Object?> json) =>
@@ -54,12 +53,12 @@ Map<String, Object?> _migrateLegacyTokens(Map<String, Object?> json) {
     ...json,
     'tokenEntries': [
       for (final token in parsePo0Tokens(legacy))
-        Po0TokenEntry(token: token.value, slot: token.slot).toJson(),
+        Po0TokenEntry(token: token.value).toJson(),
     ],
   };
 }
 
-enum Po0ResultType { applied, notApplied, disabled, conflict, rejected, error }
+enum Po0ResultType { applied, notApplied, disabled, rejected, error }
 
 /// Ordered by precedence: a queued request keeps the highest kind asked for.
 enum Po0RunKind { poll, query, whitelist }
@@ -75,7 +74,6 @@ abstract class Po0TokenResult with _$Po0TokenResult {
   const factory Po0TokenResult({
     required String label,
     String? name,
-    int? slot,
     required Po0ResultType type,
     String? currentIp,
     @Default([]) List<Po0WhitelistEntry> whitelist,

@@ -56,17 +56,17 @@ const _token = Po0Token('pgnfw_secret_token_value');
 
 void main() {
   group('parsePo0Tokens', () {
-    test('splits on the separators the upstream modules accept', () {
+    test('splits on the separators and drops legacy slot suffixes', () {
       expect(parsePo0Tokens(' pgnfw_a, pgnfw_b@0|pgnfw_c;pgnfw_d、pgnfw_e\n'), [
         const Po0Token('pgnfw_a'),
-        const Po0Token('pgnfw_b', slot: 0),
+        const Po0Token('pgnfw_b'),
         const Po0Token('pgnfw_c'),
         const Po0Token('pgnfw_d'),
         const Po0Token('pgnfw_e'),
       ]);
     });
 
-    test('ignores placeholders, bad slots and duplicates', () {
+    test('ignores placeholders and duplicates', () {
       expect(parsePo0Tokens('填入token,pgnfw_a@x,pgnfw_a@1,,'), [
         const Po0Token('pgnfw_a'),
       ]);
@@ -80,7 +80,7 @@ void main() {
   });
 
   group('token entries', () {
-    test('a token is one pgnfw_ value without separators or a slot', () {
+    test('a token is one pgnfw_ value without separators', () {
       expect(isPo0Token('pgnfw_abc123'), isTrue);
       for (final value in ['', 'pgnfw_', 'abc', 'pgnfw_a b', 'pgnfw_a,b']) {
         expect(isPo0Token(value), isFalse, reason: value);
@@ -90,13 +90,13 @@ void main() {
 
     test('skip invalid and repeated tokens, keeping the first', () {
       final tokens = po0TokensOf(const [
-        Po0TokenEntry(token: 'pgnfw_a', name: 'first', slot: 1),
+        Po0TokenEntry(token: 'pgnfw_a', name: 'first'),
         Po0TokenEntry(token: 'bogus'),
         Po0TokenEntry(token: 'pgnfw_a', name: 'second'),
         Po0TokenEntry(token: 'pgnfw_b'),
       ]);
       expect(tokens.map((it) => it.token), const [
-        Po0Token('pgnfw_a', slot: 1),
+        Po0Token('pgnfw_a'),
         Po0Token('pgnfw_b'),
       ]);
       expect(tokens.map((it) => it.name), ['first', '']);
@@ -153,21 +153,18 @@ void main() {
   });
 
   group('Po0FirewallClient', () {
-    test('whitelists through the add endpoint and reports the slot', () async {
+    test('whitelists through the add endpoint', () async {
       final api = _FakeApi([_ok()]);
-      final result = await _client(
-        api,
-      ).whitelist(const Po0Token('pgnfw_a', slot: 2));
+      final result = await _client(api).whitelist(const Po0Token('pgnfw_a'));
 
       expect(api.calls.single.method, 'POST');
       expect(
         api.calls.single.uri.toString(),
-        'https://124.221.69.228/api/firewall/pgnfw_a/add?slot=2',
+        'https://124.221.69.228/api/firewall/pgnfw_a/add',
       );
       expect(result.type, Po0ResultType.applied);
       expect(result.currentIp, '45.82.120.0/24');
       expect(result.limit, 5);
-      expect(result.slot, 2);
       expect(result.whitelist, [
         const Po0WhitelistEntry(ip: '45.82.120.0/24'),
         const Po0WhitelistEntry(ip: '1.2.3.0/24', slot: 0),
@@ -193,12 +190,13 @@ void main() {
       expect(result.type, Po0ResultType.disabled);
     });
 
-    test('maps 403 to a slot conflict without retrying', () async {
+    test('a 403 is final and reports its message', () async {
       final api = _FakeApi([
-        const Po0HttpResponse(403, '{"currentIp":"1.1.1.1"}'),
+        const Po0HttpResponse(403, '{"currentIp":"1.1.1.1","message":"no"}'),
       ]);
       final result = await _client(api).whitelist(_token);
-      expect(result.type, Po0ResultType.conflict);
+      expect(result.type, Po0ResultType.rejected);
+      expect(result.message, 'no');
       expect(result.currentIp, '1.1.1.1');
       expect(api.calls, hasLength(1));
     });
@@ -257,7 +255,7 @@ void main() {
       expect(resets, 1);
     });
 
-    test('an exit pinned to another slot is a conflict', () async {
+    test('an exit already pinned on the server counts as listed', () async {
       final result = await _client(
         _FakeApi([
           _ok(
@@ -267,8 +265,9 @@ void main() {
             ],
           ),
         ]),
-      ).poll(const Po0Token('pgnfw_a', slot: 2));
-      expect(result.type, Po0ResultType.conflict);
+      ).poll(const Po0Token('pgnfw_a'));
+      expect(result.type, Po0ResultType.applied);
+      expect(result.whitelist.single.slot, 0);
     });
 
     test('a 2xx body without a whitelist is an error', () async {
@@ -276,38 +275,6 @@ void main() {
         _FakeApi([const Po0HttpResponse(200, '{"ok":true}')]),
       ).whitelist(_token);
       expect(result.type, Po0ResultType.error);
-    });
-  });
-
-  group('po0NeedsWhitelist', () {
-    Po0TokenResult status(Po0ResultType type, {int? slot}) => Po0TokenResult(
-      label: 'pgnfw_a…',
-      type: type,
-      currentIp: '1.2.3.0/24',
-      whitelist: [Po0WhitelistEntry(ip: '1.2.3.0/24', slot: slot)],
-    );
-
-    test('adds only a missing exit', () {
-      const token = Po0Token('pgnfw_a');
-      expect(po0NeedsWhitelist(token, status(Po0ResultType.notApplied)), true);
-      expect(po0NeedsWhitelist(token, status(Po0ResultType.applied)), false);
-      for (final type in [
-        Po0ResultType.disabled,
-        Po0ResultType.conflict,
-        Po0ResultType.rejected,
-        Po0ResultType.error,
-      ]) {
-        expect(po0NeedsWhitelist(token, status(type)), false, reason: '$type');
-      }
-    });
-
-    test('moves a FIFO entry into the slot the token pins', () {
-      const token = Po0Token('pgnfw_a', slot: 1);
-      expect(po0NeedsWhitelist(token, status(Po0ResultType.applied)), true);
-      expect(
-        po0NeedsWhitelist(token, status(Po0ResultType.applied, slot: 1)),
-        false,
-      );
     });
   });
 

@@ -629,11 +629,9 @@
   "po0ResultApplied": "出口 {ip} は許可済み",
   "po0ResultNotApplied": "出口 {ip} は許可されていません",
   "po0ResultDisabled": "このサーバーではファイアウォールが無効です",
-  "po0ResultConflict": "スロット競合：この出口は別のスロットを使用中です。先に po0 パネルで削除してください",
   "po0ResultRejected": "拒否されました：{message}",
   "po0ResultError": "リクエスト失敗：{message}",
   "po0Usage": "{used}/{limit} 使用中",
-  "po0Slot": "スロット {slot}",
   "po0DirectTip": "リクエストは 124.221.69.228 へ直接送信されます。有効時、po0-clash はこのアドレスを DIRECT にし TUN から除外するため、プロキシではなく実際の出口が許可されます。Android では有効化後に一度 VPN を再起動してください。",
   "po0Nav": "po0",
   "po0StatusOff": "自動許可はオフです",
@@ -647,7 +645,6 @@
   "po0ChipApplied": "許可済み",
   "po0ChipNotApplied": "未許可",
   "po0ChipDisabled": "無効",
-  "po0ChipConflict": "スロット競合",
   "po0ChipRejected": "拒否",
   "po0ChipError": "失敗",
   "po0Whitelist": "許可リスト",
@@ -658,8 +655,6 @@
   "po0AddToken": "トークンを追加",
   "po0EditToken": "トークンを編集",
   "po0TokenName": "名前（任意）",
-  "po0TokenSlot": "固定スロット（任意）",
-  "po0TokenSlotHelp": "出口をスロット N（通常 0～4）に固定し、FIFO で削除されないようにします。空欄なら通常の登録です",
   "po0TokenDuplicate": "このトークンは既にリストにあります",
   "po0TokensEmptyDesc": "po0 マシンごとの pgnfw_ トークンを追加します。各トークンが自分の許可リストを確認します"
 }

@@ -36,7 +36,7 @@ class _FakeClient extends Po0FirewallClient {
     currentIp: '1.2.3.0/24',
     whitelist: [
       if (type == Po0ResultType.applied)
-        Po0WhitelistEntry(ip: '1.2.3.0/24', slot: token.slot),
+        const Po0WhitelistEntry(ip: '1.2.3.0/24'),
     ],
   );
 
@@ -68,11 +68,12 @@ const _enabled = Po0FirewallProps(
   enable: true,
   tokenEntries: [
     Po0TokenEntry(token: 'pgnfw_a', name: 'home'),
-    Po0TokenEntry(token: 'pgnfw_b', slot: 1),
+    Po0TokenEntry(token: 'pgnfw_b'),
   ],
+  pollSeconds: 1,
 );
 
-const _tokens = [Po0Token('pgnfw_a'), Po0Token('pgnfw_b', slot: 1)];
+const _tokens = [Po0Token('pgnfw_a'), Po0Token('pgnfw_b')];
 
 const _second = Duration(seconds: 1);
 
@@ -287,6 +288,14 @@ void main() {
     expect(delays(1), [1, 2, 4, 8, 16, 30, 30]);
     expect(delays(10), [10, 20, 30, 30, 30, 30, 30]);
     expect(delays(120), [120, 120, 120, 120, 120, 120, 120]);
+  });
+
+  test('checks every five seconds unless configured otherwise', () {
+    expect(defaultPo0FirewallProps.pollSeconds, 5);
+    expect(
+      Po0Firewall.pollIntervalOf(defaultPo0FirewallProps),
+      const Duration(seconds: 5),
+    );
   });
 
   test('the interval is clamped to the supported range', () {

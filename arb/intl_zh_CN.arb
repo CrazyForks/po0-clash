@@ -629,11 +629,9 @@
   "po0ResultApplied": "出口 {ip} 已在白名单",
   "po0ResultNotApplied": "出口 {ip} 不在白名单",
   "po0ResultDisabled": "该机器未启用防火墙",
-  "po0ResultConflict": "槽位冲突：本机出口已占用其它槽位，请先在 po0 面板删除",
   "po0ResultRejected": "请求被拒绝：{message}",
   "po0ResultError": "请求失败：{message}",
   "po0Usage": "已占用 {used}/{limit}",
-  "po0Slot": "槽位 {slot}",
   "po0DirectTip": "加白请求直连 124.221.69.228。开启后 po0-clash 会为该地址添加直连规则并将其排除出 TUN，确保加白的是真实出口而非代理 IP。安卓首次开启后请重启一次 VPN。",
   "po0Nav": "po0 加白",
   "po0StatusOff": "自动加白未开启",
@@ -647,7 +645,6 @@
   "po0ChipApplied": "已加白",
   "po0ChipNotApplied": "未生效",
   "po0ChipDisabled": "未启用",
-  "po0ChipConflict": "槽位冲突",
   "po0ChipRejected": "被拒绝",
   "po0ChipError": "失败",
   "po0Whitelist": "白名单",
@@ -658,8 +655,6 @@
   "po0AddToken": "添加 token",
   "po0EditToken": "编辑 token",
   "po0TokenName": "备注名（可选）",
-  "po0TokenSlot": "固定槽位（可选）",
-  "po0TokenSlotHelp": "把本机出口钉在槽位 N（一般为 0～4），不参与 FIFO 淘汰；留空为普通记录",
   "po0TokenDuplicate": "该 token 已在列表中",
   "po0TokensEmptyDesc": "添加每台 po0 机器的 pgnfw_ token，每把 token 各自检查自己的白名单"
 }
