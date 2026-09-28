@@ -162,7 +162,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(tester.getSize(button).width, greaterThan(expandedButtonWidth));
+    final closingWidth = tester.getSize(button).width;
+    expect(closingWidth, lessThan(expandedButtonWidth));
+    expect(closingWidth, greaterThan(56));
     expect(
       tester
           .widget<AnimatedContainer>(find.byType(AnimatedContainer))
@@ -172,7 +174,7 @@ void main() {
     );
     expect(runTimeText(), '100:02:03');
 
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(Durations.medium2 - const Duration(milliseconds: 100));
 
     expect(tester.getSize(button).width, 56);
     expect(runTimeText(), '100:02:03');

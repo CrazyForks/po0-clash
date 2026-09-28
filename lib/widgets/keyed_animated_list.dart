@@ -2,7 +2,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _defaultDuration = Duration(milliseconds: 300);
+const _defaultDuration = Durations.medium2;
 
 /// A lazily built vertical list that diffs [items] by key: removed items
 /// collapse out, inserted items grow in, and items whose key survives slide
@@ -168,8 +168,8 @@ class _KeyedAnimatedListState<T> extends State<KeyedAnimatedList<T>>
     if (controller != null) {
       final animation = CurvedAnimation(
         parent: controller,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
+        curve: Easing.emphasizedDecelerate,
+        reverseCurve: Easing.emphasizedAccelerate.flipped,
       );
       row = SizeTransition(
         sizeFactor: animation,
@@ -359,7 +359,8 @@ class _RenderSlideOnMove extends RenderProxyBox {
     if (!_controller.isAnimating) {
       return 0;
     }
-    return _delta * (1 - Curves.easeOutCubic.transform(_controller.value));
+    return _delta *
+        (1 - Easing.emphasizedDecelerate.transform(_controller.value));
   }
 
   @override

@@ -236,8 +236,8 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
         child: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: AnimatedSize(
-            duration: midDuration,
-            curve: Curves.easeOutQuad,
+            duration: Durations.medium2,
+            curve: Easing.emphasizedDecelerate,
             alignment: Alignment.topCenter,
             child: Column(
               spacing: 24,

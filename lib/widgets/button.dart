@@ -35,12 +35,12 @@ class CommonFloatingActionButton extends StatelessWidget {
             isExtended: true,
             label: AnimatedSize(
               alignment: Alignment.centerLeft,
-              duration: midDuration,
-              curve: Curves.easeOutBack,
+              duration: Durations.medium2,
+              curve: Easing.emphasizedDecelerate,
               child: AnimatedOpacity(
-                duration: midDuration,
+                duration: Durations.short4,
                 opacity: isExtended ? 1.0 : 0.4,
-                curve: Curves.linear,
+                curve: Easing.standard,
                 child: isExtended
                     ? Padding(
                         padding: const EdgeInsets.only(left: 8.0),

@@ -118,7 +118,7 @@ class _AccessViewState extends ConsumerState<AccessView> {
     }
 
     final appLocalizations = context.appLocalizations;
-    return FadeRotationScaleBox(
+    return FadeScaleBox(
       alignment: Alignment.centerRight,
       child: isSelectedAll
           ? FloatingActionButton.extended(

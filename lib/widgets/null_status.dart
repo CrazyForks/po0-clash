@@ -20,7 +20,7 @@ enum NullStatusIllustration {
 }
 
 class NullStatusSwitcher extends StatelessWidget {
-  static const _exitDuration = Duration(milliseconds: 150);
+  static const _exitDuration = Durations.short3;
 
   final bool isEmpty;
   final NullStatus nullStatus;
@@ -36,10 +36,10 @@ class NullStatusSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: context.motionDuration(commonDuration),
+      duration: context.motionDuration(Durations.medium2),
       reverseDuration: context.motionDuration(_exitDuration),
       switchInCurve: Easing.emphasizedDecelerate,
-      switchOutCurve: Curves.easeIn,
+      switchOutCurve: Easing.emphasizedAccelerate.flipped,
       layoutBuilder: (currentChild, previousChildren) => Align(
         alignment: Alignment.center,
         child: Stack(
@@ -160,7 +160,7 @@ class _EnterItemState extends State<_EnterItem>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: commonDuration + widget.delay,
+      duration: Durations.medium2 + widget.delay,
     );
   }
 
@@ -192,7 +192,7 @@ class _EnterItemState extends State<_EnterItem>
     if (skipped == null || skipped) {
       return widget.child;
     }
-    final total = commonDuration + widget.delay;
+    final total = Durations.medium2 + widget.delay;
     final start = widget.delay.inMicroseconds / total.inMicroseconds;
     final animation = start == 0
         ? _controller.view

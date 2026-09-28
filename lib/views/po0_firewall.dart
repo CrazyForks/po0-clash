@@ -247,7 +247,9 @@ class _OverviewCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AnimatedSwitcher(
-                      duration: commonDuration,
+                      duration: Durations.short4,
+                      switchInCurve: Easing.standard,
+                      switchOutCurve: Easing.standard,
                       child: Text(
                         title,
                         key: ValueKey(title),
@@ -334,8 +336,8 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = _toneColors(context, tone);
     return AnimatedContainer(
-      duration: commonDuration,
-      curve: Curves.easeOutCubic,
+      duration: Durations.medium2,
+      curve: Easing.standard,
       width: 52,
       height: 52,
       decoration: ShapeDecoration(
@@ -766,8 +768,8 @@ class _TokenCard extends StatelessWidget {
                       begin: 0,
                       end: (used / limit).clamp(0, 1).toDouble(),
                     ),
-                    duration: const Duration(milliseconds: 600),
-                    curve: Curves.easeOutCubic,
+                    duration: Durations.long2,
+                    curve: Easing.emphasizedDecelerate,
                     builder: (_, value, _) => LinearProgressIndicator(
                       value: value,
                       minHeight: 6,

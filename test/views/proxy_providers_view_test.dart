@@ -105,7 +105,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  // Menu items run their action a frame after the menu closes.
   Future<void> settleTrailing(WidgetTester tester) async {
+    await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
   }

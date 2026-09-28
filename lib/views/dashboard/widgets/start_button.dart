@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _threeDigitHourThreshold = 100 * 60 * 60 * 1000;
-const _widthAnimationDuration = Duration(milliseconds: 200);
+const _widthAnimationDuration = Durations.short4;
 const _buttonHeight = 56.0;
 
 TextStyle? _runTimeTextStyle(BuildContext context) {
@@ -86,11 +86,12 @@ class _StartButtonState extends ConsumerState<StartButton>
     _controller = AnimationController(
       vsync: this,
       value: isStart ? 1 : 0,
-      duration: const Duration(milliseconds: 200),
+      duration: Durations.medium2,
     );
     _animation = CurvedAnimation(
       parent: _controller!,
-      curve: Curves.easeOutBack,
+      curve: Easing.emphasizedDecelerate,
+      reverseCurve: Easing.emphasizedAccelerate.flipped,
     );
     ref.listenManual(runTimeProvider, (_, next) {
       _updateDisplayRunTime(next);
@@ -240,7 +241,7 @@ class _StartButtonState extends ConsumerState<StartButton>
                 child: AnimatedContainer(
                   width: textWidth,
                   duration: _widthAnimationDuration,
-                  curve: Curves.easeOut,
+                  curve: Easing.standard,
                   child: suspend
                       ? Text(
                           appLocalizations.suspended,

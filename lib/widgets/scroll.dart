@@ -334,8 +334,8 @@ class _ScrollToEndBoxState<T> extends State<ScrollToEndBox<T>> {
     }
     await widget.controller.animateTo(
       position.maxScrollExtent,
-      duration: kThemeAnimationDuration,
-      curve: Curves.easeOut,
+      duration: Durations.medium2,
+      curve: Easing.standard,
     );
     // Lazy lists refine maxScrollExtent while the animation runs, so the
     // target captured at start can land short of the real end.
