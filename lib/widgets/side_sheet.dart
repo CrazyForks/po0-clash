@@ -5,8 +5,8 @@ import 'package:fl_clash/common/shape.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 
-const Duration _bottomSheetEnterDuration = Duration(milliseconds: 300);
-const Duration _bottomSheetExitDuration = Duration(milliseconds: 200);
+const Duration _bottomSheetEnterDuration = Durations.medium2;
+const Duration _bottomSheetExitDuration = Durations.short4;
 const Curve _modalBottomSheetCurve = Easing.standardDecelerate;
 const double _defaultScrollControlDisabledMaxHeightRatio = 9.0 / 16.0;
 

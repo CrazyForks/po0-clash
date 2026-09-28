@@ -25,17 +25,18 @@ git merge upstream/main
 | `lib/manager/app_manager.dart` / `connectivity_manager.dart` | 调度器启动、网络变化、回到前台、Android 亮屏 / 熄屏 |
 | `android/app/src/main/kotlin/com/follow/clash/MainActivity.kt` | 注册 `Po0ScreenPlugin` |
 | `lib/enum/enum.dart` / `lib/common/l10n_labels.dart` / `lib/views/navigation.dart` | `PageLabel.po0` 主导航入口 |
-| `lib/pages/home.dart` | 桌面页面切换的 `PageEntrance` 淡入 |
-| `lib/widgets/list.dart` | `generateSection` 在 HeroUI 下分组为卡片 |
-| `lib/widgets/sheet.dart` | HeroUI 侧边弹出页（遮罩、圆角、无模糊） |
+| `lib/pages/home.dart` | 主页面 fade through 切换（`PageEntrance`），去掉 `_NavigationBarDefaultsM3` |
+| `lib/widgets/sheet.dart` / `lib/common/dialog.dart` / `lib/widgets/list.dart` | 去掉模糊选项，模态背景用 Material 3 scrim；侧边面板样式 |
 | `lib/widgets/widgets.dart` | 导出 `surface_card.dart` |
 | `lib/common/constant.dart` | `repository` 指向本仓库，`upstreamRepository`；应用身份常量（见下节） |
 | `lib/common/package.dart` | `compareVersions` 按语义化版本比较（含预发布版本） |
 | `lib/common/request.dart` / `lib/views/about.dart` | 检查更新直接比较 `pubspec` 版本；「关于」页链接本仓库与上游 |
-| `lib/application.dart` | 主题改由 `buildAppTheme` 构建（HeroUI / Material 二选一） |
-| `lib/manager/app_manager.dart` | `AppSidebarContainer` 在 HeroUI 主题下改用 `HeroSidebar` |
-| `lib/widgets/card.dart` | `CommonCard` 的 HeroUI 圆角、环线、阴影与悬停 / 按压动效 |
-| `lib/common/common.dart` | 导出 `po0_firewall.dart`、`hero_theme.dart` |
+| `lib/application.dart` / `lib/common/app_theme.dart` | 主题由 `buildAppTheme` 构建，页面转场用 `appPageTransitionsTheme` |
+| `lib/manager/app_manager.dart` / `lib/common/layout.dart` | Material 3 导航侧栏（顶部菜单按钮、可展开）与窗口宽度分级 |
+| `lib/common/shape.dart` / `lib/widgets/card.dart` | Material 3 圆角档位；`CommonCard` 的描边 / 填充卡片样式 |
+| `lib/common/navigator.dart` | 推入页面改用 `MaterialPageRoute` |
+| `lib/widgets/popup.dart` / `chip.dart` / `fade_box.dart` / `super_grid.dart` | 换成 Material 3 组件与动效；删除 `tab*.dart` |
+| `lib/common/common.dart` | 导出 `po0_firewall.dart`、`app_theme.dart` |
 | `arb/intl_*.arb` | 新增的 `po0*`（含导航名 `po0Nav`）/ `minutesCount` 等文案 |
 | `.github/workflows/build.yaml` | 仅手动触发（本分支发版用 `release.yaml`） |
 | `README.md` / `README_zh_CN.md` | 整体改写为 po0-clash 说明，合并时保留本分支版本 |

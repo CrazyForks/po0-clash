@@ -37,7 +37,7 @@ class DonutChart extends StatefulWidget {
   const DonutChart({
     super.key,
     required this.data,
-    this.duration = commonDuration,
+    this.duration = Durations.medium2,
   });
 
   @override

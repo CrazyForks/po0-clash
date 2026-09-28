@@ -23,7 +23,7 @@ class OpenContainer<T extends Object?> extends StatefulWidget {
     required this.closedBuilder,
     required this.openBuilder,
     this.tappable = true,
-    this.transitionDuration = const Duration(milliseconds: 300),
+    this.transitionDuration = Durations.medium4,
     this.transitionType = ContainerTransitionType.fade,
     this.useRootNavigator = false,
     this.routeSettings,
@@ -444,10 +444,10 @@ class _OpenContainerRoute<T> extends ModalRoute<T> {
 
           final Animation<double> curvedAnimation = CurvedAnimation(
             parent: animation,
-            curve: Curves.fastOutSlowIn,
+            curve: Curves.easeInOutCubicEmphasized,
             reverseCurve: _transitionWasInterrupted
                 ? null
-                : Curves.fastOutSlowIn.flipped,
+                : Curves.easeInOutCubicEmphasized.flipped,
           );
           TweenSequence<Color?>? colorTween;
           TweenSequence<double>? closedOpacityTween, openOpacityTween;

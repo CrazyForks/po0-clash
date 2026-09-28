@@ -18,8 +18,8 @@ class FadeBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final realAlignment = alignment ?? Alignment.center;
     return AnimatedSwitcher(
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
+      switchInCurve: Easing.standard,
+      switchOutCurve: Easing.standard,
       layoutBuilder: (currentChild, previousChildren) => Align(
         alignment: realAlignment,
         child: Stack(
@@ -31,7 +31,7 @@ class FadeBox extends StatelessWidget {
       transitionBuilder: (child, animation) {
         return FadeTransition(opacity: animation, child: child);
       },
-      duration: context.motionDuration(commonDuration),
+      duration: context.motionDuration(Durations.short4),
       child: child,
     );
   }
@@ -53,7 +53,7 @@ class FadeThroughBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final realAlignment = alignment ?? Alignment.centerLeft;
     return PageTransitionSwitcher(
-      duration: context.motionDuration(commonDuration),
+      duration: context.motionDuration(Durations.medium2),
       transitionBuilder: (child, animation, secondaryAnimation) {
         return FadeThroughTransition(
           animation: animation,
@@ -72,37 +72,6 @@ class FadeThroughBox extends StatelessWidget {
   }
 }
 
-class FadeRotationScaleBox extends StatelessWidget {
-  final Widget child;
-  final AlignmentGeometry? alignment;
-
-  const FadeRotationScaleBox({super.key, required this.child, this.alignment});
-
-  @override
-  Widget build(BuildContext context) {
-    final realAlignment = alignment ?? Alignment.center;
-    return AnimatedSwitcher(
-      duration: commonDuration,
-      switchInCurve: Curves.easeOutBack,
-      switchOutCurve: Curves.easeInBack,
-      transitionBuilder: (child, animation) {
-        return RotationTransition(
-          turns: animation.drive(Tween(begin: 0.8, end: 1.0)),
-          child: FadeTransition(
-            opacity: animation.drive(Tween(begin: 0.6, end: 1.0)),
-            child: ScaleTransition(scale: animation, child: child),
-          ),
-        );
-      },
-      layoutBuilder: (currentChild, previousChildren) => Stack(
-        alignment: realAlignment,
-        children: <Widget>[...previousChildren, ?currentChild],
-      ),
-      child: child,
-    );
-  }
-}
-
 class FadeScaleBox extends StatelessWidget {
   final Widget child;
   final AlignmentGeometry? alignment;
@@ -113,18 +82,10 @@ class FadeScaleBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final realAlignment = alignment ?? Alignment.center;
     return AnimatedSwitcher(
-      duration: commonDuration,
-      switchOutCurve: Curves.easeOutBack,
-      switchInCurve: Curves.easeInBack,
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: ScaleTransition(
-            scale: animation.drive(Tween(begin: 0.4, end: 1.0)),
-            child: child,
-          ),
-        );
-      },
+      duration: context.motionDuration(Durations.short3),
+      reverseDuration: context.motionDuration(Durations.short1),
+      transitionBuilder: (child, animation) =>
+          FadeScaleEnterTransition(animation: animation, child: child),
       layoutBuilder: (currentChild, previousChildren) => Align(
         alignment: realAlignment,
         child: Stack(
@@ -155,11 +116,8 @@ class _FadeScaleEnterBoxState extends State<FadeScaleEnterBox>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: commonDuration);
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller = AnimationController(vsync: this, duration: Durations.short3);
+    _animation = _controller.view;
   }
 
   @override
@@ -225,7 +183,7 @@ class _FadeSlideEnterBoxState extends State<FadeSlideEnterBox>
   @override
   void initState() {
     super.initState();
-    final total = commonDuration + widget.delay;
+    final total = Durations.medium2 + widget.delay;
     _controller = AnimationController(vsync: this, duration: total);
     final start = widget.delay.inMicroseconds / total.inMicroseconds;
     _animation = start == 0
@@ -295,6 +253,7 @@ class FadeSlideEnterTransition extends StatelessWidget {
   }
 }
 
+/// Material 3's fade: in over 30% while growing from 80%, out as a plain fade.
 class FadeScaleEnterTransition extends StatelessWidget {
   const FadeScaleEnterTransition({
     super.key,
@@ -305,22 +264,29 @@ class FadeScaleEnterTransition extends StatelessWidget {
   final Animation<double> animation;
   final Widget? child;
 
-  static final Animatable<double> _fadeInTransition = CurveTween(
+  static final Animatable<double> _fadeIn = CurveTween(
     curve: const Interval(0.0, 0.3),
   );
-  static final Animatable<double> _scaleInTransition = Tween<double>(
-    begin: 0.70,
-    end: 1.00,
-  ).chain(CurveTween(curve: Easing.legacyDecelerate));
+  static final Animatable<double> _scaleIn = Tween<double>(
+    begin: 0.8,
+    end: 1.0,
+  ).chain(CurveTween(curve: Easing.emphasizedDecelerate));
+  static final Animatable<double> _fadeOut = Tween<double>(begin: 1, end: 0);
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fadeInTransition.animate(animation),
-      child: ScaleTransition(
-        scale: _scaleInTransition.animate(animation),
-        child: child,
+    return DualTransitionBuilder(
+      animation: animation,
+      forwardBuilder: (_, animation, child) => FadeTransition(
+        opacity: _fadeIn.animate(animation),
+        child: ScaleTransition(
+          scale: _scaleIn.animate(animation),
+          child: child,
+        ),
       ),
+      reverseBuilder: (_, animation, child) =>
+          FadeTransition(opacity: _fadeOut.animate(animation), child: child),
+      child: child,
     );
   }
 }

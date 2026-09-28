@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/widgets/activate_box.dart';
 import 'package:fl_clash/widgets/grid.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/physics.dart';
 
 /// Kept in one notifier so a builder that reads part of it also rebuilds when
 /// the rest changes.
@@ -35,15 +33,14 @@ class SuperGrid extends StatefulWidget {
 }
 
 class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
-  static const _reorderDuration = Duration(milliseconds: 420);
-  static const _shakeDuration = Duration(milliseconds: 480);
-  static const _reorderCurve = Cubic(0.22, 0.72, 0.24, 1.08);
+  static const _reorderDuration = Durations.medium4;
+  static const _reorderCurve = Curves.easeInOutCubicEmphasized;
 
   static const _hoverDelay = Duration(milliseconds: 120);
 
   /// Matches the default CommonCard shape, so the lift's shadow traces the card
   /// it is drawn behind.
-  static const _cardShape = AppShape.md;
+  static const _cardShape = AppShape.medium;
 
   late final ValueNotifier<List<GridItem>> _childrenNotifier;
   List<GridItem> children = [];
@@ -85,8 +82,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   late AnimationController _landingController;
   Animation<Offset>? _landingAnimation;
 
-  late AnimationController _shakeController;
-
   @override
   void initState() {
     super.initState();
@@ -97,11 +92,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _syncItemKeys();
 
     _landingController = AnimationController.unbounded(vsync: this);
-
-    _shakeController = AnimationController(
-      vsync: this,
-      duration: _shakeDuration,
-    )..repeat();
 
     _transformController = AnimationController(
       vsync: this,
@@ -165,7 +155,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _transformAnimationMap.clear();
     _landingAnimation = null;
     _landingController.dispose();
-    _shakeController.dispose();
     _transformController.dispose();
     _dragNotifier.dispose();
     _childrenNotifier.dispose();
@@ -333,9 +322,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     nextChildren.insert(_targetIndex, nextChildren.removeAt(dragIndex));
     children = nextChildren;
 
-    const tolerance = Tolerance(distance: 0.001, velocity: 0.01);
-    const spring = SpringDescription(mass: 1, stiffness: 180, damping: 18);
-    final simulation = SpringSimulation(spring, 0, 1, 0, tolerance: tolerance);
+    _landingController.value = 0;
     _landingAnimation = Tween<Offset>(
       begin: details.offset - _parentOffset,
       end: _targetOffset,
@@ -349,7 +336,13 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     final completer = Completer<bool>();
     _transformCompleter = completer;
     try {
-      await _landingController.animateWith(simulation).orCancel;
+      await _landingController
+          .animateTo(
+            1,
+            duration: Durations.medium2,
+            curve: Easing.emphasizedDecelerate,
+          )
+          .orCancel;
       if (!mounted) {
         return;
       }
@@ -436,19 +429,16 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   /// [t] is 1 while the item is held and eases to 0 as it settles, so the drag
   /// feedback and the landing widget are one surface at two depths.
   Widget _buildLiftedSurface(Widget child, double t) {
-    return Transform.scale(
-      scale: 1 + 0.03 * t,
-      child: DecoratedBox(
-        decoration: ShapeDecoration(
-          shape: _cardShape,
-          shadows: BoxShadow.lerpList(
-            const <BoxShadow>[],
-            kElevationToShadow[8]!,
-            t.clamp(0.0, 1.0),
-          )!,
-        ),
-        child: child,
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: _cardShape,
+        shadows: BoxShadow.lerpList(
+          const <BoxShadow>[],
+          kElevationToShadow[8]!,
+          t.clamp(0.0, 1.0),
+        )!,
       ),
+      child: child,
     );
   }
 
@@ -485,19 +475,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildShake(Widget child, int index) {
-    return AnimatedBuilder(
-      animation: _shakeController,
-      builder: (_, child) {
-        // An irregular phase step keeps neighbours from shaking in unison.
-        final phase = index * 1.7;
-        final angle = sin(_shakeController.value * 2 * pi + phase) * 0.01;
-        return Transform.rotate(angle: angle, child: child!);
-      },
-      child: child,
-    );
-  }
-
   Widget _buildDraggable({
     required Widget childWhenDragging,
     required Widget feedback,
@@ -522,14 +499,11 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
         if (drag.landing || drag.index == index) {
           return child!;
         }
-        return _buildShake(
-          _DeletableContainer(
-            onDelete: () {
-              _handleDelete(index);
-            },
-            child: child!,
-          ),
-          index,
+        return _DeletableContainer(
+          onDelete: () {
+            _handleDelete(index);
+          },
+          child: child!,
         );
       },
       child: target,
@@ -576,9 +550,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
       child: KeyedSubtree(
         key: _itemKeys[index],
         child: _buildTransform(
-          // The shake never stops while edit mode is open, and without a
-          // boundary here its markNeedsPaint reaches the scroll viewport, so
-          // every frame repaints the whole grid instead of one item.
           RepaintBoundary(
             child: _buildDraggable(
               childWhenDragging: childWhenDragging,
@@ -593,7 +564,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     );
   }
 
-  /// The dragged item springing back into the grid, drawn above it so it can
+  /// The dragged item settling back into the grid, drawn above it so it can
   /// overlap its neighbours on the way in.
   Widget _buildLandingWidget() {
     return ValueListenableBuilder(
@@ -608,8 +579,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
           child: AnimatedBuilder(
             animation: animation,
             builder: (_, child) {
-              // Fade the lift out on the spring's own curve, so the item
-              // settles instead of popping.
               final lift = (1 - _landingController.value).clamp(0.0, 1.0);
               return Transform.translate(
                 offset: animation.value,
@@ -681,15 +650,13 @@ class _DeletableContainerState extends State<_DeletableContainer>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: commonDuration);
-    _scaleAnimation = Tween(
-      begin: 1.0,
-      end: 0.4,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-    _fadeAnimation = Tween(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _controller = AnimationController(vsync: this, duration: Durations.short4);
+    final curve = CurvedAnimation(
+      parent: _controller,
+      curve: Easing.emphasizedAccelerate,
+    );
+    _scaleAnimation = Tween(begin: 1.0, end: 0.8).animate(curve);
+    _fadeAnimation = Tween(begin: 1.0, end: 0.0).animate(curve);
   }
 
   @override

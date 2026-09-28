@@ -11,7 +11,6 @@ import 'input.dart';
 import 'open_container.dart';
 import 'scaffold.dart';
 import 'sheet.dart';
-import 'surface_card.dart';
 
 part 'list_selected.dart';
 
@@ -47,14 +46,12 @@ final class _CheckboxAction extends _ListItemAction {
 final class _OpenAction extends _ListItemAction {
   final Widget widget;
   final double? maxWidth;
-  final bool blur;
   final bool forceFull;
   final ValueChanged<dynamic>? onChanged;
 
   const _OpenAction({
     required this.widget,
     this.maxWidth,
-    required this.blur,
     required this.forceFull,
     this.onChanged,
   });
@@ -63,9 +60,8 @@ final class _OpenAction extends _ListItemAction {
 final class _NextAction extends _ListItemAction {
   final Widget widget;
   final double? maxWidth;
-  final bool blur;
 
-  const _NextAction({required this.widget, this.maxWidth, required this.blur});
+  const _NextAction({required this.widget, this.maxWidth});
 }
 
 final class _OptionsAction<T> extends _ListItemAction {
@@ -152,7 +148,6 @@ class ListItem<T> extends StatelessWidget {
     this.trailing,
     required Widget widget,
     double? maxWidth,
-    bool blur = true,
     bool forceFull = true,
     ValueChanged<dynamic>? onChanged,
     this.horizontalTitleGap,
@@ -167,7 +162,6 @@ class ListItem<T> extends StatelessWidget {
   }) : _action = _OpenAction(
          widget: widget,
          maxWidth: maxWidth,
-         blur: blur,
          forceFull: forceFull,
          onChanged: onChanged,
        ),
@@ -182,7 +176,6 @@ class ListItem<T> extends StatelessWidget {
     this.trailing,
     required Widget widget,
     double? maxWidth,
-    bool blur = true,
     this.horizontalTitleGap,
     this.dense,
     this.titleTextStyle,
@@ -192,7 +185,7 @@ class ListItem<T> extends StatelessWidget {
     this.visualDensity,
     this.minVerticalPadding = 12,
     this.tileTitleAlignment = ListTileTitleAlignment.center,
-  }) : _action = _NextAction(widget: widget, maxWidth: maxWidth, blur: blur),
+  }) : _action = _NextAction(widget: widget, maxWidth: maxWidth),
        onTap = null;
 
   ListItem.options({
@@ -363,7 +356,6 @@ class ListItem<T> extends StatelessWidget {
                 final res = await showExtend(
                   context,
                   props: ExtendProps(
-                    blur: openDelegate.blur,
                     maxWidth: openDelegate.maxWidth,
                     forceFull: openDelegate.forceFull,
                   ),
@@ -393,10 +385,7 @@ class ListItem<T> extends StatelessWidget {
           onTap: () {
             showExtend(
               context,
-              props: ExtendProps(
-                blur: nextDelegate.blur,
-                maxWidth: nextDelegate.maxWidth,
-              ),
+              props: ExtendProps(maxWidth: nextDelegate.maxWidth),
               builder: (_) {
                 return child;
               },
@@ -577,13 +566,7 @@ class _SectionBody extends StatelessWidget {
     final children = separated
         ? items.separated(const Divider(height: 0)).toList()
         : items;
-    if (HeroTheme.maybeOf(context) == null) {
-      return Column(mainAxisSize: MainAxisSize.min, children: children);
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: SurfaceCard(child: Column(children: children)),
-    );
+    return Column(mainAxisSize: MainAxisSize.min, children: children);
   }
 }
 
@@ -595,8 +578,8 @@ Widget generateSectionV2({
 }) {
   final genItems = items
       .map<Widget>((item) {
-        return ClipRSuperellipse(
-          borderRadius: AppRadius.xs,
+        return ClipRRect(
+          borderRadius: AppRadius.extraSmall,
           child: CommonCard(
             type: CommonCardType.filled,
             radius: AppCorner.none,
@@ -609,8 +592,8 @@ Widget generateSectionV2({
     children: [
       if (items.isNotEmpty && title != null)
         ListHeader(title: title, actions: actions),
-      ClipRSuperellipse(
-        borderRadius: AppRadius.md,
+      ClipRRect(
+        borderRadius: AppRadius.large,
         child: Column(children: [...genItems]),
       ),
     ],

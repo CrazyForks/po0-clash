@@ -403,7 +403,6 @@ class ProfileItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CommonCard(
       enterActionsOnRight: true,
-      radius: AppCorner.xl,
       isSelected: profile.id == groupValue,
       onPressed: () {
         onChanged(profile.id);
@@ -431,8 +430,7 @@ class ProfileItem extends ConsumerWidget {
                       )
                     : CommonPopupBox(
                         key: const ValueKey('menu'),
-                        popupBuilder: (_) =>
-                            CommonPopupMenu(items: _menuItems(context, ref)),
+                        items: _menuItems(context, ref),
                         targetBuilder: (open) {
                           return IconButton(
                             style: IconButton.styleFrom(

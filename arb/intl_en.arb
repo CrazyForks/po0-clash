@@ -325,7 +325,7 @@
   "noResolve": "Don't resolve IP",
   "saveChanges": "Save the changes?",
   "findProcessModeDesc": "Enabling causes some performance loss",
-  "tabAnimationDesc": "Only effective in mobile view",
+  "tabAnimationDesc": "Fade between main pages when switching",
   "colorSchemes": "Color schemes",
   "palette": "Palette",
   "tonalSpotScheme": "Tonal spot",

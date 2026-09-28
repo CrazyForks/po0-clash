@@ -34,7 +34,7 @@ void main() {
     );
 
     expect(material.color, ColorScheme.of(context).surfaceContainerLow);
-    expect(material.shape, AppShape.top(AppCorner.xxl));
+    expect(material.shape, AppShape.top(AppCorner.extraLarge));
     expect(material.clipBehavior, Clip.antiAlias);
   });
 

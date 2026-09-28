@@ -228,7 +228,6 @@ class _IncludeAllCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonCard(
-      radius: AppCorner.xl,
       type: CommonCardType.filled,
       child: ListItem.toggle(
         minTileHeight: 54,

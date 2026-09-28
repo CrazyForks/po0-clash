@@ -48,16 +48,16 @@ ColorScheme genColorScheme(
       Brightness.light => dynamicColor.lightSeed,
       Brightness.dark => dynamicColor.darkSeed,
     };
-    return ColorScheme.fromSeed(
-      seedColor: seed ?? dynamicColor.accentColor,
-      brightness: brightness,
-      dynamicSchemeVariant: themeSetting.schemeVariant,
+    return seededColorScheme(
+      seed ?? dynamicColor.accentColor,
+      brightness,
+      themeSetting.schemeVariant,
     );
   }
-  return ColorScheme.fromSeed(
-    seedColor: color ?? Color(themeSetting.primaryColor!),
-    brightness: brightness,
-    dynamicSchemeVariant: themeSetting.schemeVariant,
+  return seededColorScheme(
+    color ?? Color(themeSetting.primaryColor!),
+    brightness,
+    themeSetting.schemeVariant,
   );
 }
 

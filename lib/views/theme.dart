@@ -436,8 +436,9 @@ class _PrimaryColorTile extends StatelessWidget {
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          EffectGestureDetector(
+          GestureDetector(
             onLongPress: onRequestRemove,
+            onSecondaryTap: onRequestRemove,
             child: ColorSchemeBox(
               isSelected: isSelected,
               primaryColor: color != null ? Color(color!) : null,

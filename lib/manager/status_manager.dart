@@ -15,9 +15,9 @@ const _actionMinDuration = Duration(seconds: 6);
 const _maxBufferedMessages = 8;
 const _mobileMaxVisibleMessages = 2;
 const _desktopMaxVisibleMessages = 4;
-const _messageEnterDuration = Duration(milliseconds: 500);
-const _messageExitDuration = Duration(milliseconds: 400);
-const _messageCollapseDuration = Duration(milliseconds: 200);
+const _messageEnterDuration = Durations.long2;
+const _messageExitDuration = Durations.medium4;
+const _messageCollapseDuration = Durations.short4;
 const _messageEnterOffset = Offset(0.32, 0);
 const _messageMaxWidth = 500.0;
 const _messageMinHeight = 54.0;
@@ -347,13 +347,13 @@ class _MessageTransitionState extends State<_MessageTransition>
     );
     _opacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0, 0.4, curve: Curves.easeOut),
-      reverseCurve: const Interval(0.5, 1, curve: Curves.easeIn),
+      curve: const Interval(0, 0.4, curve: Easing.standardDecelerate),
+      reverseCurve: const Interval(0.5, 1, curve: Easing.standardAccelerate),
     );
     _slide = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0, 0.85, curve: Easing.emphasizedDecelerate),
-      reverseCurve: const Interval(0.45, 1, curve: Curves.easeInCubic),
+      reverseCurve: const Interval(0.45, 1, curve: Easing.emphasizedAccelerate),
     );
     _offset = _slide.drive(Tween(begin: _messageEnterOffset, end: Offset.zero));
     if (widget.visible) {
@@ -442,7 +442,7 @@ class _MessageCard extends StatelessWidget {
         },
         child: Card(
           margin: EdgeInsets.zero,
-          shape: AppShape.lg,
+          shape: AppShape.extraSmall,
           elevation: 6,
           color: message.level.containerColor(context),
           child: ConstrainedBox(

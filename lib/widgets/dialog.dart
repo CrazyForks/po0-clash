@@ -55,7 +55,7 @@ class CommonModal extends ConsumerWidget {
       child: Container(
         width: size.width * 0.85,
         height: size.height * 0.85,
-        decoration: const ShapeDecoration(shape: AppShape.xxl),
+        decoration: const ShapeDecoration(shape: AppShape.extraLarge),
         clipBehavior: Clip.antiAlias,
         child: child,
       ),

@@ -23,7 +23,6 @@ class AdvancedConfigView extends StatelessWidget {
         title: Text(appLocalizations.network),
         subtitle: Text(appLocalizations.networkDesc),
         leading: const Icon(Icons.vpn_key),
-        blur: false,
         widget: BaseScaffold(
           title: appLocalizations.network,
           body: const NetworkListView(),
@@ -34,7 +33,6 @@ class AdvancedConfigView extends StatelessWidget {
         subtitle: Text(appLocalizations.onDemandDesc),
         leading: const Icon(Icons.ssid_chart, fontWeight: FontWeight.w900),
         widget: const OnDemandView(),
-        blur: false,
       ),
       ListItem.open(
         title: const Text('DNS'),
@@ -66,21 +64,18 @@ class AdvancedConfigView extends StatelessWidget {
           ],
           body: const DnsListView(),
         ),
-        blur: false,
       ),
       ListItem.open(
         title: Text(appLocalizations.addedRules),
         subtitle: Text(appLocalizations.controlGlobalAddedRules),
         leading: const Icon(Icons.library_books),
         widget: const AddedRulesView(),
-        blur: false,
       ),
       ListItem.open(
         title: Text(appLocalizations.script),
         subtitle: Text(appLocalizations.overrideScript),
         leading: const Icon(Icons.rocket, fontWeight: FontWeight.w900),
         widget: const ScriptsView(),
-        blur: false,
       ),
     ];
     return BaseScaffold(

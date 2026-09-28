@@ -58,7 +58,7 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
         valueListenable: _listController,
         builder: (_, state, _) {
           final autoScrollToEnd = state.autoScrollToEnd;
-          return FadeRotationScaleBox(
+          return FadeScaleBox(
             child: FloatingActionButton(
               key: ValueKey(autoScrollToEnd),
               onPressed: () {

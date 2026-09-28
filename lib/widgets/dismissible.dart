@@ -34,10 +34,7 @@ class _ExternalDismissibleState extends State<ExternalDismissible>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    _controller = AnimationController(vsync: this, duration: Durations.medium4);
     _initAnimations();
     if (widget.dismiss) {
       _dismiss();
@@ -45,7 +42,7 @@ class _ExternalDismissibleState extends State<ExternalDismissible>
   }
 
   void _initAnimations() {
-    const curve = Curves.fastOutSlowIn;
+    const curve = Easing.standard;
 
     if (_isNormal) {
       _slideAnimation =

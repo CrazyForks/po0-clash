@@ -330,12 +330,6 @@ void main() {
     });
   });
 
-  testWidgets('AppIcon renders the bundled application icon', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: AppIcon()));
-
-    expect(find.byType(Image), findsOneWidget);
-  });
-
   group('WindowHeaderActions', () {
     late ValueNotifier<WindowCaptionState> caption;
     late List<String> pressed;

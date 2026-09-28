@@ -642,22 +642,3 @@ class _CaptionGlyphPainter extends CustomPainter {
   bool shouldRepaint(_CaptionGlyphPainter oldDelegate) =>
       glyph != oldDelegate.glyph || color != oldDelegate.color;
 }
-
-class AppIcon extends StatelessWidget {
-  const AppIcon({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: ShapeDecoration(
-        color: context.colorScheme.surfaceContainerHighest,
-        shape: AppShape.md,
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Image.asset('assets/images/icon.png', width: 34, height: 34),
-      ),
-    );
-  }
-}

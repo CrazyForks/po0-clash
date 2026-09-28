@@ -28,7 +28,7 @@ const defaultBypassDomain = [
   '192.168.*',
 ];
 
-const defaultAppSettingProps = AppSettingProps();
+const defaultAppSettingProps = AppSettingProps(locale: 'zh_CN');
 const defaultVpnProps = VpnProps();
 const defaultAuthenticationProps = AuthenticationProps();
 const defaultNetworkProps = NetworkProps();
@@ -78,7 +78,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(defaultTestUrl) String testUrl,
     @Default(true) bool isAnimateToPage,
     @Default(true) bool autoCheckUpdate,
-    @Default(false) bool showLabel,
+    @Default(true) bool showLabel,
     @Default(false) bool disclaimerAccepted,
     @Default(false) bool crashlyticsTip,
     @Default(false) bool crashlytics,
@@ -234,7 +234,7 @@ abstract class ThemeProps with _$ThemeProps {
     int? primaryColor,
     @Default(defaultPrimaryColors) List<int> primaryColors,
     @Default(ThemeMode.dark) ThemeMode themeMode,
-    @Default(DynamicSchemeVariant.content) DynamicSchemeVariant schemeVariant,
+    @Default(DynamicSchemeVariant.fidelity) DynamicSchemeVariant schemeVariant,
     @Default(false) bool pureBlack,
     @Default(TextScale()) TextScale textScale,
   }) = _ThemeProps;
@@ -248,10 +248,31 @@ abstract class ThemeProps with _$ThemeProps {
     }
     return decodeOrRestoreDefault(
       'theme settings',
-      () => ThemeProps.fromJson(json),
+      () => ThemeProps.fromJson(_migrateLegacyDefaultTheme(json)),
       () => defaultThemeProps,
     );
   }
+}
+
+const _legacyDefaultPrimaryColor = 0xFFD8C0C3;
+
+/// A theme still on the 5.0.0 default (grey-pink, content) moves to today's.
+Map<String, Object?> _migrateLegacyDefaultTheme(Map<String, Object?> json) {
+  if (json['primaryColor'] != _legacyDefaultPrimaryColor) {
+    return json;
+  }
+  final colors = json['primaryColors'];
+  return {
+    ...json,
+    'primaryColor': defaultPrimaryColor,
+    if (json['schemeVariant'] == DynamicSchemeVariant.content.name)
+      'schemeVariant': DynamicSchemeVariant.fidelity.name,
+    if (colors is List)
+      'primaryColors': [
+        for (final color in colors)
+          color == _legacyDefaultPrimaryColor ? defaultPrimaryColor : color,
+      ],
+  };
 }
 
 @freezed

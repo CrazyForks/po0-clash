@@ -139,34 +139,21 @@ class CommonCard extends StatelessWidget {
     if (type == CommonCardType.filled) {
       return BorderSide.none;
     }
-    final hero = HeroTheme.maybeOf(context);
-    final hoverColor = isSelected
-        ? colorScheme.primary.opacity80
-        : hero?.default300 ?? colorScheme.primary.opacity60;
-    if (states.contains(WidgetState.hovered) ||
-        states.contains(WidgetState.focused) ||
-        states.contains(WidgetState.pressed)) {
-      return BorderSide(color: hoverColor);
+    if (isSelected || states.contains(WidgetState.focused)) {
+      return BorderSide(color: colorScheme.primary);
     }
-    return BorderSide(
-      color: isSelected
-          ? colorScheme.primary
-          : hero?.ring ?? colorScheme.surfaceContainerHighest,
-    );
+    return BorderSide(color: colorScheme.outlineVariant);
   }
 
   Color? _buildBackgroundColor(BuildContext context) {
     final colorScheme = context.colorScheme;
-    if (type == CommonCardType.filled) {
-      if (isSelected) {
-        return colorScheme.secondaryContainer.opacity80;
-      }
-      return colorScheme.surfaceContainerHigh;
-    }
     if (isSelected) {
       return colorScheme.secondaryContainer;
     }
-    return colorScheme.surfaceContainerLow;
+    if (type == CommonCardType.filled) {
+      return colorScheme.surfaceContainerHighest;
+    }
+    return colorScheme.surface;
   }
 
   Color? _buildForegroundColor(BuildContext context) {
@@ -199,8 +186,7 @@ class CommonCard extends StatelessWidget {
     Widget childWidget,
     FocusNode? focusNode,
   ) {
-    final hero = HeroTheme.maybeOf(context);
-    final defaultRadius = hero != null ? HeroCorner.large : AppCorner.md;
+    const defaultRadius = AppCorner.medium;
     return switch (type == CommonCardType.filled) {
       true => FilledButton(
         focusNode: focusNode,
@@ -274,21 +260,12 @@ class CommonCard extends StatelessWidget {
       childWidget = Stack(children: children);
     }
 
-    final plainButton = skipTraversal
+    final button = skipTraversal
         ? _SkipTraversalScope(
             builder: (focusNode) =>
                 _buildButton(context, childWidget, focusNode),
           )
         : _buildButton(context, childWidget, null);
-    final hero = HeroTheme.maybeOf(context);
-    final button = hero == null || type == CommonCardType.filled
-        ? plainButton
-        : _HeroCardFrame(
-            hero: hero,
-            shape: shape ?? AppShape.all(radius ?? HeroCorner.large),
-            interactive: onPressed != null,
-            child: plainButton,
-          );
     final card = !enterActionsOnRight
         ? button
         : Focus(
@@ -316,73 +293,6 @@ class CommonCard extends StatelessWidget {
       true => FadeScaleEnterBox(child: card),
       false => card,
     };
-  }
-}
-
-/// HeroUI's pressable card: a soft shadow at rest, lifted with a deeper
-/// shadow on hover, and slightly scaled down while pressed.
-class _HeroCardFrame extends StatefulWidget {
-  const _HeroCardFrame({
-    required this.hero,
-    required this.shape,
-    required this.interactive,
-    required this.child,
-  });
-
-  final HeroTheme hero;
-  final ShapeBorder shape;
-  final bool interactive;
-  final Widget child;
-
-  @override
-  State<_HeroCardFrame> createState() => _HeroCardFrameState();
-}
-
-class _HeroCardFrameState extends State<_HeroCardFrame> {
-  static const _duration = Duration(milliseconds: 180);
-
-  bool _hovered = false;
-  bool _pressed = false;
-
-  void _update({bool? hovered, bool? pressed}) {
-    if (!widget.interactive) {
-      return;
-    }
-    setState(() {
-      _hovered = hovered ?? _hovered;
-      _pressed = pressed ?? _pressed;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final lifted = widget.interactive && _hovered;
-    return MouseRegion(
-      onEnter: (_) => _update(hovered: true),
-      onExit: (_) => _update(hovered: false, pressed: false),
-      child: Listener(
-        onPointerDown: (_) => _update(pressed: true),
-        onPointerUp: (_) => _update(pressed: false),
-        onPointerCancel: (_) => _update(pressed: false),
-        child: AnimatedScale(
-          scale: widget.interactive && _pressed ? 0.985 : 1,
-          duration: _duration,
-          curve: Curves.easeOutCubic,
-          child: AnimatedContainer(
-            duration: _duration,
-            curve: Curves.easeOutCubic,
-            transform: Matrix4.translationValues(0, lifted ? -2 : 0, 0),
-            decoration: ShapeDecoration(
-              shape: widget.shape,
-              shadows: lifted
-                  ? widget.hero.shadowMedium
-                  : widget.hero.shadowSoft,
-            ),
-            child: widget.child,
-          ),
-        ),
-      ),
-    );
   }
 }
 

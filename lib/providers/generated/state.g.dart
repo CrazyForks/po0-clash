@@ -640,7 +640,7 @@ final class GenColorSchemeProvider
   }
 }
 
-String _$genColorSchemeHash() => r'2b413948f7d0fbcd3b1263a0053c3d35cbbd4db5';
+String _$genColorSchemeHash() => r'56559c24a1d9257c644a862dfb9b33f74a0d3c13';
 
 final class GenColorSchemeFamily extends $Family
     with
@@ -2577,7 +2577,7 @@ final class CurrentNavigationItemsStateProvider
 }
 
 String _$currentNavigationItemsStateHash() =>
-    r'06fbdc194f4527b945695fe3b72b16e0585fa440';
+    r'4f8091b8644579a7cdfcba960c2e146aa1ebecc0';
 
 @ProviderFor(navigationState)
 final navigationStateProvider = NavigationStateProvider._();

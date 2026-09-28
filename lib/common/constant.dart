@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:fl_clash/common/common.dart';
@@ -62,7 +61,6 @@ const coreConnectionWaitDuration = Duration(seconds: 10);
 /// Keep at or below the Core's delay-test concurrency (`delayTestConcurrency`
 /// in core/common.go).
 const maxConcurrentDelayTests = 16;
-const animateDuration = Duration(milliseconds: 100);
 const midDuration = Duration(milliseconds: 200);
 const commonDuration = Duration(milliseconds: 300);
 const defaultUpdateDuration = Duration(days: 1);
@@ -90,11 +88,6 @@ const upstreamRepository = 'chen08209/FlClash';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
 const defaultTestUrl = 'https://www.gstatic.com/generate_204';
-final commonFilter = ImageFilter.blur(
-  sigmaX: 5,
-  sigmaY: 5,
-  tileMode: TileMode.clamp,
-);
 
 const stringListEquality = ListEquality<String>();
 const intListEquality = ListEquality<int>();
@@ -111,7 +104,7 @@ const proxiesListStoreKey = PageStorageKey<String>('proxies_list');
 const toolsStoreKey = PageStorageKey<String>('tools');
 const profilesStoreKey = PageStorageKey<String>('profiles');
 
-const defaultPrimaryColor = 0XFFD8C0C3;
+const defaultPrimaryColor = 0xFF073042;
 
 double getWidgetHeight(num lines) {
   final space = 14.mAp;

@@ -23,7 +23,7 @@ _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
       testUrl: json['testUrl'] as String? ?? defaultTestUrl,
       isAnimateToPage: json['isAnimateToPage'] as bool? ?? true,
       autoCheckUpdate: json['autoCheckUpdate'] as bool? ?? true,
-      showLabel: json['showLabel'] as bool? ?? false,
+      showLabel: json['showLabel'] as bool? ?? true,
       disclaimerAccepted: json['disclaimerAccepted'] as bool? ?? false,
       crashlyticsTip: json['crashlyticsTip'] as bool? ?? false,
       crashlytics: json['crashlytics'] as bool? ?? false,
@@ -297,7 +297,7 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
         _$DynamicSchemeVariantEnumMap,
         json['schemeVariant'],
       ) ??
-      DynamicSchemeVariant.content,
+      DynamicSchemeVariant.fidelity,
   pureBlack: json['pureBlack'] as bool? ?? false,
   textScale: json['textScale'] == null
       ? const TextScale()

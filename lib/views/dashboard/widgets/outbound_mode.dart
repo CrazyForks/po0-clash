@@ -33,7 +33,6 @@ class OutboundMode extends ConsumerWidget {
               hoverColor: Colors.transparent,
             ),
             child: CommonCard(
-              radius: AppCorner.lg,
               onPressed: () {},
               skipTraversal: true,
               info: Info(
@@ -113,104 +112,36 @@ class OutboundModeV2 extends StatelessWidget {
     ref.read(setupActionProvider.notifier).changeMode(mode);
   }
 
-  Color _getTextColor(BuildContext context, Mode mode) {
-    return switch (mode) {
-      Mode.rule => context.colorScheme.onSecondaryContainer,
-      Mode.global => context.colorScheme.onPrimaryContainer,
-      Mode.direct => context.colorScheme.onTertiaryContainer,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    final height = getWidgetHeight(1);
     return SizedBox(
-      height: height,
+      height: getWidgetHeight(1),
       child: CommonCard(
-        radius: AppCorner.lg,
         child: Consumer(
           builder: (_, ref, _) {
             final mode = ref.watch(
               patchClashConfigProvider.select((state) => state.mode),
             );
-            final thumbColor = switch (mode) {
-              Mode.rule => context.colorScheme.secondaryContainer,
-              Mode.global => globalState.theme.darken3PrimaryContainer,
-              Mode.direct => context.colorScheme.tertiaryContainer,
-            };
-            return LayoutBuilder(
-              builder: (_, constraints) {
-                return Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        constraints: const BoxConstraints.expand(),
-                        child: CommonTabBar<Mode>(
-                          children: {
-                            for (final item in Mode.values)
-                              item: _ModeTab(
-                                label: item.label,
-                                height: height - 8.ap - 24,
-                                color: item == mode
-                                    ? _getTextColor(context, item)
-                                    : null,
-                              ),
-                          },
-                          padding: const EdgeInsets.symmetric(horizontal: 0),
-                          groupValue: mode,
-                          onValueChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-                            _handleChangeMode(value, ref);
-                          },
-                          thumbColor: thumbColor,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: thumbColor.opacity50,
-                      height: 8.ap,
-                      width: constraints.maxWidth,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                  ],
-                );
-              },
+            return Padding(
+              padding: const EdgeInsets.all(12),
+              child: Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<Mode>(
+                    segments: [
+                      for (final item in Mode.values)
+                        ButtonSegment(value: item, label: Text(item.label)),
+                    ],
+                    selected: {mode},
+                    onSelectionChanged: (selection) {
+                      _handleChangeMode(selection.single, ref);
+                    },
+                  ),
+                ),
+              ),
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _ModeTab extends StatelessWidget {
-  const _ModeTab({
-    required this.label,
-    required this.height,
-    required this.color,
-  });
-
-  final String label;
-  final double height;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(),
-      height: height,
-      padding: const EdgeInsets.all(4),
-      child: Text(
-        label,
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.adjustSize(1).copyWith(color: color),
       ),
     );
   }

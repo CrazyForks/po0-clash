@@ -89,21 +89,18 @@ class _HomeShell extends ConsumerWidget {
               removeLeft: true,
               removeRight: true,
               context: context,
-              child: NavigationBarTheme(
-                data: _NavigationBarDefaultsM3(context),
-                child: NavigationBar(
-                  destinations: [
-                    for (final item in navigationItems)
-                      NavigationDestination(
-                        icon: item.icon,
-                        label: item.label.label,
-                      ),
-                  ],
-                  onDestinationSelected: (index) {
-                    _handleToPage(navigationItems[index].label, ref);
-                  },
-                  selectedIndex: state.currentIndex,
-                ),
+              child: NavigationBar(
+                destinations: [
+                  for (final item in navigationItems)
+                    NavigationDestination(
+                      icon: item.icon,
+                      label: item.label.label,
+                    ),
+                ],
+                onDestinationSelected: (index) {
+                  _handleToPage(navigationItems[index].label, ref);
+                },
+                selectedIndex: state.currentIndex,
               ),
             ),
           ),
@@ -139,12 +136,14 @@ class _NavigationPage extends StatelessWidget {
               onDidRemovePage: (_) {},
             ),
     );
-    final animateEntrance = !isMobile && HeroTheme.maybeOf(context) != null;
     return Consumer(
       builder: (_, ref, child) {
         final isActive = ref.watch(
           currentPageLabelProvider.select((label) => label == item.label),
         );
+        final animateEntrance =
+            ref.watch(appSettingProvider.select((it) => it.isAnimateToPage)) &&
+            !context.disableAnimations;
         return PageActivityScope(
           isActive: isActive,
           child: ExcludeFocus(
@@ -162,9 +161,7 @@ class _NavigationPage extends StatelessWidget {
   }
 }
 
-/// Fades a desktop page in as it becomes current. The desktop page view jumps
-/// between pages, so without this a switch is a hard cut. The transitions stay
-/// in the tree when disabled so toggling never rebuilds the page below.
+/// The incoming 65% of the fade-through; stays in the tree when disabled.
 class PageEntrance extends StatefulWidget {
   const PageEntrance({
     super.key,
@@ -173,7 +170,7 @@ class PageEntrance extends StatefulWidget {
     required this.child,
   });
 
-  static const duration = Duration(milliseconds: 280);
+  static const duration = Duration(milliseconds: 195);
 
   final bool active;
   final bool enabled;
@@ -187,7 +184,7 @@ class _PageEntranceState extends State<PageEntrance>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
-  late final Animation<Offset> _offset;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
@@ -199,13 +196,10 @@ class _PageEntranceState extends State<PageEntrance>
     );
     final curve = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutCubic,
+      curve: Easing.emphasizedDecelerate,
     );
     _opacity = curve;
-    _offset = Tween(
-      begin: const Offset(0, 0.015),
-      end: Offset.zero,
-    ).animate(curve);
+    _scale = Tween(begin: 0.92, end: 1.0).animate(curve);
     if (widget.enabled && widget.active) {
       _controller.forward(from: 0);
     }
@@ -229,7 +223,7 @@ class _PageEntranceState extends State<PageEntrance>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _opacity,
-      child: SlideTransition(position: _offset, child: widget.child),
+      child: ScaleTransition(scale: _scale, child: widget.child),
     );
   }
 }
@@ -247,8 +241,18 @@ class _HomePageView extends ConsumerStatefulWidget {
   ConsumerState createState() => _HomePageViewState();
 }
 
-class _HomePageViewState extends ConsumerState<_HomePageView> {
+class _HomePageViewState extends ConsumerState<_HomePageView>
+    with SingleTickerProviderStateMixin {
+  /// Outgoing 35% of the 300 ms fade-through, before the page view jumps.
+  static const _fadeOutDuration = Duration(milliseconds: 105);
+
   late PageController _pageController;
+  late final AnimationController _outgoing = AnimationController(
+    vsync: this,
+    duration: _fadeOutDuration,
+    value: 1,
+  );
+  int _switchVersion = 0;
 
   @override
   void initState() {
@@ -287,17 +291,19 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     if (index == -1) {
       return;
     }
-    final isAnimateToPage = ref.read(appSettingProvider).isAnimateToPage;
-    final isMobile = ref.read(isMobileViewProvider);
-    if (isAnimateToPage && isMobile && !ignoreAnimateTo) {
-      await _pageController.animateToPage(
-        index,
-        duration: kTabScrollDuration,
-        curve: Curves.easeOut,
-      );
-    } else {
-      _pageController.jumpToPage(index);
+    final version = ++_switchVersion;
+    final animate =
+        ref.read(appSettingProvider).isAnimateToPage &&
+        !context.disableAnimations &&
+        !ignoreAnimateTo;
+    if (animate) {
+      await _outgoing.animateTo(0, curve: Easing.standardAccelerate);
+      if (!mounted || version != _switchVersion) {
+        return;
+      }
     }
+    _pageController.jumpToPage(index);
+    _outgoing.value = 1;
   }
 
   void _updatePageController() {
@@ -307,6 +313,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
 
   @override
   void dispose() {
+    _outgoing.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -316,7 +323,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     final itemCount = ref.watch(
       currentNavigationItemsStateProvider.select((state) => state.value.length),
     );
-    return PageView.builder(
+    final pageView = PageView.builder(
       controller: _pageController,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
@@ -333,63 +340,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
         return widget.pageBuilder(context, index);
       },
     );
-  }
-}
-
-class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
-  _NavigationBarDefaultsM3(this.context)
-    : super(
-        height: 80.0,
-        elevation: 3.0,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-      );
-
-  final BuildContext context;
-  late final ColorScheme _colors = Theme.of(context).colorScheme;
-  late final TextTheme _textTheme = Theme.of(context).textTheme;
-
-  @override
-  Color? get backgroundColor => _colors.surfaceContainer;
-
-  @override
-  Color? get shadowColor => Colors.transparent;
-
-  @override
-  Color? get surfaceTintColor => Colors.transparent;
-
-  @override
-  WidgetStateProperty<IconThemeData?>? get iconTheme {
-    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
-      return IconThemeData(
-        size: 24.0,
-        color: states.contains(WidgetState.disabled)
-            ? _colors.onSurfaceVariant.opacity38
-            : states.contains(WidgetState.selected)
-            ? _colors.onSecondaryContainer
-            : _colors.onSurfaceVariant,
-      );
-    });
-  }
-
-  @override
-  Color? get indicatorColor => _colors.secondaryContainer;
-
-  @override
-  ShapeBorder? get indicatorShape => AppShape.full;
-
-  @override
-  WidgetStateProperty<TextStyle?>? get labelTextStyle {
-    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
-      final TextStyle style = _textTheme.labelMedium!;
-      return style.apply(
-        overflow: TextOverflow.ellipsis,
-        color: states.contains(WidgetState.disabled)
-            ? _colors.onSurfaceVariant.opacity38
-            : states.contains(WidgetState.selected)
-            ? _colors.onSurface
-            : _colors.onSurfaceVariant,
-      );
-    });
+    return FadeTransition(opacity: _outgoing, child: pageView);
   }
 }
 

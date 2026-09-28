@@ -2530,10 +2530,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Only effective in mobile view`
+  /// `Fade between main pages when switching`
   String get tabAnimationDesc {
     return Intl.message(
-      'Only effective in mobile view',
+      'Fade between main pages when switching',
       name: 'tabAnimationDesc',
       desc: '',
       args: [],

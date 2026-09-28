@@ -1,66 +1,9 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/widgets/inherited.dart';
 import 'package:material_ui/material_ui.dart';
-
-class EffectGestureDetector extends StatefulWidget {
-  final Widget child;
-  final GestureLongPressCallback? onLongPress;
-  final GestureTapCallback? onTap;
-
-  const EffectGestureDetector({
-    super.key,
-    required this.child,
-    this.onLongPress,
-    this.onTap,
-  });
-
-  @override
-  State<EffectGestureDetector> createState() => _EffectGestureDetectorState();
-}
-
-class _EffectGestureDetectorState extends State<EffectGestureDetector>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  double _scale = 1;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: _scale,
-      duration: kThemeAnimationDuration,
-      curve: Curves.easeOut,
-      child: GestureDetector(
-        onLongPress: widget.onLongPress,
-        onLongPressStart: (_) {
-          setState(() {
-            _scale = 0.95;
-          });
-        },
-        onTap: widget.onTap,
-        onLongPressEnd: (_) {
-          setState(() {
-            _scale = 1;
-          });
-        },
-        child: widget.child,
-      ),
-    );
-  }
-}
 
 class CommonExpandIcon extends StatefulWidget {
   final bool expand;
@@ -79,13 +22,13 @@ class _CommonExpandIconState extends State<CommonExpandIcon>
   static final Animatable<double> _iconTurnTween = Tween<double>(
     begin: 0.0,
     end: 0.5,
-  ).chain(CurveTween(curve: Curves.fastOutSlowIn));
+  ).chain(CurveTween(curve: Easing.standard));
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: Durations.short4,
       vsync: this,
     );
     _iconTurns = _animationController.drive(_iconTurnTween);
@@ -133,11 +76,16 @@ Widget commonProxyDecorator(
     isProxyDecorator: true,
     child: AnimatedBuilder(
       animation: animation,
-      builder: (_, Widget? child) {
-        final double animValue = Curves.easeInOut.transform(animation.value);
-        final double scale = lerpDouble(1, 1.02, animValue)!;
-        return Transform.scale(scale: scale, child: child);
-      },
+      builder: (_, Widget? child) => Material(
+        elevation: lerpDouble(
+          0,
+          6,
+          Easing.standard.transform(animation.value),
+        )!,
+        color: Colors.transparent,
+        shape: AppShape.medium,
+        child: child,
+      ),
       child: child,
     ),
   );

@@ -40,21 +40,34 @@ class Po0FirewallView extends StatelessWidget {
 
 enum _Tone { success, warning, danger, primary, neutral }
 
-({Color color, Color container}) _toneColors(BuildContext context, _Tone tone) {
-  final hero = HeroTheme.maybeOf(context);
+/// Material 3 has no success or warning roles; they use primary and tertiary.
+({Color accent, Color container, Color onContainer}) _toneColors(
+  BuildContext context,
+  _Tone tone,
+) {
   final colorScheme = context.colorScheme;
-  final color = switch (tone) {
-    _Tone.success => hero?.success ?? colorScheme.primary,
-    _Tone.warning => hero?.warning ?? colorScheme.tertiary,
-    _Tone.danger => colorScheme.error,
-    _Tone.primary => colorScheme.primary,
-    _Tone.neutral => colorScheme.onSurfaceVariant,
+  return switch (tone) {
+    _Tone.success || _Tone.primary => (
+      accent: colorScheme.primary,
+      container: colorScheme.primaryContainer,
+      onContainer: colorScheme.onPrimaryContainer,
+    ),
+    _Tone.warning => (
+      accent: colorScheme.tertiary,
+      container: colorScheme.tertiaryContainer,
+      onContainer: colorScheme.onTertiaryContainer,
+    ),
+    _Tone.danger => (
+      accent: colorScheme.error,
+      container: colorScheme.errorContainer,
+      onContainer: colorScheme.onErrorContainer,
+    ),
+    _Tone.neutral => (
+      accent: colorScheme.onSurfaceVariant,
+      container: colorScheme.surfaceContainerHighest,
+      onContainer: colorScheme.onSurfaceVariant,
+    ),
   };
-  final base = hero?.content1 ?? colorScheme.surfaceContainerLow;
-  return (
-    color: color,
-    container: Color.alphaBlend(color.withValues(alpha: 0.16), base),
-  );
 }
 
 _Tone _toneOf(Po0ResultType type) => switch (type) {
@@ -234,7 +247,9 @@ class _OverviewCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AnimatedSwitcher(
-                      duration: commonDuration,
+                      duration: Durations.short4,
+                      switchInCurve: Easing.standard,
+                      switchOutCurve: Easing.standard,
                       child: Text(
                         title,
                         key: ValueKey(title),
@@ -320,15 +335,14 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _toneColors(context, tone);
-    final hero = HeroTheme.maybeOf(context);
     return AnimatedContainer(
-      duration: commonDuration,
-      curve: Curves.easeOutCubic,
+      duration: Durations.medium2,
+      curve: Easing.standard,
       width: 52,
       height: 52,
       decoration: ShapeDecoration(
         color: colors.container,
-        shape: hero != null ? AppShape.all(HeroCorner.medium) : AppShape.md,
+        shape: AppShape.medium,
       ),
       child: Center(
         child: spinning
@@ -336,10 +350,10 @@ class _StatusBadge extends StatelessWidget {
                 dimension: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: colors.color,
+                  color: colors.onContainer,
                 ),
               )
-            : Icon(icon, color: colors.color, size: 28),
+            : Icon(icon, color: colors.onContainer, size: 28),
       ),
     );
   }
@@ -754,12 +768,12 @@ class _TokenCard extends StatelessWidget {
                       begin: 0,
                       end: (used / limit).clamp(0, 1).toDouble(),
                     ),
-                    duration: const Duration(milliseconds: 600),
-                    curve: Curves.easeOutCubic,
+                    duration: Durations.long2,
+                    curve: Easing.emphasizedDecelerate,
                     builder: (_, value, _) => LinearProgressIndicator(
                       value: value,
                       minHeight: 6,
-                      color: _toneColors(context, _toneOf(result.type)).color,
+                      color: _toneColors(context, _toneOf(result.type)).accent,
                     ),
                   ),
                 ),
@@ -802,21 +816,13 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _toneColors(context, tone);
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: colors.container,
-        shape: AppShape.full,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Text(
-          label,
-          style: context.textTheme.labelMedium?.copyWith(
-            color: colors.color,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+    return Chip(
+      label: Text(label),
+      labelStyle: TextStyle(color: colors.onContainer),
+      backgroundColor: colors.container,
+      side: BorderSide.none,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }
@@ -829,47 +835,23 @@ class _EntryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-    final hero = HeroTheme.maybeOf(context);
     final colors = _toneColors(context, _Tone.primary);
-    final foreground = isCurrent ? colors.color : colorScheme.onSurface;
     final slot = entry.slot;
-    final chip = DecoratedBox(
-      decoration: ShapeDecoration(
-        color: isCurrent
-            ? colors.container
-            : hero?.default100 ?? colorScheme.surfaceContainerHigh,
-        shape: AppShape.full,
+    final chip = Chip(
+      avatar: isCurrent
+          ? const Icon(Icons.my_location)
+          : slot != null
+          ? const Icon(Icons.push_pin)
+          : null,
+      label: Text(slot == null ? entry.ip : '${entry.ip} · $slot'),
+      labelStyle: TextStyle(
+        fontFamily: 'JetBrainsMono',
+        color: isCurrent ? colors.onContainer : null,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isCurrent) ...[
-              Icon(Icons.my_location, size: 14, color: foreground),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              entry.ip,
-              style: context.textTheme.labelMedium?.copyWith(
-                color: foreground,
-                fontFamily: 'JetBrainsMono',
-              ),
-            ),
-            if (slot != null) ...[
-              const SizedBox(width: 6),
-              Icon(Icons.push_pin, size: 13, color: foreground),
-              Text(
-                '$slot',
-                style: context.textTheme.labelSmall?.copyWith(
-                  color: foreground,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+      backgroundColor: isCurrent ? colors.container : null,
+      side: isCurrent ? BorderSide.none : null,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
     return isCurrent
         ? Tooltip(message: context.appLocalizations.po0CurrentExit, child: chip)

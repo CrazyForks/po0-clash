@@ -91,7 +91,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             icon: const Icon(Icons.add_circle),
           ),
         ),
-      FadeRotationScaleBox(
+      FadeScaleBox(
         child: isEdit
             ? IconButton(
                 tooltip: context.appLocalizations.save,

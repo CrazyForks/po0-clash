@@ -38,46 +38,41 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
         targetBuilder: (open) {
           return IconButton(
             tooltip: context.appLocalizations.more,
-            onPressed: () {
-              final isMobile = ref.read(isMobileViewProvider);
-              open(offset: Offset(0, isMobile ? 0 : 20));
-            },
+            onPressed: open,
             icon: const Icon(Icons.more_vert),
           );
         },
-        popupBuilder: (_) => CommonPopupMenu(
-          items: [
+        items: [
+          CommonPopupMenuItem(
+            icon: Icons.tune,
+            label: appLocalizations.settings,
+            onPressed: () {
+              showSheet(
+                context: context,
+                props: const SheetProps(isScrollControlled: true),
+                builder: (_) {
+                  return AdaptiveSheetScaffold(
+                    body: const ProxiesSetting(),
+                    title: appLocalizations.settings,
+                  );
+                },
+              );
+            },
+          ),
+          if (_hasProviders)
             CommonPopupMenuItem(
-              icon: Icons.tune,
-              label: appLocalizations.settings,
+              icon: Icons.poll_outlined,
+              label: appLocalizations.providers,
               onPressed: () {
-                showSheet(
-                  context: context,
-                  props: const SheetProps(isScrollControlled: true),
+                showExtend(
+                  context,
                   builder: (_) {
-                    return AdaptiveSheetScaffold(
-                      body: const ProxiesSetting(),
-                      title: appLocalizations.settings,
-                    );
+                    return const ProvidersView();
                   },
                 );
               },
             ),
-            if (_hasProviders)
-              CommonPopupMenuItem(
-                icon: Icons.poll_outlined,
-                label: appLocalizations.providers,
-                onPressed: () {
-                  showExtend(
-                    context,
-                    builder: (_) {
-                      return const ProvidersView();
-                    },
-                  );
-                },
-              ),
-          ],
-        ),
+        ],
       ),
     ];
   }

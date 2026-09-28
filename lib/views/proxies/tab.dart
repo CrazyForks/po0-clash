@@ -348,8 +348,8 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
             ),
         _controller.position.maxScrollExtent,
       ),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeIn,
+      duration: Durations.medium2,
+      curve: Easing.standard,
     );
   }
 
@@ -425,12 +425,9 @@ class _DelayTestButtonState extends State<DelayTestButton>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    _controller = AnimationController(vsync: this, duration: Durations.medium2);
     _animation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack),
+      CurvedAnimation(parent: _controller, curve: Easing.emphasizedDecelerate),
     );
   }
 

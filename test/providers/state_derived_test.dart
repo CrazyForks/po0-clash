@@ -65,8 +65,9 @@ void main() {
   test('navigation providers select items for width and current page', () {
     container
         .read(viewSizeProvider.notifier)
-        .update((_) => Size(maxMobileWidth.toDouble(), 800));
+        .update((_) => const Size(maxMobileWidth - 1, 800));
     final mobile = container.read(currentNavigationItemsStateProvider).value;
+    expect(container.read(navigationStateProvider).viewMode, ViewMode.mobile);
     expect(
       mobile.map((item) => item.label),
       containsAll([PageLabel.dashboard, PageLabel.profiles, PageLabel.tools]),
@@ -74,6 +75,18 @@ void main() {
     expect(
       mobile.map((item) => item.label),
       isNot(contains(PageLabel.connections)),
+    );
+
+    container
+        .read(viewSizeProvider.notifier)
+        .update((_) => Size(maxMobileWidth.toDouble(), 800));
+    expect(container.read(navigationStateProvider).viewMode, ViewMode.laptop);
+    expect(
+      container
+          .read(currentNavigationItemsStateProvider)
+          .value
+          .map((item) => item.label),
+      contains(PageLabel.connections),
     );
 
     container

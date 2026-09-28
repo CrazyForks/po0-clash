@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-const _transitionDuration = Duration(milliseconds: 300);
+const _transitionDuration = Durations.medium2;
 
 enum _VisibilityMotion {
   sidebar(

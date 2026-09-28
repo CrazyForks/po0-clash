@@ -19,15 +19,15 @@ class _IconEditStateNotifier<T> extends ChangeNotifier {
     _controller = AnimationController(vsync: vsync, duration: duration);
     _layout = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeInOut),
+      curve: const Interval(0.0, 0.6, curve: Easing.standard),
     );
     _opacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack),
+      curve: const Interval(0.6, 1.0, curve: Easing.emphasizedDecelerate),
     );
     _scale = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack),
+      curve: const Interval(0.6, 1.0, curve: Easing.emphasizedDecelerate),
     );
     _controller.addListener(notifyListeners);
   }
@@ -91,7 +91,7 @@ class _IconEditViewState extends ConsumerState<IconEditView>
     _recordsNotifier = ValueNotifier([]);
     _state = _IconEditStateNotifier<File?>(
       vsync: this,
-      duration: commonDuration * 2,
+      duration: Durations.long4,
     );
     _handleInputRealChange();
   }
@@ -277,7 +277,6 @@ class _IconPreview extends StatelessWidget {
                     child: file != null
                         ? CommonCard(
                             type: CommonCardType.filled,
-                            radius: AppCorner.md,
                             padding: const EdgeInsets.all(8),
                             child: CommonImage(
                               isSvg: srcController.text.isSvg,
@@ -311,7 +310,6 @@ class _IconSrcField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonCard(
-      radius: AppCorner.md,
       type: CommonCardType.filled,
       child: ListTile(
         minTileHeight: dimension,

@@ -18,7 +18,7 @@ const _enterStaggerLimit = 8;
 const _enterStaggerStep = Duration(milliseconds: 20);
 const _enterSlideBase = 32.0;
 const _enterSlideStep = 8.0;
-final _enterWindow = commonDuration + _enterStaggerStep * _enterStaggerLimit;
+final _enterWindow = Durations.medium2 + _enterStaggerStep * _enterStaggerLimit;
 
 class ProxiesListView extends ConsumerStatefulWidget {
   const ProxiesListView({super.key});
@@ -270,8 +270,8 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
           _controller.position.minScrollExtent,
           _controller.position.maxScrollExtent,
         ),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeIn,
+        duration: Durations.medium2,
+        curve: Easing.standard,
       );
     }
   }
@@ -398,7 +398,6 @@ class _ListHeaderState extends ConsumerState<ListHeader> {
       enterActionsOnRight: true,
       enterAnimated: widget.enterAnimated,
       key: widget.key,
-      radius: AppCorner.xl.ap,
       type: CommonCardType.filled,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -458,7 +457,7 @@ class _GroupIcon extends ConsumerWidget {
                 padding: EdgeInsets.all(6.ap),
                 decoration: ShapeDecoration(
                   color: context.colorScheme.secondaryContainer,
-                  shape: AppShape.md,
+                  shape: AppShape.medium,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: IconTheme.merge(

@@ -325,7 +325,7 @@
   "noResolve": "不解析IP",
   "saveChanges": "是否保存更改？",
   "findProcessModeDesc": "开启后会有一定性能损耗",
-  "tabAnimationDesc": "仅在移动视图中有效",
+  "tabAnimationDesc": "切换主页面时淡出淡入",
   "colorSchemes": "配色方案",
   "palette": "调色板",
   "tonalSpotScheme": "调性点缀",

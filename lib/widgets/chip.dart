@@ -1,6 +1,6 @@
-import 'package:fl_clash/common/common.dart';
 import 'package:material_ui/material_ui.dart';
 
+/// An assist chip, or an input chip when it can be deleted.
 class CommonChip extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -15,46 +15,22 @@ class CommonChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-    final foregroundColor = colorScheme.onSurfaceVariant;
-    final content = Padding(
-      padding: EdgeInsets.only(
-        left: 8,
-        right: onDeleted != null ? 6 : 8,
-        top: 3,
-        bottom: 3,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 4,
-        children: [
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.labelMedium?.copyWith(
-                color: foregroundColor,
-              ),
-            ),
-          ),
-          if (onDeleted != null)
-            GestureDetector(
-              onTap: onDeleted,
-              child: Icon(Icons.close, size: 14, color: foregroundColor),
-            ),
-        ],
-      ),
-    );
-    return Material(
-      color: colorScheme.surfaceContainerHighest,
-      shape: AppShape.sm.copyWith(
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: onPressed == null
-          ? content
-          : InkWell(onTap: onPressed, child: content),
+    final text = Text(label, maxLines: 1, overflow: TextOverflow.ellipsis);
+    final onDeleted = this.onDeleted;
+    if (onDeleted != null) {
+      return InputChip(
+        label: text,
+        onPressed: onPressed,
+        onDeleted: onDeleted,
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      );
+    }
+    return ActionChip(
+      label: text,
+      onPressed: onPressed,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }
@@ -66,25 +42,10 @@ class MetaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        shape: AppShape.sm.copyWith(
-          side: BorderSide(color: colorScheme.outlineVariant),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.labelSmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ),
+    return Chip(
+      label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/common.dart';
 import 'package:fl_clash/widgets/inherited.dart';
@@ -16,7 +14,6 @@ class SheetProps {
   final bool isScrollControlled;
   final bool useSafeArea;
   final Color? backgroundColor;
-  final bool blur;
 
   const SheetProps({
     this.maxWidth,
@@ -24,7 +21,6 @@ class SheetProps {
     this.backgroundColor,
     this.useSafeArea = true,
     this.isScrollControlled = false,
-    this.blur = true,
   });
 }
 
@@ -32,41 +28,16 @@ class SheetProps {
 class ExtendProps {
   final double? maxWidth;
   final bool useSafeArea;
-  final bool blur;
   final bool forceFull;
 
   const ExtendProps({
     this.maxWidth,
     this.useSafeArea = true,
-    this.blur = true,
     this.forceFull = false,
   });
 }
 
 enum SheetType { page, bottomSheet, sideSheet }
-
-/// HeroUI drawers dim the page instead of blurring it, and round the edge
-/// that faces the content.
-({ImageFilter? filter, Color? barrierColor, ShapeBorder? shape, Color? color})
-_sideSheetStyle(BuildContext context, {required bool blur}) {
-  final hero = HeroTheme.maybeOf(context);
-  if (hero == null) {
-    return (
-      filter: blur ? commonFilter : null,
-      barrierColor: null,
-      shape: null,
-      color: null,
-    );
-  }
-  return (
-    filter: null,
-    barrierColor: hero.scrim,
-    shape: AppShape.of(
-      const BorderRadius.horizontal(left: Radius.circular(HeroCorner.large)),
-    ),
-    color: hero.content1,
-  );
-}
 
 Future<T?> showSheet<T>({
   required BuildContext context,
@@ -90,7 +61,6 @@ Future<T?> showSheet<T>({
     ),
     false => _showSideSheet<T>(
       context: context,
-      blur: props.blur,
       useSafeArea: props.useSafeArea,
       isScrollControlled: props.isScrollControlled,
       backgroundColor: props.backgroundColor,
@@ -118,7 +88,6 @@ Future<T?> showExtend<T>(
     ),
     false => _showSideSheet<T>(
       context: context,
-      blur: props.blur,
       useSafeArea: props.useSafeArea,
       maxWidth: props.maxWidth,
       builder: (context) {
@@ -133,24 +102,24 @@ Future<T?> showExtend<T>(
 
 Future<T?> _showSideSheet<T>({
   required BuildContext context,
-  required bool blur,
   required bool useSafeArea,
   required WidgetBuilder builder,
   bool isScrollControlled = false,
   Color? backgroundColor,
   double? maxWidth,
 }) {
-  final style = _sideSheetStyle(context, blur: blur);
   return showModalSideSheet<T>(
     context: context,
     useSafeArea: useSafeArea,
     isScrollControlled: isScrollControlled,
-    backgroundColor: backgroundColor ?? style.color,
+    backgroundColor: backgroundColor ?? context.colorScheme.surfaceContainerLow,
     constraints: BoxConstraints(maxWidth: maxWidth ?? 360),
-    filter: style.filter,
-    barrierColor: style.barrierColor,
-    shape: style.shape,
-    clipBehavior: style.shape == null ? null : Clip.antiAlias,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadiusDirectional.horizontal(
+        start: Radius.circular(AppCorner.large),
+      ),
+    ),
+    clipBehavior: Clip.antiAlias,
     builder: builder,
   );
 }
@@ -276,8 +245,8 @@ class _AdaptiveSheetScaffoldState extends State<AdaptiveSheetScaffold> {
       return CommonScaffold(appBar: appBar, body: widget.body);
     }
     final sheetAppBar = _SheetToolBar(appBar: appBar);
-    return ClipRSuperellipse(
-      borderRadius: AppRadius.top(AppCorner.xxl),
+    return ClipRRect(
+      borderRadius: AppRadius.top(AppCorner.extraLarge),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

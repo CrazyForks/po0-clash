@@ -17,7 +17,7 @@ class PagedSheetRoute<T> extends PageRoute<T> with ObservableRouteMixin<T> {
     super.allowSnapshotting,
     super.requestFocus,
     this.maintainState = true,
-    this.duration = const Duration(milliseconds: 350),
+    this.duration = Durations.medium3,
     this.backgroundColor,
     this.transitionsBuilder,
     required this.builder,
@@ -107,7 +107,7 @@ class PagedSheet extends StatelessWidget {
       shape:
           shape ??
           (type == SheetType.bottomSheet
-              ? AppShape.top(AppCorner.xxl)
+              ? AppShape.top(AppCorner.extraLarge)
               : AppShape.none),
       clipBehavior: clipBehavior,
       child: NavigatorResizable(child: child),

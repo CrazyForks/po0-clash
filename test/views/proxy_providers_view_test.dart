@@ -105,7 +105,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  // Menu items run their action a frame after the menu closes.
   Future<void> settleTrailing(WidgetTester tester) async {
+    await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
   }
@@ -139,9 +141,7 @@ void main() {
     },
   );
 
-  testWidgets('shows typed provider counts in compact metadata chips', (
-    tester,
-  ) async {
+  testWidgets('shows typed provider counts in metadata chips', (tester) async {
     final container = containerFor(tester, [
       _provider('proxy-with-count', count: 7),
       _provider('rule-with-count', type: 'Rule', count: 9),
@@ -160,7 +160,6 @@ void main() {
       matching: find.byType(MetaChip),
     );
     expect(countChip, findsOneWidget);
-    expect(tester.getSize(countChip).height, lessThanOrEqualTo(20));
     expect(
       tester.getTopLeft(countChip).dy -
           tester.getBottomLeft(find.text('proxy-with-count')).dy,
@@ -177,29 +176,9 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.byType(Chip), findsNothing);
-    final decoratedBox = find.descendant(
-      of: countChip,
-      matching: find.byType(DecoratedBox),
-    );
-    final decoration =
-        tester.widget<DecoratedBox>(decoratedBox).decoration as ShapeDecoration;
-    final padding = tester.widget<Padding>(
-      find.descendant(of: countChip, matching: find.byType(Padding)),
-    );
-    final colorScheme = Theme.of(tester.element(countChip)).colorScheme;
-    expect(decoration.color, colorScheme.surfaceContainerHighest);
     expect(
-      decoration.shape,
-      AppShape.sm.copyWith(side: BorderSide(color: colorScheme.outlineVariant)),
-    );
-    expect(
-      padding.padding,
-      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-    );
-    expect(
-      tester.widget<Text>(find.text(l10n.proxiesCount(7))).style?.color,
-      colorScheme.onSurfaceVariant,
+      find.descendant(of: countChip, matching: find.byType(Chip)),
+      findsOneWidget,
     );
     expect(find.byType(MetaChip), findsNWidgets(5));
     expect(tester.takeException(), null);
