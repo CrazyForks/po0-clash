@@ -241,7 +241,7 @@ class _ScrollbarHintPill extends StatelessWidget {
       key: const ValueKey('scrollbarHintPill'),
       decoration: ShapeDecoration(
         color: colorScheme.surfaceContainerHighest,
-        shape: AppShape.sm.copyWith(
+        shape: AppShape.small.copyWith(
           side: BorderSide(color: colorScheme.outlineVariant),
         ),
       ),

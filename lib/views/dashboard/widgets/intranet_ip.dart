@@ -14,7 +14,6 @@ class IntranetIP extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(1),
       child: CommonCard(
-        radius: AppCorner.lg,
         info: Info(label: appLocalizations.intranetIP, iconData: Icons.devices),
         onPressed: () {},
         child: Container(

@@ -52,8 +52,8 @@ class InitErrorScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: ShapeDecoration(
                   color: colorScheme.errorContainer.opacity50,
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: AppRadius.sm,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppRadius.small,
                     side: BorderSide(color: colorScheme.error.opacity50),
                   ),
                 ),
@@ -74,8 +74,8 @@ class InitErrorScreen extends StatelessWidget {
                   color: Theme.of(context).brightness == Brightness.dark
                       ? Colors.grey[900]
                       : Colors.grey[200],
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: AppRadius.sm,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppRadius.small,
                     side: BorderSide(color: Colors.grey.opacity50),
                   ),
                 ),

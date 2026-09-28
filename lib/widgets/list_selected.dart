@@ -24,7 +24,6 @@ class CommonSelectedListItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         color: Colors.transparent,
         child: CommonCard(
-          radius: AppCorner.xl,
           type: CommonCardType.filled,
           isSelected: isSelected,
           onPressed: () {
@@ -97,8 +96,8 @@ class DecorationListItem extends StatelessWidget {
       ItemPosition.startAndEnd,
     ].contains(position);
     final borderRadius = AppRadius.vertical(
-      top: isStart ? AppCorner.xl : AppCorner.none,
-      bottom: isEnd ? AppCorner.xl : AppCorner.none,
+      top: isStart ? AppCorner.medium : AppCorner.none,
+      bottom: isEnd ? AppCorner.medium : AppCorner.none,
     );
     return CommonCard(
       shape: proxyDecorator == true

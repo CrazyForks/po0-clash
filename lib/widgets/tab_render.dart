@@ -500,20 +500,17 @@ class _RenderSegmentedControl<T extends Object> extends RenderBox
   }
 
   void _paintThumb(PaintingContext context, Offset offset, Rect thumbRect) {
-    final RSuperellipse thumbRSuperellipse = RSuperellipse.fromRectAndRadius(
+    final RRect thumbRRect = RRect.fromRectAndRadius(
       thumbRect.shift(offset),
       _kThumbRadius,
     );
 
-    context.canvas.drawRSuperellipse(
-      thumbRSuperellipse.inflate(0.5),
+    context.canvas.drawRRect(
+      thumbRRect.inflate(0.5),
       Paint()..color = const Color(0x0A000000),
     );
 
-    context.canvas.drawRSuperellipse(
-      thumbRSuperellipse,
-      Paint()..color = thumbColor,
-    );
+    context.canvas.drawRRect(thumbRRect, Paint()..color = thumbColor);
   }
 
   @override

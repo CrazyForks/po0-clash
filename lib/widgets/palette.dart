@@ -194,11 +194,11 @@ class _HueTrackShape extends SliderTrackShape {
       colors.add(Color(Hct.from(i.toDouble(), 100, 60).toInt()));
     }
     final shader = LinearGradient(colors: colors).createShader(rect);
-    final shape = RSuperellipse.fromRectAndRadius(
+    final shape = RRect.fromRectAndRadius(
       rect,
       const Radius.circular(AppCorner.full),
     );
-    context.canvas.drawRSuperellipse(shape, Paint()..shader = shader);
+    context.canvas.drawRRect(shape, Paint()..shader = shader);
     _paintTrackHighlight(context.canvas, rect);
   }
 }
@@ -251,21 +251,21 @@ class _ChromaTrackShape extends SliderTrackShape {
       colors.add(Color(Hct.from(hue, (i / 49) * 150, 60).toInt()));
     }
     final shader = LinearGradient(colors: colors).createShader(rect);
-    final shape = RSuperellipse.fromRectAndRadius(
+    final shape = RRect.fromRectAndRadius(
       rect,
       const Radius.circular(AppCorner.full),
     );
-    context.canvas.drawRSuperellipse(shape, Paint()..shader = shader);
+    context.canvas.drawRRect(shape, Paint()..shader = shader);
     _paintTrackHighlight(context.canvas, rect);
   }
 }
 
 void _paintTrackHighlight(Canvas canvas, Rect rect) {
-  final shape = RSuperellipse.fromRectAndRadius(
+  final shape = RRect.fromRectAndRadius(
     rect.deflate(1),
     const Radius.circular(AppCorner.full),
   );
-  canvas.drawRSuperellipse(
+  canvas.drawRRect(
     shape,
     Paint()
       ..color = Colors.white.withValues(alpha: 0.35)
@@ -327,7 +327,7 @@ class _ToneGrid extends StatelessWidget {
                       child: Container(
                         decoration: ShapeDecoration(
                           color: color,
-                          shape: AppShape.sm,
+                          shape: AppShape.small,
                         ),
                         alignment: Alignment.center,
                         child: Text(
@@ -349,9 +349,9 @@ class _ToneGrid extends StatelessWidget {
                         child: IgnorePointer(
                           child: Container(
                             decoration: ShapeDecoration(
-                              shape: RoundedSuperellipseBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: AppRadius.all(
-                                  AppCorner.sm + _selectionRingInset,
+                                  AppCorner.small + _selectionRingInset,
                                 ),
                                 side: BorderSide(
                                   color: selectedBorderColor,
@@ -419,7 +419,7 @@ class _ColorSchemePreview extends StatelessWidget {
               Container(
                 width: itemWidth,
                 height: 44,
-                decoration: ShapeDecoration(color: bg, shape: AppShape.sm),
+                decoration: ShapeDecoration(color: bg, shape: AppShape.small),
                 alignment: Alignment.center,
                 child: Text(
                   label,

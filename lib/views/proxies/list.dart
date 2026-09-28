@@ -398,7 +398,6 @@ class _ListHeaderState extends ConsumerState<ListHeader> {
       enterActionsOnRight: true,
       enterAnimated: widget.enterAnimated,
       key: widget.key,
-      radius: AppCorner.xl.ap,
       type: CommonCardType.filled,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -458,7 +457,7 @@ class _GroupIcon extends ConsumerWidget {
                 padding: EdgeInsets.all(6.ap),
                 decoration: ShapeDecoration(
                   color: context.colorScheme.secondaryContainer,
-                  shape: AppShape.md,
+                  shape: AppShape.medium,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: IconTheme.merge(

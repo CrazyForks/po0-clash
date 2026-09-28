@@ -325,7 +325,7 @@
   "noResolve": "IPを解決しない",
   "saveChanges": "変更を保存しますか？",
   "findProcessModeDesc": "有効にすると、パフォーマンスが多少低下します",
-  "tabAnimationDesc": "モバイル表示でのみ有効です",
+  "tabAnimationDesc": "メインページの切り替え時にフェードします",
   "colorSchemes": "カラースキーム",
   "palette": "パレット",
   "tonalSpotScheme": "トーナルスポット",

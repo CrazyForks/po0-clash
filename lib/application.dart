@@ -61,22 +61,12 @@ class ApplicationState extends ConsumerState<Application> {
   Timer? _autoUpdateProfilesTaskTimer;
   bool _preHasVpn = false;
 
-  final _pageTransitionsTheme = const PageTransitionsTheme(
-    builders: <TargetPlatform, PageTransitionsBuilder>{
-      TargetPlatform.android: commonSharedXPageTransitions,
-      TargetPlatform.windows: commonSharedXPageTransitions,
-      TargetPlatform.linux: commonSharedXPageTransitions,
-      TargetPlatform.macOS: commonSharedXPageTransitions,
-    },
-  );
-
   ThemeData _buildTheme(Brightness brightness, ThemeProps themeProps) =>
       buildAppTheme(
         brightness: brightness,
         materialScheme: ref.read(genColorSchemeProvider(brightness)),
-        pageTransitionsTheme: _pageTransitionsTheme,
+        pageTransitionsTheme: appPageTransitionsTheme,
         themeProps: themeProps,
-        heroStyle: system.isWindows || system.isMacOS,
       );
 
   @override

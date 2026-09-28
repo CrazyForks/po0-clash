@@ -191,7 +191,9 @@ void main() {
     expect(decoration.color, colorScheme.surfaceContainerHighest);
     expect(
       decoration.shape,
-      AppShape.sm.copyWith(side: BorderSide(color: colorScheme.outlineVariant)),
+      AppShape.small.copyWith(
+        side: BorderSide(color: colorScheme.outlineVariant),
+      ),
     );
     expect(
       padding.padding,

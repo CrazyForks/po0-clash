@@ -442,7 +442,7 @@ class _MessageCard extends StatelessWidget {
         },
         child: Card(
           margin: EdgeInsets.zero,
-          shape: AppShape.lg,
+          shape: AppShape.extraSmall,
           elevation: 6,
           color: message.level.containerColor(context),
           child: ConstrainedBox(

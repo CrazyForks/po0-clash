@@ -1,5 +1,6 @@
 export 'app_localizations.dart';
 export 'app_ports.dart';
+export 'app_theme.dart';
 export 'changelog.dart';
 export 'color.dart';
 export 'compute.dart';
@@ -12,7 +13,6 @@ export 'exception.dart';
 export 'file.dart';
 export 'fixed.dart';
 export 'function.dart';
-export 'hero_theme.dart';
 export 'future.dart';
 export 'http.dart';
 export 'icons.dart';

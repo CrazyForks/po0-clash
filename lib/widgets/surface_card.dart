@@ -1,7 +1,8 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// A grouping surface; a [Material] so the list tiles inside keep their ink.
+/// A Material 3 filled card; a [Material] so the list tiles inside keep their
+/// ink.
 class SurfaceCard extends StatelessWidget {
   const SurfaceCard({
     super.key,
@@ -14,23 +15,11 @@ class SurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hero = HeroTheme.maybeOf(context);
-    final shape = hero != null
-        ? AppShape.all(
-            HeroCorner.large,
-          ).copyWith(side: BorderSide(color: hero.ring))
-        : AppShape.xl;
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: shape,
-        shadows: hero?.shadowSoft ?? const [],
-      ),
-      child: Material(
-        color: hero?.content1 ?? context.colorScheme.surfaceContainerLow,
-        shape: shape,
-        clipBehavior: Clip.antiAlias,
-        child: Padding(padding: padding, child: child),
-      ),
+    return Material(
+      color: context.colorScheme.surfaceContainerHighest,
+      shape: AppShape.medium,
+      clipBehavior: Clip.antiAlias,
+      child: Padding(padding: padding, child: child),
     );
   }
 }

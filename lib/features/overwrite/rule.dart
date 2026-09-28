@@ -341,7 +341,6 @@ class _AddOrEditRuleDialogState extends State<AddOrEditRuleDialog> {
                     onPressed: () async {
                       _ruleAction =
                           await dialogs.showCommonDialog<RuleAction>(
-                            filter: false,
                             child: OptionsDialog<RuleAction>(
                               title: appLocalizations.ruleName,
                               options: RuleAction.addedRuleActions,
@@ -488,7 +487,7 @@ class _RuleFlagChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonCard(
-      radius: AppCorner.sm,
+      radius: AppCorner.small,
       isSelected: isSelected,
       onPressed: onPressed,
       child: Padding(

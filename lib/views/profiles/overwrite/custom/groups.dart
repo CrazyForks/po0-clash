@@ -731,7 +731,7 @@ class _NumberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      shape: AppShape.md,
+      shape: AppShape.small,
       child: Container(
         constraints: const BoxConstraints(minWidth: 32),
         alignment: Alignment.center,

@@ -448,7 +448,7 @@ class _AccessViewState extends ConsumerState<AccessView> {
         Card.filled(
           color: context.colorScheme.primary,
           elevation: 0,
-          shape: AppShape.md,
+          shape: AppShape.small,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(

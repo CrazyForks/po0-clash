@@ -40,21 +40,34 @@ class Po0FirewallView extends StatelessWidget {
 
 enum _Tone { success, warning, danger, primary, neutral }
 
-({Color color, Color container}) _toneColors(BuildContext context, _Tone tone) {
-  final hero = HeroTheme.maybeOf(context);
+/// Material 3 has no success or warning roles; they use primary and tertiary.
+({Color accent, Color container, Color onContainer}) _toneColors(
+  BuildContext context,
+  _Tone tone,
+) {
   final colorScheme = context.colorScheme;
-  final color = switch (tone) {
-    _Tone.success => hero?.success ?? colorScheme.primary,
-    _Tone.warning => hero?.warning ?? colorScheme.tertiary,
-    _Tone.danger => colorScheme.error,
-    _Tone.primary => colorScheme.primary,
-    _Tone.neutral => colorScheme.onSurfaceVariant,
+  return switch (tone) {
+    _Tone.success || _Tone.primary => (
+      accent: colorScheme.primary,
+      container: colorScheme.primaryContainer,
+      onContainer: colorScheme.onPrimaryContainer,
+    ),
+    _Tone.warning => (
+      accent: colorScheme.tertiary,
+      container: colorScheme.tertiaryContainer,
+      onContainer: colorScheme.onTertiaryContainer,
+    ),
+    _Tone.danger => (
+      accent: colorScheme.error,
+      container: colorScheme.errorContainer,
+      onContainer: colorScheme.onErrorContainer,
+    ),
+    _Tone.neutral => (
+      accent: colorScheme.onSurfaceVariant,
+      container: colorScheme.surfaceContainerHighest,
+      onContainer: colorScheme.onSurfaceVariant,
+    ),
   };
-  final base = hero?.content1 ?? colorScheme.surfaceContainerLow;
-  return (
-    color: color,
-    container: Color.alphaBlend(color.withValues(alpha: 0.16), base),
-  );
 }
 
 _Tone _toneOf(Po0ResultType type) => switch (type) {
@@ -320,7 +333,6 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = _toneColors(context, tone);
-    final hero = HeroTheme.maybeOf(context);
     return AnimatedContainer(
       duration: commonDuration,
       curve: Curves.easeOutCubic,
@@ -328,7 +340,7 @@ class _StatusBadge extends StatelessWidget {
       height: 52,
       decoration: ShapeDecoration(
         color: colors.container,
-        shape: hero != null ? AppShape.all(HeroCorner.medium) : AppShape.md,
+        shape: AppShape.medium,
       ),
       child: Center(
         child: spinning
@@ -336,10 +348,10 @@ class _StatusBadge extends StatelessWidget {
                 dimension: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: colors.color,
+                  color: colors.onContainer,
                 ),
               )
-            : Icon(icon, color: colors.color, size: 28),
+            : Icon(icon, color: colors.onContainer, size: 28),
       ),
     );
   }
@@ -759,7 +771,7 @@ class _TokenCard extends StatelessWidget {
                     builder: (_, value, _) => LinearProgressIndicator(
                       value: value,
                       minHeight: 6,
-                      color: _toneColors(context, _toneOf(result.type)).color,
+                      color: _toneColors(context, _toneOf(result.type)).accent,
                     ),
                   ),
                 ),
@@ -812,7 +824,7 @@ class _Pill extends StatelessWidget {
         child: Text(
           label,
           style: context.textTheme.labelMedium?.copyWith(
-            color: colors.color,
+            color: colors.onContainer,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -830,15 +842,12 @@ class _EntryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final hero = HeroTheme.maybeOf(context);
     final colors = _toneColors(context, _Tone.primary);
-    final foreground = isCurrent ? colors.color : colorScheme.onSurface;
+    final foreground = isCurrent ? colors.onContainer : colorScheme.onSurface;
     final slot = entry.slot;
     final chip = DecoratedBox(
       decoration: ShapeDecoration(
-        color: isCurrent
-            ? colors.container
-            : hero?.default100 ?? colorScheme.surfaceContainerHigh,
+        color: isCurrent ? colors.container : colorScheme.surfaceContainerHigh,
         shape: AppShape.full,
       ),
       child: Padding(

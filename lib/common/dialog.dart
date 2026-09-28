@@ -17,17 +17,16 @@ class Dialogs {
     required Widget child,
     BuildContext? context,
     bool? dismissible,
-    bool filter = true,
   }) async {
+    final target = context ?? _context;
     return showModal<T>(
       useRootNavigator: false,
-      context: context ?? _context,
+      context: target,
       configuration: FadeScaleTransitionConfiguration(
-        barrierColor: Colors.black38,
+        barrierColor: Theme.of(target).colorScheme.modalScrim,
         barrierDismissible: dismissible ?? true,
       ),
       builder: (_) => child,
-      filter: filter ? commonFilter : null,
     );
   }
 

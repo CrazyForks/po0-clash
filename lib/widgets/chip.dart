@@ -48,7 +48,7 @@ class CommonChip extends StatelessWidget {
     );
     return Material(
       color: colorScheme.surfaceContainerHighest,
-      shape: AppShape.sm.copyWith(
+      shape: AppShape.small.copyWith(
         side: BorderSide(color: colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
@@ -70,7 +70,7 @@ class MetaChip extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: colorScheme.surfaceContainerHighest,
-        shape: AppShape.sm.copyWith(
+        shape: AppShape.small.copyWith(
           side: BorderSide(color: colorScheme.outlineVariant),
         ),
       ),

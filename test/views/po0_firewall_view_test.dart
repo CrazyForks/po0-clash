@@ -59,19 +59,10 @@ final _results = [
   ),
 ];
 
-ThemeData _heroTheme() => buildAppTheme(
-  brightness: Brightness.light,
-  materialScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-  pageTransitionsTheme: const PageTransitionsTheme(),
-  themeProps: const ThemeProps(),
-  heroStyle: true,
-);
-
 Future<_FakePo0Firewall> _pump(
   WidgetTester tester, {
   required Po0FirewallProps props,
   Po0FirewallState state = const Po0FirewallState(),
-  bool hero = false,
   bool settle = true,
 }) async {
   const size = Size(1200, 1000);
@@ -89,13 +80,10 @@ Future<_FakePo0Firewall> _pump(
   addTearDown(container.dispose);
   globalState.container = container;
   container.read(viewSizeProvider.notifier).update((_) => size);
-  const view = Po0FirewallView();
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: TestApp(
-        child: hero ? Theme(data: _heroTheme(), child: view) : view,
-      ),
+      child: const TestApp(child: Po0FirewallView()),
     ),
   );
   if (settle) {
@@ -265,18 +253,8 @@ void main() {
     expect(_filled(tester, 'Whitelist now').onPressed, isNull);
   });
 
-  testWidgets('HeroUI surfaces carry the ring and soft shadow', (tester) async {
-    await _pump(tester, props: _enabled, hero: true);
-    final card = tester.widget<DecoratedBox>(
-      find
-          .descendant(
-            of: find.byType(SurfaceCard).first,
-            matching: find.byType(DecoratedBox),
-          )
-          .first,
-    );
-    final decoration = card.decoration as ShapeDecoration;
-    expect(decoration.shadows, HeroTheme.light.shadowSoft);
+  testWidgets('surfaces are Material 3 filled cards', (tester) async {
+    await _pump(tester, props: _enabled);
     final material = tester.widget<Material>(
       find
           .descendant(
@@ -285,51 +263,44 @@ void main() {
           )
           .first,
     );
-    expect(material.color, HeroTheme.light.content1);
+    final context = tester.element(find.byType(SurfaceCard).first);
+    expect(
+      material.color,
+      Theme.of(context).colorScheme.surfaceContainerHighest,
+    );
+    expect(material.shape, AppShape.medium);
   });
 
-  group('generateSection', () {
-    Widget section({required bool hero}) {
-      final list = ListView(
-        children: generateSection(
-          title: 'Group',
-          items: const [
-            ListTile(title: Text('one')),
-            ListTile(title: Text('two')),
-          ],
-        ),
-      );
-      return TestApp(
+  testWidgets('generateSection keeps full-width rows', (tester) async {
+    await tester.pumpWidget(
+      TestApp(
         child: Scaffold(
-          body: hero ? Theme(data: _heroTheme(), child: list) : list,
+          body: ListView(
+            children: generateSection(
+              title: 'Group',
+              items: const [
+                ListTile(title: Text('one')),
+                ListTile(title: Text('two')),
+              ],
+            ),
+          ),
         ),
-      );
-    }
-
-    testWidgets('keeps full-width rows in Material', (tester) async {
-      await tester.pumpWidget(section(hero: false));
-      expect(find.byType(SurfaceCard), findsNothing);
-      expect(find.byType(Divider), findsOneWidget);
-      expect(find.text('Group'), findsOneWidget);
-    });
-
-    testWidgets('groups the rows into a card with HeroUI', (tester) async {
-      await tester.pumpWidget(section(hero: true));
-      expect(find.byType(SurfaceCard), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byType(SurfaceCard),
-          matching: find.text('two'),
-        ),
-        findsOneWidget,
-      );
-    });
+      ),
+    );
+    expect(find.byType(SurfaceCard), findsNothing);
+    expect(find.byType(Divider), findsOneWidget);
+    expect(find.text('Group'), findsOneWidget);
   });
 
   group('PageEntrance', () {
     double opacity(WidgetTester tester) => tester
         .widget<FadeTransition>(find.byType(FadeTransition))
         .opacity
+        .value;
+
+    double scale(WidgetTester tester) => tester
+        .widget<ScaleTransition>(find.byType(ScaleTransition))
+        .scale
         .value;
 
     Widget entrance({required bool active, required bool enabled}) =>
@@ -342,15 +313,19 @@ void main() {
           ),
         );
 
-    testWidgets('fades a page in when it becomes current', (tester) async {
+    testWidgets('fades and grows a page in when it becomes current', (
+      tester,
+    ) async {
       await tester.pumpWidget(entrance(active: false, enabled: true));
       expect(opacity(tester), 1);
 
       await tester.pumpWidget(entrance(active: true, enabled: true));
       await tester.pump(PageEntrance.duration ~/ 4);
       expect(opacity(tester), inExclusiveRange(0, 1));
+      expect(scale(tester), inExclusiveRange(0.92, 1));
       await tester.pumpAndSettle();
       expect(opacity(tester), 1);
+      expect(scale(tester), 1);
     });
 
     testWidgets('stays still when disabled', (tester) async {

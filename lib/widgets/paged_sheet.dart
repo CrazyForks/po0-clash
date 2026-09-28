@@ -107,7 +107,7 @@ class PagedSheet extends StatelessWidget {
       shape:
           shape ??
           (type == SheetType.bottomSheet
-              ? AppShape.top(AppCorner.xxl)
+              ? AppShape.top(AppCorner.extraLarge)
               : AppShape.none),
       clipBehavior: clipBehavior,
       child: NavigatorResizable(child: child),

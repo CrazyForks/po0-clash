@@ -277,7 +277,6 @@ class _IconPreview extends StatelessWidget {
                     child: file != null
                         ? CommonCard(
                             type: CommonCardType.filled,
-                            radius: AppCorner.md,
                             padding: const EdgeInsets.all(8),
                             child: CommonImage(
                               isSvg: srcController.text.isSvg,
@@ -311,7 +310,6 @@ class _IconSrcField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonCard(
-      radius: AppCorner.md,
       type: CommonCardType.filled,
       child: ListTile(
         minTileHeight: dimension,

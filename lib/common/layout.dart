@@ -33,8 +33,8 @@ bool showsWindowHeader({
 }
 
 ViewMode getViewMode(double viewWidth) {
-  if (viewWidth <= maxMobileWidth) return ViewMode.mobile;
-  if (viewWidth <= maxLaptopWidth) return ViewMode.laptop;
+  if (viewWidth < maxMobileWidth) return ViewMode.mobile;
+  if (viewWidth < maxLaptopWidth) return ViewMode.laptop;
   return ViewMode.desktop;
 }
 

@@ -109,7 +109,7 @@ class _CountBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card.filled(
-      shape: AppShape.md,
+      shape: AppShape.small,
       child: Container(
         constraints: const BoxConstraints(minWidth: 44),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -135,7 +135,7 @@ class _QuickFillBanner extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Container(
         clipBehavior: Clip.antiAlias,
-        decoration: const ShapeDecoration(shape: AppShape.md),
+        decoration: const ShapeDecoration(shape: AppShape.medium),
         margin: const EdgeInsets.all(12),
         child: MaterialBanner(
           elevation: 0,

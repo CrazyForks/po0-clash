@@ -186,7 +186,6 @@ class HostsItem extends ConsumerWidget {
       leading: const Icon(Icons.view_list_outlined),
       title: const Text('Hosts'),
       subtitle: Text(appLocalizations.hostsDesc),
-      blur: false,
       widget: MapInputPage(
         title: 'Hosts',
         map: hosts,

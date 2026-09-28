@@ -148,7 +148,6 @@ class NameserverPolicyItem extends ConsumerWidget {
     return ListItem.open(
       title: Text(appLocalizations.nameserverPolicy),
       subtitle: Text(appLocalizations.nameserverPolicyDesc),
-      blur: false,
       widget: MapInputPage(
         title: appLocalizations.nameserverPolicy,
         map: nameserverPolicy,

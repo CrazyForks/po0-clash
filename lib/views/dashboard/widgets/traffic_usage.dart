@@ -17,7 +17,6 @@ class TrafficUsage extends StatelessWidget {
       height: getWidgetHeight(2),
       child: RepaintBoundary(
         child: CommonCard(
-          radius: AppCorner.lg,
           info: Info(
             label: appLocalizations.trafficUsage,
             iconData: Icons.data_saver_off,

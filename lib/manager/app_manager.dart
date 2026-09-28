@@ -4,8 +4,6 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/permission.dart';
 import 'package:fl_clash/common/system_dns.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/manager/hero_sidebar.dart';
-import 'package:fl_clash/manager/window_manager.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/plugins/po0_screen.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -142,46 +140,44 @@ class _SidebarRail extends StatelessWidget {
   const _SidebarRail({
     required this.items,
     required this.currentIndex,
-    required this.showLabel,
+    required this.extended,
     required this.onSelected,
+    this.onToggleExtended,
   });
+
+  static const extendedWidth = 220.0;
 
   final List<NavigationItem> items;
   final int currentIndex;
-  final bool showLabel;
+  final bool extended;
   final void Function(int index) onSelected;
+  final VoidCallback? onToggleExtended;
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = context.textTheme.labelLarge!.copyWith(
-      color: context.colorScheme.onSurface,
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: NavigationRail(
-            scrollable: true,
-            minExtendedWidth: 200,
-            backgroundColor: Colors.transparent,
-            selectedLabelTextStyle: labelStyle,
-            unselectedLabelTextStyle: labelStyle,
-            destinations: [
-              for (final item in items)
-                NavigationRailDestination(
-                  icon: item.icon,
-                  label: Text(item.label.label),
-                ),
-            ],
-            onDestinationSelected: onSelected,
-            extended: false,
-            selectedIndex: currentIndex,
-            labelType: showLabel
-                ? NavigationRailLabelType.all
-                : NavigationRailLabelType.none,
+    final onToggleExtended = this.onToggleExtended;
+    return NavigationRail(
+      scrollable: true,
+      extended: extended,
+      minExtendedWidth: extendedWidth,
+      backgroundColor: Colors.transparent,
+      labelType: extended ? NavigationRailLabelType.none : null,
+      leading: onToggleExtended == null
+          ? null
+          : IconButton(
+              tooltip: context.appLocalizations.toggleLabel,
+              onPressed: onToggleExtended,
+              icon: Icon(extended ? Icons.menu_open : Icons.menu),
+            ),
+      destinations: [
+        for (final item in items)
+          NavigationRailDestination(
+            icon: item.icon,
+            label: Text(item.label.label),
           ),
-        ),
       ],
+      onDestinationSelected: onSelected,
+      selectedIndex: currentIndex,
     );
   }
 }
@@ -232,70 +228,42 @@ class AppSidebarContainer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationState = ref.watch(navigationStateProvider);
     final navigationItems = navigationState.navigationItems;
-    final isMobileView = navigationState.viewMode == ViewMode.mobile;
+    final viewMode = navigationState.viewMode;
     final currentIndex = navigationState.currentIndex;
     final showLabel = ref.watch(appSettingProvider).showLabel;
-    final hero = HeroTheme.maybeOf(context);
+    final canExtend = viewMode == ViewMode.desktop;
     return Container(
-      color: hero?.background ?? context.colorScheme.surfaceContainer,
+      color: context.colorScheme.surfaceContainer,
       child: Row(
         children: [
           AnimatedVisibility.sidebar(
-            visible: !isMobileView,
-            child: hero != null
-                ? HeroSidebar(
-                    hero: hero,
-                    items: navigationItems,
-                    currentIndex: currentIndex,
-                    showLabel: showLabel,
-                    showAppIcon: !system.isMacOS,
-                    topInset: system.isMacOS ? 22 : 0,
-                    onSelected: (index) =>
-                        _handleToPage(ref, navigationItems[index].label),
-                    onToggleLabel: () => _toggleLabel(ref),
-                  )
-                : _buildBackground(
-                    context: context,
-                    child: SafeArea(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (system.isMacOS) const SizedBox(height: 22),
-                          const SizedBox(height: 10),
-                          if (!system.isMacOS) ...[
-                            const ClipRect(child: AppIcon()),
-                            const SizedBox(height: 12),
-                          ],
-                          Expanded(
-                            child: ScrollConfiguration(
-                              behavior: const HiddenBarScrollBehavior(),
-                              child: _SidebarRail(
-                                items: navigationItems,
-                                currentIndex: currentIndex,
-                                showLabel: showLabel,
-                                onSelected: (index) {
-                                  _handleToPage(
-                                    ref,
-                                    navigationItems[index].label,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          IconButton(
-                            tooltip: context.appLocalizations.toggleLabel,
-                            onPressed: () => _toggleLabel(ref),
-                            icon: Icon(
-                              Icons.menu,
-                              color: context.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
+            visible: viewMode != ViewMode.mobile,
+            child: _buildBackground(
+              context: context,
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    if (system.isMacOS) const SizedBox(height: 22),
+                    Expanded(
+                      child: ScrollConfiguration(
+                        behavior: const HiddenBarScrollBehavior(),
+                        child: _SidebarRail(
+                          items: navigationItems,
+                          currentIndex: currentIndex,
+                          extended: canExtend && showLabel,
+                          onToggleExtended: canExtend
+                              ? () => _toggleLabel(ref)
+                              : null,
+                          onSelected: (index) {
+                            _handleToPage(ref, navigationItems[index].label);
+                          },
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
+            ),
           ),
           Expanded(
             flex: 1,

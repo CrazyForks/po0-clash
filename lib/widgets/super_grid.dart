@@ -43,7 +43,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
 
   /// Matches the default CommonCard shape, so the lift's shadow traces the card
   /// it is drawn behind.
-  static const _cardShape = AppShape.md;
+  static const _cardShape = AppShape.medium;
 
   late final ValueNotifier<List<GridItem>> _childrenNotifier;
   List<GridItem> children = [];

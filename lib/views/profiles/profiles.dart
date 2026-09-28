@@ -403,7 +403,6 @@ class ProfileItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CommonCard(
       enterActionsOnRight: true,
-      radius: AppCorner.xl,
       isSelected: profile.id == groupValue,
       onPressed: () {
         onChanged(profile.id);

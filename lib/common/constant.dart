@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:fl_clash/common/common.dart';
@@ -90,11 +89,6 @@ const upstreamRepository = 'chen08209/FlClash';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
 const defaultTestUrl = 'https://www.gstatic.com/generate_204';
-final commonFilter = ImageFilter.blur(
-  sigmaX: 5,
-  sigmaY: 5,
-  tileMode: TileMode.clamp,
-);
 
 const stringListEquality = ListEquality<String>();
 const intListEquality = ListEquality<int>();

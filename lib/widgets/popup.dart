@@ -14,7 +14,7 @@ const _anchorOverlap = 8.0;
 
 const _cardInset = 8.0;
 
-const _itemRadius = AppCorner.md;
+const _itemRadius = AppCorner.large;
 
 const _cardRadius = _itemRadius + _cardInset;
 
@@ -515,7 +515,7 @@ class _CommonPopupMenuState extends State<CommonPopupMenu>
       }
     }
     final child = InkWell(
-      customBorder: const RoundedSuperellipseBorder(
+      customBorder: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(_itemRadius)),
       ),
       onTap: onTap,
@@ -680,7 +680,7 @@ class _CommonPopupMenuState extends State<CommonPopupMenu>
                   color: scrim.withValues(
                     alpha: math.min(1.0, _levelScrimStep * scrimDistance),
                   ),
-                  shape: const RoundedSuperellipseBorder(
+                  shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                       Radius.circular(_cardRadius),
                     ),

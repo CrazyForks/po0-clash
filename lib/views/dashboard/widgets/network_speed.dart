@@ -44,7 +44,6 @@ class _NetworkSpeedState extends State<NetworkSpeed> {
       height: getWidgetHeight(2),
       child: RepaintBoundary(
         child: CommonCard(
-          radius: AppCorner.lg,
           onPressed: () {},
           child: Consumer(
             builder: (_, ref, _) {
