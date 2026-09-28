@@ -38,9 +38,9 @@ fork. Human-facing documentation lives in `docs/` (Chinese).
   second timer or call the client directly. On Android the screen state comes from `Po0ScreenPlugin`
   (`lib/plugins/po0_screen.dart`).
 - Tokens are credentials: never log or display more than `Po0Token.label`, and redact them from error text.
-- The app has its own semver, starting at 1.0.0, independent of upstream. `pubspec.yaml` `version` is the only source;
-  a release tag is `v<version without +build>` (`v1.0.0`), and `scripts/check-release-tag.sh` fails the build
-  otherwise. Bump the version and its build number (Android `versionCode`, must only grow) in the change that prepares
+- The app has its own semver, independent of upstream; this repository starts at 5.0.0 and the maintainer picks every
+  release's version. `pubspec.yaml` `version` is the only source; a release tag is `v<version without +build>`
+  (`v5.0.0`), and `scripts/check-release-tag.sh` fails the build otherwise. Bump the version and its build number (Android `versionCode`, must only grow) in the change that prepares
   a release. On upstream merges, a `pubspec.yaml` version conflict always keeps ours.
 - Never push a release tag or trigger `release.yaml` unless the maintainer explicitly asks for a release.
 - Commit messages follow `.agents/rules.md`; no agent `Co-authored-by` trailers.

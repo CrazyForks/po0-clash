@@ -32,11 +32,11 @@ po0-clash 是一个**独立的应用**：应用 ID、安装标识、进程名、
 curl -fsSL https://raw.githubusercontent.com/yuuuki-creation/po0-clash/main/scripts/install-macos.sh | bash
 ```
 
-可选环境变量（写在 `bash` 前，例如 `curl -fsSL ... | PO0CLASH_VERSION=v1.0.0 bash`）：
+可选环境变量（写在 `bash` 前，例如 `curl -fsSL ... | PO0CLASH_VERSION=v5.0.0 bash`）：
 
 | 变量 | 说明 |
 |---|---|
-| `PO0CLASH_VERSION` | 指定 Release 标签，例如 `v1.0.0`；默认最新 Release |
+| `PO0CLASH_VERSION` | 指定 Release 标签，例如 `v5.0.0`；默认最新 Release |
 | `PO0CLASH_DMG` | 直接使用本地 dmg 文件或 URL，跳过下载 |
 | `PO0CLASH_REPO` | 从其他仓库（`owner/repo`）下载；默认 `yuuuki-creation/po0-clash` |
 | `GH_TOKEN` | 可选，GitHub API 限流或私有仓库时使用的 token |

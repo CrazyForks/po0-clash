@@ -36,7 +36,7 @@ po0-clash 是独立的应用，应用 ID、安装标识、进程名、服务名�
 curl -fsSL https://raw.githubusercontent.com/yuuuki-creation/po0-clash/main/scripts/install-macos.sh | bash
 ```
 
-在 `bash` 前设置 `PO0CLASH_VERSION`（Release 标签，例如 `v1.0.0`）或 `PO0CLASH_DMG`（本地 dmg 或 URL）可安装指定版本。
+在 `bash` 前设置 `PO0CLASH_VERSION`（Release 标签，例如 `v5.0.0`）或 `PO0CLASH_DMG`（本地 dmg 或 URL）可安装指定版本。
 macOS 版本未经 Apple 公证，安装脚本会移除隔离属性。更多选项见 [docs/install.md](docs/install.md)。
 
 同一时间只在一个代理客户端里开启系统代理或 TUN，否则会互相抢占。

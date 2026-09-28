@@ -38,7 +38,7 @@ Download the file for your platform from [Releases](https://github.com/yuuuki-cr
 curl -fsSL https://raw.githubusercontent.com/yuuuki-creation/po0-clash/main/scripts/install-macos.sh | bash
 ```
 
-Set `PO0CLASH_VERSION` (a release tag such as `v1.0.0`) or `PO0CLASH_DMG` (a local dmg or URL) before `bash` to pick a
+Set `PO0CLASH_VERSION` (a release tag such as `v5.0.0`) or `PO0CLASH_DMG` (a local dmg or URL) before `bash` to pick a
 specific build. The macOS build is not notarized; the script removes the quarantine attribute. More options are in
 [docs/install.md](docs/install.md) (Chinese).
 

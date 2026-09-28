@@ -19,7 +19,7 @@
    - Linux：不在交付范围内（代码保持可构建即可）。
 5. **界面**：Windows 与 macOS 桌面端界面改为 HeroUI 风格；Android 保持原版 Material 界面。
 6. **独立应用**：以 po0-clash 的身份发布，应用 ID、安装标识、进程 / 服务名、数据目录与官方 FlClash 完全不同，
-   两者可在同一设备上同时安装、运行；版本号独立，从 1.0.0 开始（[ADR 0006](adr/0006-standalone-app-identity.md)）。
+   两者可在同一设备上同时安装、运行；版本号独立，本仓库从 5.0.0 开始（[ADR 0006](adr/0006-standalone-app-identity.md)）。
 7. **工程化**：代码放在独立的 GitHub 仓库，及时推送；仓库包含 `AGENTS.md` 与 `docs/` 等标准流程结构；
    format / analyze / test 在构建 VPS 上执行，全部平台的发版产物由 GitHub Actions 在推送版本标签后构建。
 
