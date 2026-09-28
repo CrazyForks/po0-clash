@@ -1,0 +1,26 @@
+# 架构决策记录（ADR）
+
+每个影响架构、构建或交付方式的决定写一篇 ADR，文件名 `NNNN-短标题.md`，编号递增、不复用。
+已被取代的 ADR 不删除，把状态改为「已取代（见 NNNN）」。
+
+模板：
+
+```markdown
+# NNNN. 标题
+
+- 状态：提议 / 已采纳 / 已取代（见 NNNN）
+- 日期：YYYY-MM-DD
+
+## 背景
+## 决定
+## 后果
+```
+
+| 编号 | 标题 | 状态 |
+|---|---|---|
+| [0001](0001-direct-routing-for-po0-api.md) | po0 API 请求的直连路由 | 已采纳 |
+| [0002](0002-build-infrastructure.md) | 构建基础设施：VPS + GitHub Actions | 已采纳，Android 构建与签名部分已取代（见 0006） |
+| [0003](0003-heroui-desktop-theme.md) | 桌面端 HeroUI 风格主题 | 已采纳 |
+| [0004](0004-per-second-read-only-polling.md) | 每秒只读轮询白名单 | 已采纳 |
+| [0005](0005-token-list-and-poll-interval.md) | token 列表与可调刷新间隔 | 已采纳 |
+| [0006](0006-standalone-app-identity.md) | po0-clash 作为独立应用发布 | 已采纳 |

@@ -1,0 +1,57 @@
+# Fork: po0-clash
+
+This repository (`yuuuki-creation/po0-clash`) is a public fork of `chen08209/FlClash`, shipped as a standalone app that installs
+side by side with official FlClash. Everything under `.agents/` still applies; this file adds what is specific to the
+fork. Human-facing documentation lives in `docs/` (Chinese).
+
+## What the fork adds
+
+- po0 firewall auto-whitelist (port of `w0ven/po0fw`): `lib/common/po0_firewall.dart`, `lib/models/po0_firewall.dart`,
+  `lib/providers/po0_firewall.dart`, `lib/views/po0_firewall.dart`. The page is a top-level navigation item
+  (`PageLabel.po0`), not a Tools entry. Design: `docs/features/po0-firewall.md`, decision record:
+  `docs/adr/0001-direct-routing-for-po0-api.md`.
+- HeroUI-style theme, sidebar, motion and grouped settings cards on desktop (Windows, macOS):
+  `docs/features/heroui-desktop.md`. Widgets decide the look from `HeroTheme.maybeOf(context)`, never from the
+  platform; `SurfaceCard` is the shared grouping surface.
+- Its own app identity (`docs/adr/0006-standalone-app-identity.md`): app id `io.github.yuuukicreation.po0clash`, executable
+  and display name `po0-clash`, `Po0ClashCore` / `Po0ClashHelperService`, its own Inno Setup `AppId`, IPC names, data
+  directory and `po0clash://` scheme. No Firebase.
+- Build and release plumbing: `.github/workflows/release.yaml`, `scripts/check-release-tag.sh`,
+  `scripts/install-macos.sh`, `scripts/vps/*`.
+
+## Rules
+
+- Keep fork logic in fork-owned files and limit edits to upstream files to wiring. The list of touched upstream files is
+  in `docs/development/upstream-sync.md`; update it whenever a new upstream file gains a fork edit, because that list is
+  what makes the next upstream merge tractable.
+- Nothing the OS can see may collide with FlClash: package / bundle / installer ids, process and service names,
+  sockets, pipes, lock and data paths, autostart entries, app-specific URL schemes. Use the identifiers in ADR 0006,
+  and keep internal names (`fl_clash`, the `com.follow.clash*` Kotlin packages and Gradle `namespace`, `FlClash*`
+  classes) unchanged. Where code needs the installed app id, read it at runtime (`context.packageName`), never from
+  the namespace.
+- The po0 request must leave on the physical network. Do not route it through `request`/`FlClashHttpOverrides`, and do
+  not drop any of the three layers in ADR 0001 (DIRECT `HttpClient`, DIRECT rule plus `route-exclude-address`, Android
+  VPN route split) without a new ADR.
+- `Po0Firewall` owns scheduling: a read-only query per token every `pollSeconds` (default 1 s), and an add only when
+  the exit is missing (ADR 0004, 0005). Tokens live in `Po0FirewallProps.tokenEntries`; `po0TokensOf` is the only way
+  to turn them into requests. Other code only signals it (`start`, `pollNow`, `onNetworkChanged`, `setScreenOn`); it must not grow a
+  second timer or call the client directly. On Android the screen state comes from `Po0ScreenPlugin`
+  (`lib/plugins/po0_screen.dart`).
+- Tokens are credentials: never log or display more than `Po0Token.label`, and redact them from error text.
+- The app has its own semver, starting at 1.0.0, independent of upstream. `pubspec.yaml` `version` is the only source;
+  a release tag is `v<version without +build>` (`v1.0.0`), and `scripts/check-release-tag.sh` fails the build
+  otherwise. Bump the version and its build number (Android `versionCode`, must only grow) in the change that prepares
+  a release. On upstream merges, a `pubspec.yaml` version conflict always keeps ours.
+- Never push a release tag or trigger `release.yaml` unless the maintainer explicitly asks for a release.
+- Commit messages follow `.agents/rules.md`; no agent `Co-authored-by` trailers.
+- The Android release keystore `android/app/keystore.jks` and `android/signing.properties` are committed on purpose
+  (ADR 0006); do not replace them, since a new key forces every user to reinstall. Never commit any other secret,
+  including `android/local.properties`.
+
+## Where things run
+
+- Flutter tooling (codegen, format, analyze, test, coverage) runs on the build VPS; see `docs/development/build.md`.
+  `scripts/vps/verify.sh` is the CI-equivalent gate.
+- Release packages for Android, Windows and macOS are built by `.github/workflows/release.yaml` on GitHub runners, only
+  on a `v[0-9]*` tag push or a manual dispatch; see `docs/development/release.md`.
+- Upstream `build.yaml` is manual-only in this fork and is not used for releases.
