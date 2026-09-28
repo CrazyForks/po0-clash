@@ -89,25 +89,23 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m32(message) => "请求被拒绝：${message}";
 
-  static String m33(slot) => "槽位 ${slot}";
+  static String m33(ok, total) => "${ok}/${total} 已加白";
 
-  static String m34(ok, total) => "${ok}/${total} 已加白";
+  static String m34(used, limit) => "已占用 ${used}/${limit}";
 
-  static String m35(used, limit) => "已占用 ${used}/${limit}";
+  static String m35(label) => "${label} 必须在 1024 到 49151 之间";
 
-  static String m36(label) => "${label} 必须在 1024 到 49151 之间";
+  static String m36(count) => "${count} 个代理";
 
-  static String m37(count) => "${count} 个代理";
+  static String m37(count) => "${count} 条规则";
 
-  static String m38(count) => "${count} 条规则";
+  static String m38(count) => "${count} 秒";
 
-  static String m39(count) => "${count} 秒";
+  static String m39(count) => "已选择 ${count} 项";
 
-  static String m40(count) => "已选择 ${count} 项";
+  static String m40(label) => "${label}必须为URL";
 
-  static String m41(label) => "${label}必须为URL";
-
-  static String m42(count) => "${count} 年前";
+  static String m41(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -561,7 +559,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "po0-clash 打开期间（无论代理是否开启）按刷新间隔检查白名单，出口不在名单时立即加白；安卓仅在亮屏时检查",
     ),
     "po0ChipApplied": MessageLookupByLibrary.simpleMessage("已加白"),
-    "po0ChipConflict": MessageLookupByLibrary.simpleMessage("槽位冲突"),
     "po0ChipDisabled": MessageLookupByLibrary.simpleMessage("未启用"),
     "po0ChipError": MessageLookupByLibrary.simpleMessage("失败"),
     "po0ChipNotApplied": MessageLookupByLibrary.simpleMessage("未生效"),
@@ -585,27 +582,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "po0PollIntervalRange": m28,
     "po0QueryStatus": MessageLookupByLibrary.simpleMessage("查询状态"),
     "po0ResultApplied": m29,
-    "po0ResultConflict": MessageLookupByLibrary.simpleMessage(
-      "槽位冲突：本机出口已占用其它槽位，请先在 po0 面板删除",
-    ),
     "po0ResultDisabled": MessageLookupByLibrary.simpleMessage("该机器未启用防火墙"),
     "po0ResultError": m30,
     "po0ResultNotApplied": m31,
     "po0ResultRejected": m32,
     "po0Running": MessageLookupByLibrary.simpleMessage("执行中…"),
-    "po0Slot": m33,
     "po0StatusApplied": MessageLookupByLibrary.simpleMessage("出口已加白"),
     "po0StatusNoToken": MessageLookupByLibrary.simpleMessage("添加 token 后开始加白"),
     "po0StatusOff": MessageLookupByLibrary.simpleMessage("自动加白未开启"),
-    "po0StatusPartial": m34,
+    "po0StatusPartial": m33,
     "po0StatusWaiting": MessageLookupByLibrary.simpleMessage("等待首次执行"),
     "po0Token": MessageLookupByLibrary.simpleMessage("token"),
     "po0TokenDuplicate": MessageLookupByLibrary.simpleMessage("该 token 已在列表中"),
     "po0TokenName": MessageLookupByLibrary.simpleMessage("备注名（可选）"),
-    "po0TokenSlot": MessageLookupByLibrary.simpleMessage("固定槽位（可选）"),
-    "po0TokenSlotHelp": MessageLookupByLibrary.simpleMessage(
-      "把本机出口钉在槽位 N（一般为 0～4），不参与 FIFO 淘汰；留空为普通记录",
-    ),
     "po0Tokens": MessageLookupByLibrary.simpleMessage("Token"),
     "po0TokensEmpty": MessageLookupByLibrary.simpleMessage("未配置"),
     "po0TokensEmptyDesc": MessageLookupByLibrary.simpleMessage(
@@ -614,12 +603,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "po0TokensInvalid": MessageLookupByLibrary.simpleMessage(
       "token 应以 pgnfw_ 开头，且不能包含空格或分隔符",
     ),
-    "po0Usage": m35,
+    "po0Usage": m34,
     "po0Whitelist": MessageLookupByLibrary.simpleMessage("白名单"),
     "po0WhitelistNow": MessageLookupByLibrary.simpleMessage("立即加白"),
     "port": MessageLookupByLibrary.simpleMessage("端口"),
     "portConflictTip": MessageLookupByLibrary.simpleMessage("请输入不同的端口"),
-    "portTip": m36,
+    "portTip": m35,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage("优先使用DOH的http/3"),
     "prerequisites": MessageLookupByLibrary.simpleMessage("前置条件"),
     "pressKeyboard": MessageLookupByLibrary.simpleMessage("请按下按键"),
@@ -648,7 +637,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "project": MessageLookupByLibrary.simpleMessage("项目"),
     "providers": MessageLookupByLibrary.simpleMessage("外部资源"),
     "proxies": MessageLookupByLibrary.simpleMessage("代理"),
-    "proxiesCount": m37,
+    "proxiesCount": m36,
     "proxiesEmpty": MessageLookupByLibrary.simpleMessage("代理为空"),
     "proxyChains": MessageLookupByLibrary.simpleMessage("代理链"),
     "proxyDetectedAbnormal": MessageLookupByLibrary.simpleMessage(
@@ -806,7 +795,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleSet": MessageLookupByLibrary.simpleMessage("规则集"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("规则目标"),
     "rules": MessageLookupByLibrary.simpleMessage("规则"),
-    "rulesCount": m38,
+    "rulesCount": m37,
     "save": MessageLookupByLibrary.simpleMessage("保存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("是否保存更改？"),
     "script": MessageLookupByLibrary.simpleMessage("脚本"),
@@ -816,7 +805,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "scrollToSelected": MessageLookupByLibrary.simpleMessage("滚动到已选"),
     "search": MessageLookupByLibrary.simpleMessage("搜索"),
     "seconds": MessageLookupByLibrary.simpleMessage("秒"),
-    "secondsCount": m39,
+    "secondsCount": m38,
     "selectAll": MessageLookupByLibrary.simpleMessage("全选"),
     "selectMatchTarget": MessageLookupByLibrary.simpleMessage(
       "选择 MATCH-TARGET",
@@ -827,7 +816,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectSplitStrategy": MessageLookupByLibrary.simpleMessage("请选择分流策略"),
     "selectSubRule": MessageLookupByLibrary.simpleMessage("请选择子规则"),
     "selected": MessageLookupByLibrary.simpleMessage("已选择"),
-    "selectedCountTitle": m40,
+    "selectedCountTitle": m39,
     "settings": MessageLookupByLibrary.simpleMessage("设置"),
     "show": MessageLookupByLibrary.simpleMessage("显示"),
     "showLess": MessageLookupByLibrary.simpleMessage("收起"),
@@ -918,7 +907,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("通过URL获取配置文件"),
-    "urlTip": m41,
+    "urlTip": m40,
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统Hosts"),
     "usedTraffic": MessageLookupByLibrary.simpleMessage("已用流量"),
@@ -935,7 +924,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
-    "yearsAgo": m42,
+    "yearsAgo": m41,
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }

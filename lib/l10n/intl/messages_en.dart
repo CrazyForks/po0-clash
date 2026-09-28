@@ -97,28 +97,26 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m32(message) => "Rejected: ${message}";
 
-  static String m33(slot) => "Slot ${slot}";
+  static String m33(ok, total) => "${ok}/${total} whitelisted";
 
-  static String m34(ok, total) => "${ok}/${total} whitelisted";
+  static String m34(used, limit) => "${used}/${limit} used";
 
-  static String m35(used, limit) => "${used}/${limit} used";
+  static String m35(label) => "${label} must be between 1024 and 49151";
 
-  static String m36(label) => "${label} must be between 1024 and 49151";
-
-  static String m37(count) =>
+  static String m36(count) =>
       "${Intl.plural(count, one: '1 proxy', other: '${count} proxies')}";
 
-  static String m38(count) =>
+  static String m37(count) =>
       "${Intl.plural(count, one: '1 rule', other: '${count} rules')}";
 
-  static String m39(count) =>
+  static String m38(count) =>
       "${Intl.plural(count, one: '1 second', other: '${count} seconds')}";
 
-  static String m40(count) => "${count} selected";
+  static String m39(count) => "${count} selected";
 
-  static String m41(label) => "${label} must be a URL";
+  static String m40(label) => "${label} must be a URL";
 
-  static String m42(count) =>
+  static String m41(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -780,7 +778,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Checks the whitelist at the refresh interval while po0-clash is open, whether or not the proxy is running, and adds the exit as soon as it drops off. Android checks only while the screen is on",
     ),
     "po0ChipApplied": MessageLookupByLibrary.simpleMessage("Whitelisted"),
-    "po0ChipConflict": MessageLookupByLibrary.simpleMessage("Slot conflict"),
     "po0ChipDisabled": MessageLookupByLibrary.simpleMessage("Firewall off"),
     "po0ChipError": MessageLookupByLibrary.simpleMessage("Failed"),
     "po0ChipNotApplied": MessageLookupByLibrary.simpleMessage("Not listed"),
@@ -806,9 +803,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "po0PollIntervalRange": m28,
     "po0QueryStatus": MessageLookupByLibrary.simpleMessage("Check status"),
     "po0ResultApplied": m29,
-    "po0ResultConflict": MessageLookupByLibrary.simpleMessage(
-      "Slot conflict: this exit already holds another slot; delete it in the po0 panel first",
-    ),
     "po0ResultDisabled": MessageLookupByLibrary.simpleMessage(
       "The firewall is not enabled for this server",
     ),
@@ -816,7 +810,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "po0ResultNotApplied": m31,
     "po0ResultRejected": m32,
     "po0Running": MessageLookupByLibrary.simpleMessage("Running…"),
-    "po0Slot": m33,
     "po0StatusApplied": MessageLookupByLibrary.simpleMessage(
       "Exit whitelisted",
     ),
@@ -826,7 +819,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "po0StatusOff": MessageLookupByLibrary.simpleMessage(
       "Auto whitelist is off",
     ),
-    "po0StatusPartial": m34,
+    "po0StatusPartial": m33,
     "po0StatusWaiting": MessageLookupByLibrary.simpleMessage(
       "Waiting for the first run",
     ),
@@ -835,12 +828,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "This token is already in the list",
     ),
     "po0TokenName": MessageLookupByLibrary.simpleMessage("Name (optional)"),
-    "po0TokenSlot": MessageLookupByLibrary.simpleMessage(
-      "Fixed slot (optional)",
-    ),
-    "po0TokenSlotHelp": MessageLookupByLibrary.simpleMessage(
-      "Pins this exit to slot N (usually 0–4) so FIFO never evicts it. Leave empty for normal entries",
-    ),
     "po0Tokens": MessageLookupByLibrary.simpleMessage("Tokens"),
     "po0TokensEmpty": MessageLookupByLibrary.simpleMessage("Not configured"),
     "po0TokensEmptyDesc": MessageLookupByLibrary.simpleMessage(
@@ -849,14 +836,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "po0TokensInvalid": MessageLookupByLibrary.simpleMessage(
       "A token starts with pgnfw_ and has no spaces or separators",
     ),
-    "po0Usage": m35,
+    "po0Usage": m34,
     "po0Whitelist": MessageLookupByLibrary.simpleMessage("Whitelist"),
     "po0WhitelistNow": MessageLookupByLibrary.simpleMessage("Whitelist now"),
     "port": MessageLookupByLibrary.simpleMessage("Port"),
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Please enter a different port",
     ),
-    "portTip": m36,
+    "portTip": m35,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Prefer HTTP/3 for DoH",
     ),
@@ -889,7 +876,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "project": MessageLookupByLibrary.simpleMessage("Project"),
     "providers": MessageLookupByLibrary.simpleMessage("External resources"),
     "proxies": MessageLookupByLibrary.simpleMessage("Proxies"),
-    "proxiesCount": m37,
+    "proxiesCount": m36,
     "proxiesEmpty": MessageLookupByLibrary.simpleMessage("Proxies are empty"),
     "proxyChains": MessageLookupByLibrary.simpleMessage("Proxy chain"),
     "proxyDetectedAbnormal": MessageLookupByLibrary.simpleMessage(
@@ -1111,7 +1098,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleSet": MessageLookupByLibrary.simpleMessage("Rule set"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Rule target"),
     "rules": MessageLookupByLibrary.simpleMessage("Rules"),
-    "rulesCount": m38,
+    "rulesCount": m37,
     "save": MessageLookupByLibrary.simpleMessage("Save"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("Save the changes?"),
     "script": MessageLookupByLibrary.simpleMessage("Script"),
@@ -1123,7 +1110,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "search": MessageLookupByLibrary.simpleMessage("Search"),
     "seconds": MessageLookupByLibrary.simpleMessage("seconds"),
-    "secondsCount": m39,
+    "secondsCount": m38,
     "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
     "selectMatchTarget": MessageLookupByLibrary.simpleMessage(
       "Select MATCH-TARGET",
@@ -1142,7 +1129,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Please select a sub-rule",
     ),
     "selected": MessageLookupByLibrary.simpleMessage("Selected"),
-    "selectedCountTitle": m40,
+    "selectedCountTitle": m39,
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "show": MessageLookupByLibrary.simpleMessage("Show"),
     "showLess": MessageLookupByLibrary.simpleMessage("Collapse"),
@@ -1259,7 +1246,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "urlDesc": MessageLookupByLibrary.simpleMessage(
       "Obtain a profile from a URL",
     ),
-    "urlTip": m41,
+    "urlTip": m40,
     "useHosts": MessageLookupByLibrary.simpleMessage("Use hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("Use system hosts"),
     "usedTraffic": MessageLookupByLibrary.simpleMessage("Used traffic"),
@@ -1280,7 +1267,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
-    "yearsAgo": m42,
+    "yearsAgo": m41,
     "zhCN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };
 }

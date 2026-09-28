@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Po0TokenEntry {
 
- String get token; String get name; int? get slot;
+ String get token; String get name;
 /// Create a copy of Po0TokenEntry
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $Po0TokenEntryCopyWith<Po0TokenEntry> get copyWith => _$Po0TokenEntryCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as Po0TokenEntry;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Po0TokenEntry&&(identical(other.token, _this.token) || other.token == _this.token)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.slot, _this.slot) || other.slot == _this.slot));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Po0TokenEntry&&(identical(other.token, _this.token) || other.token == _this.token)&&(identical(other.name, _this.name) || other.name == _this.name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Po0TokenEntry;
-  return Object.hash(runtimeType,_this.token,_this.name,_this.slot);
+  return Object.hash(runtimeType,_this.token,_this.name);
 }
 
 @override
 String toString() {
   final _this = this as Po0TokenEntry;
-  return 'Po0TokenEntry(token: ${_this.token}, name: ${_this.name}, slot: ${_this.slot})';
+  return 'Po0TokenEntry(token: ${_this.token}, name: ${_this.name})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $Po0TokenEntryCopyWith<$Res>  {
   factory $Po0TokenEntryCopyWith(Po0TokenEntry value, $Res Function(Po0TokenEntry) _then) = _$Po0TokenEntryCopyWithImpl;
 @useResult
 $Res call({
- String token, String name, int? slot
+ String token, String name
 });
 
 
@@ -71,12 +71,11 @@ class _$Po0TokenEntryCopyWithImpl<$Res>
 
 /// Create a copy of Po0TokenEntry
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? name = null,Object? slot = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? token = null,Object? name = null,}) {
   return _then(Po0TokenEntry(
 token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,slot: freezed == slot ? _self.slot : slot // ignore: cast_nullable_to_non_nullable
-as int?,
+as String,
   ));
 }
 
@@ -161,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  String name,  int? slot)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String token,  String name)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Po0TokenEntry() when $default != null:
-return $default(_that.token,_that.name,_that.slot);case _:
+return $default(_that.token,_that.name);case _:
   return orElse();
 
 }
@@ -182,10 +181,10 @@ return $default(_that.token,_that.name,_that.slot);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  String name,  int? slot)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String token,  String name)  $default,) {final _that = this;
 switch (_that) {
 case _Po0TokenEntry():
-return $default(_that.token,_that.name,_that.slot);case _:
+return $default(_that.token,_that.name);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +201,10 @@ return $default(_that.token,_that.name,_that.slot);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  String name,  int? slot)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String token,  String name)?  $default,) {final _that = this;
 switch (_that) {
 case _Po0TokenEntry() when $default != null:
-return $default(_that.token,_that.name,_that.slot);case _:
+return $default(_that.token,_that.name);case _:
   return null;
 
 }
@@ -217,12 +216,11 @@ return $default(_that.token,_that.name,_that.slot);case _:
 @JsonSerializable()
 
 class _Po0TokenEntry implements Po0TokenEntry {
-  const _Po0TokenEntry({required this.token, this.name = '', this.slot});
+  const _Po0TokenEntry({required this.token, this.name = ''});
   factory _Po0TokenEntry.fromJson(Map<String, dynamic> json) => _$Po0TokenEntryFromJson(json);
 
 @override final  String token;
 @override@JsonKey() final  String name;
-@override final  int? slot;
 
 /// Create a copy of Po0TokenEntry
 /// with the given fields replaced by the non-null parameter values.
@@ -237,18 +235,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Po0TokenEntry&&(identical(other.token, token) || other.token == token)&&(identical(other.name, name) || other.name == name)&&(identical(other.slot, slot) || other.slot == slot));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Po0TokenEntry&&(identical(other.token, token) || other.token == token)&&(identical(other.name, name) || other.name == name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,token,name,slot);
+    return Object.hash(runtimeType,token,name);
 }
 
 @override
 String toString() {
-    return 'Po0TokenEntry(token: $token, name: $name, slot: $slot)';
+    return 'Po0TokenEntry(token: $token, name: $name)';
 }
 
 
@@ -259,7 +257,7 @@ abstract mixin class _$Po0TokenEntryCopyWith<$Res> implements $Po0TokenEntryCopy
   factory _$Po0TokenEntryCopyWith(_Po0TokenEntry value, $Res Function(_Po0TokenEntry) _then) = __$Po0TokenEntryCopyWithImpl;
 @override @useResult
 $Res call({
- String token, String name, int? slot
+ String token, String name
 });
 
 
@@ -276,12 +274,11 @@ class __$Po0TokenEntryCopyWithImpl<$Res>
 
 /// Create a copy of Po0TokenEntry
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? name = null,Object? slot = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? token = null,Object? name = null,}) {
   return _then(_Po0TokenEntry(
 token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,slot: freezed == slot ? _self.slot : slot // ignore: cast_nullable_to_non_nullable
-as int?,
+as String,
   ));
 }
 
@@ -840,7 +837,7 @@ as int?,
 /// @nodoc
 mixin _$Po0TokenResult {
 
- String get label; String? get name; int? get slot; Po0ResultType get type; String? get currentIp; List<Po0WhitelistEntry> get whitelist; int? get limit; String? get message;
+ String get label; String? get name; Po0ResultType get type; String? get currentIp; List<Po0WhitelistEntry> get whitelist; int? get limit; String? get message;
 /// Create a copy of Po0TokenResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -852,20 +849,20 @@ $Po0TokenResultCopyWith<Po0TokenResult> get copyWith => _$Po0TokenResultCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as Po0TokenResult;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Po0TokenResult&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.slot, _this.slot) || other.slot == _this.slot)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.currentIp, _this.currentIp) || other.currentIp == _this.currentIp)&&const DeepCollectionEquality().equals(other.whitelist, _this.whitelist)&&(identical(other.limit, _this.limit) || other.limit == _this.limit)&&(identical(other.message, _this.message) || other.message == _this.message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Po0TokenResult&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.currentIp, _this.currentIp) || other.currentIp == _this.currentIp)&&const DeepCollectionEquality().equals(other.whitelist, _this.whitelist)&&(identical(other.limit, _this.limit) || other.limit == _this.limit)&&(identical(other.message, _this.message) || other.message == _this.message));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Po0TokenResult;
-  return Object.hash(runtimeType,_this.label,_this.name,_this.slot,_this.type,_this.currentIp,const DeepCollectionEquality().hash(_this.whitelist),_this.limit,_this.message);
+  return Object.hash(runtimeType,_this.label,_this.name,_this.type,_this.currentIp,const DeepCollectionEquality().hash(_this.whitelist),_this.limit,_this.message);
 }
 
 @override
 String toString() {
   final _this = this as Po0TokenResult;
-  return 'Po0TokenResult(label: ${_this.label}, name: ${_this.name}, slot: ${_this.slot}, type: ${_this.type}, currentIp: ${_this.currentIp}, whitelist: ${_this.whitelist}, limit: ${_this.limit}, message: ${_this.message})';
+  return 'Po0TokenResult(label: ${_this.label}, name: ${_this.name}, type: ${_this.type}, currentIp: ${_this.currentIp}, whitelist: ${_this.whitelist}, limit: ${_this.limit}, message: ${_this.message})';
 }
 
 
@@ -876,7 +873,7 @@ abstract mixin class $Po0TokenResultCopyWith<$Res>  {
   factory $Po0TokenResultCopyWith(Po0TokenResult value, $Res Function(Po0TokenResult) _then) = _$Po0TokenResultCopyWithImpl;
 @useResult
 $Res call({
- String label, String? name, int? slot, Po0ResultType type, String? currentIp, List<Po0WhitelistEntry> whitelist, int? limit, String? message
+ String label, String? name, Po0ResultType type, String? currentIp, List<Po0WhitelistEntry> whitelist, int? limit, String? message
 });
 
 
@@ -893,12 +890,11 @@ class _$Po0TokenResultCopyWithImpl<$Res>
 
 /// Create a copy of Po0TokenResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? label = null,Object? name = freezed,Object? slot = freezed,Object? type = null,Object? currentIp = freezed,Object? whitelist = null,Object? limit = freezed,Object? message = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? label = null,Object? name = freezed,Object? type = null,Object? currentIp = freezed,Object? whitelist = null,Object? limit = freezed,Object? message = freezed,}) {
   return _then(Po0TokenResult(
 label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String?,slot: freezed == slot ? _self.slot : slot // ignore: cast_nullable_to_non_nullable
-as int?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as Po0ResultType,currentIp: freezed == currentIp ? _self.currentIp : currentIp // ignore: cast_nullable_to_non_nullable
 as String?,whitelist: null == whitelist ? _self.whitelist : whitelist // ignore: cast_nullable_to_non_nullable
 as List<Po0WhitelistEntry>,limit: freezed == limit ? _self.limit : limit // ignore: cast_nullable_to_non_nullable
@@ -988,10 +984,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String label,  String? name,  int? slot,  Po0ResultType type,  String? currentIp,  List<Po0WhitelistEntry> whitelist,  int? limit,  String? message)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String label,  String? name,  Po0ResultType type,  String? currentIp,  List<Po0WhitelistEntry> whitelist,  int? limit,  String? message)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Po0TokenResult() when $default != null:
-return $default(_that.label,_that.name,_that.slot,_that.type,_that.currentIp,_that.whitelist,_that.limit,_that.message);case _:
+return $default(_that.label,_that.name,_that.type,_that.currentIp,_that.whitelist,_that.limit,_that.message);case _:
   return orElse();
 
 }
@@ -1009,10 +1005,10 @@ return $default(_that.label,_that.name,_that.slot,_that.type,_that.currentIp,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String label,  String? name,  int? slot,  Po0ResultType type,  String? currentIp,  List<Po0WhitelistEntry> whitelist,  int? limit,  String? message)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String label,  String? name,  Po0ResultType type,  String? currentIp,  List<Po0WhitelistEntry> whitelist,  int? limit,  String? message)  $default,) {final _that = this;
 switch (_that) {
 case _Po0TokenResult():
-return $default(_that.label,_that.name,_that.slot,_that.type,_that.currentIp,_that.whitelist,_that.limit,_that.message);case _:
+return $default(_that.label,_that.name,_that.type,_that.currentIp,_that.whitelist,_that.limit,_that.message);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1029,10 +1025,10 @@ return $default(_that.label,_that.name,_that.slot,_that.type,_that.currentIp,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String label,  String? name,  int? slot,  Po0ResultType type,  String? currentIp,  List<Po0WhitelistEntry> whitelist,  int? limit,  String? message)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String label,  String? name,  Po0ResultType type,  String? currentIp,  List<Po0WhitelistEntry> whitelist,  int? limit,  String? message)?  $default,) {final _that = this;
 switch (_that) {
 case _Po0TokenResult() when $default != null:
-return $default(_that.label,_that.name,_that.slot,_that.type,_that.currentIp,_that.whitelist,_that.limit,_that.message);case _:
+return $default(_that.label,_that.name,_that.type,_that.currentIp,_that.whitelist,_that.limit,_that.message);case _:
   return null;
 
 }
@@ -1044,12 +1040,11 @@ return $default(_that.label,_that.name,_that.slot,_that.type,_that.currentIp,_th
 
 
 class _Po0TokenResult implements Po0TokenResult {
-  const _Po0TokenResult({required this.label, this.name, this.slot, required this.type, this.currentIp,  List<Po0WhitelistEntry> whitelist = const [], this.limit, this.message}): _whitelist = whitelist;
+  const _Po0TokenResult({required this.label, this.name, required this.type, this.currentIp,  List<Po0WhitelistEntry> whitelist = const [], this.limit, this.message}): _whitelist = whitelist;
   
 
 @override final  String label;
 @override final  String? name;
-@override final  int? slot;
 @override final  Po0ResultType type;
 @override final  String? currentIp;
  final  List<Po0WhitelistEntry> _whitelist;
@@ -1072,18 +1067,18 @@ _$Po0TokenResultCopyWith<_Po0TokenResult> get copyWith => __$Po0TokenResultCopyW
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Po0TokenResult&&(identical(other.label, label) || other.label == label)&&(identical(other.name, name) || other.name == name)&&(identical(other.slot, slot) || other.slot == slot)&&(identical(other.type, type) || other.type == type)&&(identical(other.currentIp, currentIp) || other.currentIp == currentIp)&&const DeepCollectionEquality().equals(other.whitelist, _whitelist)&&(identical(other.limit, limit) || other.limit == limit)&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Po0TokenResult&&(identical(other.label, label) || other.label == label)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.currentIp, currentIp) || other.currentIp == currentIp)&&const DeepCollectionEquality().equals(other.whitelist, _whitelist)&&(identical(other.limit, limit) || other.limit == limit)&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,label,name,slot,type,currentIp,const DeepCollectionEquality().hash(_whitelist),limit,message);
+    return Object.hash(runtimeType,label,name,type,currentIp,const DeepCollectionEquality().hash(_whitelist),limit,message);
 }
 
 @override
 String toString() {
-    return 'Po0TokenResult(label: $label, name: $name, slot: $slot, type: $type, currentIp: $currentIp, whitelist: $whitelist, limit: $limit, message: $message)';
+    return 'Po0TokenResult(label: $label, name: $name, type: $type, currentIp: $currentIp, whitelist: $whitelist, limit: $limit, message: $message)';
 }
 
 
@@ -1094,7 +1089,7 @@ abstract mixin class _$Po0TokenResultCopyWith<$Res> implements $Po0TokenResultCo
   factory _$Po0TokenResultCopyWith(_Po0TokenResult value, $Res Function(_Po0TokenResult) _then) = __$Po0TokenResultCopyWithImpl;
 @override @useResult
 $Res call({
- String label, String? name, int? slot, Po0ResultType type, String? currentIp, List<Po0WhitelistEntry> whitelist, int? limit, String? message
+ String label, String? name, Po0ResultType type, String? currentIp, List<Po0WhitelistEntry> whitelist, int? limit, String? message
 });
 
 
@@ -1111,12 +1106,11 @@ class __$Po0TokenResultCopyWithImpl<$Res>
 
 /// Create a copy of Po0TokenResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? label = null,Object? name = freezed,Object? slot = freezed,Object? type = null,Object? currentIp = freezed,Object? whitelist = null,Object? limit = freezed,Object? message = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? label = null,Object? name = freezed,Object? type = null,Object? currentIp = freezed,Object? whitelist = null,Object? limit = freezed,Object? message = freezed,}) {
   return _then(_Po0TokenResult(
 label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String?,slot: freezed == slot ? _self.slot : slot // ignore: cast_nullable_to_non_nullable
-as int?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as Po0ResultType,currentIp: freezed == currentIp ? _self.currentIp : currentIp // ignore: cast_nullable_to_non_nullable
 as String?,whitelist: null == whitelist ? _self._whitelist : whitelist // ignore: cast_nullable_to_non_nullable
 as List<Po0WhitelistEntry>,limit: freezed == limit ? _self.limit : limit // ignore: cast_nullable_to_non_nullable

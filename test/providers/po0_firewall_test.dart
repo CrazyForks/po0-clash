@@ -36,7 +36,7 @@ class _FakeClient extends Po0FirewallClient {
     currentIp: '1.2.3.0/24',
     whitelist: [
       if (type == Po0ResultType.applied)
-        Po0WhitelistEntry(ip: '1.2.3.0/24', slot: token.slot),
+        const Po0WhitelistEntry(ip: '1.2.3.0/24'),
     ],
   );
 
@@ -68,11 +68,11 @@ const _enabled = Po0FirewallProps(
   enable: true,
   tokenEntries: [
     Po0TokenEntry(token: 'pgnfw_a', name: 'home'),
-    Po0TokenEntry(token: 'pgnfw_b', slot: 1),
+    Po0TokenEntry(token: 'pgnfw_b'),
   ],
 );
 
-const _tokens = [Po0Token('pgnfw_a'), Po0Token('pgnfw_b', slot: 1)];
+const _tokens = [Po0Token('pgnfw_a'), Po0Token('pgnfw_b')];
 
 const _second = Duration(seconds: 1);
 

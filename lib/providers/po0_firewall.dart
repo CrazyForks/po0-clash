@@ -180,7 +180,6 @@ class Po0Firewall extends _$Po0Firewall {
         for (final token in tokens)
           Po0TokenResult(
             label: token.label,
-            slot: token.slot,
             type: Po0ResultType.error,
             message: '$error',
           ),
@@ -221,7 +220,7 @@ class Po0Firewall extends _$Po0Firewall {
     void Function() onAdd,
   ) async {
     final status = await client.poll(token);
-    if (!po0NeedsWhitelist(token, status)) {
+    if (status.type != Po0ResultType.notApplied) {
       return status;
     }
     onAdd();

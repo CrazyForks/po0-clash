@@ -34,7 +34,7 @@ const _enabled = Po0FirewallProps(
   enable: true,
   tokenEntries: [
     Po0TokenEntry(token: 'pgnfw_1a2b3c4d5e6f', name: 'Home'),
-    Po0TokenEntry(token: 'pgnfw_9f8e7d6c5b4a', slot: 0),
+    Po0TokenEntry(token: 'pgnfw_9f8e7d6c5b4a'),
   ],
 );
 
@@ -54,7 +54,6 @@ final _results = [
   ),
   const Po0TokenResult(
     label: 'pgnfw_9f8e7d…',
-    slot: 0,
     type: Po0ResultType.error,
     message: 'timeout',
   ),
@@ -147,7 +146,7 @@ void main() {
     expect(find.text('pgnfw_1a2b3c…'), findsNWidgets(2));
     expect(find.text('Whitelisted'), findsOneWidget);
     expect(find.text('Failed'), findsOneWidget);
-    expect(find.text('Slot 0'), findsNWidgets(2));
+    expect(find.byIcon(Icons.push_pin), findsOneWidget);
     expect(find.text('2/5 used'), findsOneWidget);
     expect(find.text('45.82.120.0/24'), findsOneWidget);
     expect(find.byIcon(Icons.my_location), findsOneWidget);
@@ -159,29 +158,28 @@ void main() {
     expect(fake.queries, 1);
   });
 
-  testWidgets('lists the tokens with their names and slots', (tester) async {
+  testWidgets('lists the tokens with their names', (tester) async {
     await _pump(tester, props: _enabled);
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('pgnfw_1a2b3c…'), findsOneWidget);
     expect(find.text('pgnfw_9f8e7d…'), findsOneWidget);
-    expect(find.text('Slot 0'), findsOneWidget);
     expect(find.text('1 second'), findsOneWidget);
   });
 
-  testWidgets('adds a token with a name and a slot', (tester) async {
+  testWidgets('adds a token with a name', (tester) async {
     await _pump(tester, props: const Po0FirewallProps(enable: true));
     await tester.tap(find.text('Add token'));
     await tester.pumpAndSettle();
 
     final fields = find.byType(TextFormField);
+    expect(fields, findsNWidgets(2));
     await tester.enterText(fields.at(0), ' pgnfw_new ');
     await tester.enterText(fields.at(1), 'Office');
-    await tester.enterText(fields.at(2), '2');
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
     expect(_setting().tokenEntries, const [
-      Po0TokenEntry(token: 'pgnfw_new', name: 'Office', slot: 2),
+      Po0TokenEntry(token: 'pgnfw_new', name: 'Office'),
     ]);
     expect(find.text('Office'), findsOneWidget);
   });

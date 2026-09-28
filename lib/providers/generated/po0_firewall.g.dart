@@ -98,7 +98,7 @@ final class Po0FirewallProvider
   }
 }
 
-String _$po0FirewallHash() => r'c23e2b48a9066b1a585c7069340d88923279e6ce';
+String _$po0FirewallHash() => r'887d0ad04cfe5dc571f0ba8d0adbbfebcef04056';
 
 /// Keeps the current exit whitelisted for as long as the app runs, whether or
 /// not the proxy is started: a read-only query each interval, and an add only

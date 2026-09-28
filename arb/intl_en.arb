@@ -629,11 +629,9 @@
   "po0ResultApplied": "Exit {ip} is whitelisted",
   "po0ResultNotApplied": "Exit {ip} is not whitelisted",
   "po0ResultDisabled": "The firewall is not enabled for this server",
-  "po0ResultConflict": "Slot conflict: this exit already holds another slot; delete it in the po0 panel first",
   "po0ResultRejected": "Rejected: {message}",
   "po0ResultError": "Request failed: {message}",
   "po0Usage": "{used}/{limit} used",
-  "po0Slot": "Slot {slot}",
   "po0DirectTip": "Requests go straight to 124.221.69.228. While enabled, po0-clash routes that address DIRECT and keeps it out of TUN, so the real exit is whitelisted instead of the proxy's. On Android, restart the VPN once after enabling.",
   "po0Nav": "po0",
   "po0StatusOff": "Auto whitelist is off",
@@ -647,7 +645,6 @@
   "po0ChipApplied": "Whitelisted",
   "po0ChipNotApplied": "Not listed",
   "po0ChipDisabled": "Firewall off",
-  "po0ChipConflict": "Slot conflict",
   "po0ChipRejected": "Rejected",
   "po0ChipError": "Failed",
   "po0Whitelist": "Whitelist",
@@ -658,8 +655,6 @@
   "po0AddToken": "Add token",
   "po0EditToken": "Edit token",
   "po0TokenName": "Name (optional)",
-  "po0TokenSlot": "Fixed slot (optional)",
-  "po0TokenSlotHelp": "Pins this exit to slot N (usually 0–4) so FIFO never evicts it. Leave empty for normal entries",
   "po0TokenDuplicate": "This token is already in the list",
   "po0TokensEmptyDesc": "Add the pgnfw_ token from each po0 machine; every token checks its own whitelist"
 }

@@ -15,18 +15,16 @@ const _po0TokenPrefix = 'pgnfw_';
 
 class Po0Token {
   final String value;
-  final int? slot;
 
-  const Po0Token(this.value, {this.slot});
+  const Po0Token(this.value);
 
   String get label => '${value.substring(0, min(12, value.length))}…';
 
   @override
-  bool operator ==(Object other) =>
-      other is Po0Token && other.value == value && other.slot == slot;
+  bool operator ==(Object other) => other is Po0Token && other.value == value;
 
   @override
-  int get hashCode => Object.hash(value, slot);
+  int get hashCode => value.hashCode;
 }
 
 final _po0TokenPattern = RegExp('^$_po0TokenPrefix[^\\s,|;、@]+\$');
@@ -39,7 +37,7 @@ List<({Po0Token token, String name})> po0TokensOf(List<Po0TokenEntry> entries) {
   return [
     for (final entry in entries)
       if (isPo0Token(entry.token) && seen.add(entry.token))
-        (token: Po0Token(entry.token, slot: entry.slot), name: entry.name),
+        (token: Po0Token(entry.token), name: entry.name),
   ];
 }
 
@@ -52,11 +50,9 @@ List<Po0Token> parsePo0Tokens(String raw) {
     }
     final at = part.indexOf('@');
     final value = at == -1 ? part : part.substring(0, at);
-    if (!seen.add(value)) {
-      continue;
+    if (seen.add(value)) {
+      tokens.add(Po0Token(value));
     }
-    final slot = at == -1 ? null : int.tryParse(part.substring(at + 1));
-    tokens.add(Po0Token(value, slot: slot));
   }
   return tokens;
 }
@@ -197,21 +193,6 @@ class Po0DirectTransport {
   }
 }
 
-/// A FIFO entry still needs an add when the token pins a slot.
-bool po0NeedsWhitelist(Po0Token token, Po0TokenResult result) {
-  if (result.type == Po0ResultType.notApplied) {
-    return true;
-  }
-  return token.slot != null &&
-      result.type == Po0ResultType.applied &&
-      result.currentEntry?.slot == null;
-}
-
-extension Po0TokenResultExt on Po0TokenResult {
-  Po0WhitelistEntry? get currentEntry =>
-      whitelist.where((entry) => sameC24(entry.ip, currentIp)).firstOrNull;
-}
-
 class Po0FirewallClient {
   final Po0HttpSend? _customSend;
   final void Function()? _customReset;
@@ -237,27 +218,19 @@ class Po0FirewallClient {
 
   void resetConnections() => (_customReset ?? _transport?.reset)?.call();
 
-  Future<Po0TokenResult> whitelist(Po0Token token) {
-    final slot = token.slot;
-    final uri = Uri.parse(
-      '$_po0FirewallApiBase/${Uri.encodeComponent(token.value)}/add',
-    ).replace(queryParameters: slot == null ? null : {'slot': '$slot'});
-    return _call(token, 'POST', uri, isQuery: false);
-  }
+  Future<Po0TokenResult> whitelist(Po0Token token) => _call(
+    token,
+    'POST',
+    Uri.parse('$_po0FirewallApiBase/${Uri.encodeComponent(token.value)}/add'),
+  );
 
   /// Read-only: the add endpoint would claim a FIFO slot and evict the oldest
   /// entry whenever the current exit is not listed yet.
   Future<Po0TokenResult> query(Po0Token token) =>
-      _call(token, 'GET', _queryUri(token), isQuery: true);
+      _call(token, 'GET', _queryUri(token));
 
-  Future<Po0TokenResult> poll(Po0Token token) => _call(
-    token,
-    'GET',
-    _queryUri(token),
-    isQuery: true,
-    attempts: 1,
-    timeout: pollTimeout,
-  );
+  Future<Po0TokenResult> poll(Po0Token token) =>
+      _call(token, 'GET', _queryUri(token), attempts: 1, timeout: pollTimeout);
 
   Uri _queryUri(Po0Token token) =>
       Uri.parse('$_po0FirewallApiBase/${Uri.encodeComponent(token.value)}');
@@ -266,7 +239,6 @@ class Po0FirewallClient {
     Po0Token token,
     String method,
     Uri uri, {
-    required bool isQuery,
     int? attempts,
     Duration? timeout,
   }) async {
@@ -284,7 +256,7 @@ class Po0FirewallClient {
           lastError = 'HTTP ${response.statusCode}';
           continue;
         }
-        return _parse(token, response, isQuery: isQuery);
+        return _parse(token, response);
       } on TimeoutException catch (error) {
         lastError = error;
         resetConnections();
@@ -294,7 +266,6 @@ class Po0FirewallClient {
     }
     return Po0TokenResult(
       label: token.label,
-      slot: token.slot,
       type: Po0ResultType.error,
       message: _redact('$lastError', token),
     );
@@ -314,22 +285,14 @@ class Po0FirewallClient {
     return _decodeMap(response.body) == null;
   }
 
-  Po0TokenResult _parse(
-    Po0Token token,
-    Po0HttpResponse response, {
-    required bool isQuery,
-  }) {
+  Po0TokenResult _parse(Po0Token token, Po0HttpResponse response) {
     final status = response.statusCode;
     final data = _decodeMap(response.body);
     final base = Po0TokenResult(
       label: token.label,
-      slot: token.slot,
       type: Po0ResultType.error,
       currentIp: data?['currentIp']?.toString(),
     );
-    if (status == HttpStatus.forbidden && !isQuery) {
-      return base.copyWith(type: Po0ResultType.conflict);
-    }
     if (data == null) {
       return base.copyWith(message: 'HTTP $status: ${_snippet(response.body)}');
     }
@@ -357,17 +320,12 @@ class Po0FirewallClient {
         )
         .toList();
     final limit = data['limit'];
-    final listed = whitelist
-        .where((entry) => sameC24(entry.ip, base.currentIp))
-        .firstOrNull;
-    final slot = token.slot;
+    final listed = whitelist.any((entry) => sameC24(entry.ip, base.currentIp));
     final type = data['enabled'] == false
         ? Po0ResultType.disabled
-        : listed == null
-        ? Po0ResultType.notApplied
-        : slot != null && listed.slot != null && listed.slot != slot
-        ? Po0ResultType.conflict
-        : Po0ResultType.applied;
+        : listed
+        ? Po0ResultType.applied
+        : Po0ResultType.notApplied;
     return base.copyWith(
       type: type,
       whitelist: whitelist,

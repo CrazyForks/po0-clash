@@ -53,7 +53,7 @@ uninstall the old app yourself. It will not receive further updates.
 ## Using the po0 whitelist
 
 1. Open **po0** in the main navigation.
-2. Add your tokens (optionally with a name and a fixed slot) and turn on **Auto whitelist**.
+2. Add your tokens (optionally with a name) and turn on **Auto whitelist**.
 3. On Android, restart the VPN once after the first time you enable it so the direct route takes effect.
 
 ## Development
