@@ -27,25 +27,23 @@ throw stays catchable as an `Exception` and carries a stack trace. Assert on it
 with `isA<MessageException>().having((e) => e.message, 'message', ...)`, not on a
 raw string.
 
-### Corner Radius
+### Material 3 Shapes and Motion
 
-Rounded corners are superellipses everywhere, not circular arcs. Use the superellipse API at each layer:
+Every platform follows Material 3 (`docs/adr/0008-material3-on-every-platform.md`,
+`docs/features/material3-ui.md`).
 
-- Shapes: `RoundedSuperellipseBorder` instead of `RoundedRectangleBorder`.
-- Clips: `ClipRSuperellipse` instead of `ClipRRect`.
-- Container decorations: `ShapeDecoration(shape: RoundedSuperellipseBorder(...))` instead of
-  `BoxDecoration(borderRadius: ...)`; borders move to the shape's `side`, and a `Container` with
-  `clipBehavior` still clips to the shape path.
-- Canvas: `canvas.drawRSuperellipse(RSuperellipse.fromRectAndRadius(...))` instead of `drawRRect`.
-
-Passing `BorderRadius.circular(x)` as the `borderRadius` argument of these APIs is expected — it only
-carries the corner magnitude; the rendered geometry stays a superellipse.
-
-APIs that accept only `BorderRadius` keep circular corners, with the superellipse supplied by an
-enclosing clip or shape where one is needed: `InkWell.borderRadius`, `OutlineInputBorder`,
-`ScrollbarThemeData.radius`, and `smooth_sheets`' `MaterialSheetDecoration`. Fully round pills
-(`BorderRadius.circular(999)` or half the shortest side) may stay circular — both geometries coincide
-there.
+- Corner radii come from the Material 3 scale in `lib/common/shape.dart` (`AppCorner`, `AppRadius`,
+  `AppShape`); never write a radius literal in a widget. Corners are circular: `RoundedRectangleBorder`,
+  `ClipRRect`, `BorderRadius` and `RRect`.
+- Component shapes are the theme's Material 3 defaults (cards 12, menus and text fields 4, dialogs and
+  sheets 28); do not restate them at call sites.
+- Durations come from `Durations.*` and curves from `Easing.*`, with `Curves.easeInOutCubicEmphasized`
+  for the full emphasized curve. No overshoot (`easeOutBack`, cubics past 1), springs or jiggle.
+- Enter on a decelerate curve and exit on an accelerate one. `CurvedAnimation.reverseCurve` and
+  `AnimatedSwitcher.switchOutCurve` apply the curve as given while the value falls, so an exit that
+  accelerates in time is `Easing.xxxAccelerate.flipped`.
+- Respect `context.disableAnimations`, and prefer stock Material 3 components (`SegmentedButton`,
+  `MenuAnchor`, chips) over hand-drawn ones.
 
 CI gates formatting: `dart format --output=none --set-exit-if-changed lib test
 tool plugins setup.dart` runs before `flutter analyze`.

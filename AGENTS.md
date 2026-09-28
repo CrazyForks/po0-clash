@@ -5,7 +5,7 @@ This file is the entry point for AI coding agents working in this repository. Ke
 
 ## Fork: po0-clash
 
-This is a fork of FlClash that adds the po0 firewall auto-whitelist and a HeroUI-style desktop UI, released as the
+This is a fork of FlClash that adds the po0 firewall auto-whitelist and one Material 3 UI on every platform, released as the
 standalone app po0-clash (its own app id, installer, process names and semver, installable side by side with FlClash).
 Read [.agents/fork.md](.agents/fork.md) first; project goals, feature designs, build/release process and ADRs are in
 [docs/](docs/README.md). Release builds run only when the maintainer explicitly asks for a release.

@@ -3,7 +3,7 @@
 [**English**](README.md)
 
 基于 [FlClash](https://github.com/chen08209/FlClash) 的多平台代理客户端，内置 [po0fw](https://github.com/w0ven/po0fw) 的
-po0 防火墙自动加白；Windows / macOS 使用 HeroUI 风格界面。
+po0 防火墙自动加白；Android、Windows、macOS 统一使用 Material 3 界面。
 
 po0-clash 是独立的应用，应用 ID、安装标识、进程名、服务名和数据目录都与官方 FlClash 不同，可以和官方 FlClash 同时安装、同时运行。
 
@@ -18,7 +18,7 @@ po0-clash 是独立的应用，应用 ID、安装标识、进程名、服务名�
 
 - **po0 自动加白**：为每台 po0 机器添加 `pgnfw_` token，应用打开期间按刷新间隔（默认 5 秒）检查白名单，本机出口不在名单时立即加白，
   无论代理是否开启。加白请求强制直连，加白的是真实出口而不是代理 IP。
-- **HeroUI 风格桌面界面**：分组设置卡片、页面淡入、侧边栏动效。
+- **三端统一的 Material 3 界面**：Android、Windows、macOS 使用同一套 Android 风格的设计、导航与动效，支持动态取色。
 - 保留 FlClash 的全部功能：基于 ClashMeta，支持订阅导入、WebDAV 同步、深色模式等。
 
 ## 安装

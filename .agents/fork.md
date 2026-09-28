@@ -10,9 +10,9 @@ fork. Human-facing documentation lives in `docs/` (Chinese).
   `lib/providers/po0_firewall.dart`, `lib/views/po0_firewall.dart`. The page is a top-level navigation item
   (`PageLabel.po0`), not a Tools entry. Design: `docs/features/po0-firewall.md`, decision record:
   `docs/adr/0001-direct-routing-for-po0-api.md`.
-- HeroUI-style theme, sidebar, motion and grouped settings cards on desktop (Windows, macOS):
-  `docs/features/heroui-desktop.md`. Widgets decide the look from `HeroTheme.maybeOf(context)`, never from the
-  platform; `SurfaceCard` is the shared grouping surface.
+- One Material 3 UI on every platform, following Android's design guidance (ADR 0008, `docs/features/material3-ui.md`):
+  shapes from the Material 3 corner scale, navigation by window size class, and motion only from `Durations` and
+  `Easing`. Widgets never branch on the platform for their look.
 - Its own app identity (`docs/adr/0006-standalone-app-identity.md`): app id `io.github.yuuukicreation.po0clash`, executable
   and display name `po0-clash`, `Po0ClashCore` / `Po0ClashHelperService`, its own Inno Setup `AppId`, IPC names, data
   directory and `po0clash://` scheme. No Firebase.

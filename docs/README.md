@@ -1,7 +1,7 @@
 # po0-clash 文档
 
 本仓库是 [chen08209/FlClash](https://github.com/chen08209/FlClash) 的二次开发版本，在原版基础上内置
-[po0fw](https://github.com/w0ven/po0fw) 的 po0 防火墙自动加白，并为 Windows / macOS 桌面端提供 HeroUI 风格界面。
+[po0fw](https://github.com/w0ven/po0fw) 的 po0 防火墙自动加白，三端统一使用 Material 3 界面。
 po0-clash 以独立应用的身份发布，可与官方 FlClash 同时安装（见 [ADR 0006](adr/0006-standalone-app-identity.md)）。
 
 上游自带的开发规范（代码风格、测试、生成代码、提交规范）仍然有效，见根目录 [AGENTS.md](../AGENTS.md) 与 [.agents/](../.agents/)。
@@ -14,7 +14,7 @@ po0-clash 以独立应用的身份发布，可与官方 FlClash 同时安装（�
 | [goal.md](goal.md) | 项目目标与交付范围 |
 | [install.md](install.md) | 用户安装说明（Windows 安装包 / macOS 终端安装 / Android APK） |
 | [features/po0-firewall.md](features/po0-firewall.md) | po0 自动加白：行为、触发时机、直连路由设计 |
-| [features/heroui-desktop.md](features/heroui-desktop.md) | 桌面端 HeroUI 风格界面的设计令牌与实现位置 |
+| [features/material3-ui.md](features/material3-ui.md) | 三端统一的 Material 3 界面：主题、形状、导航、转场、动效与组件 |
 | [development/build.md](development/build.md) | 构建：VPS（校验）、GitHub Actions（Android / Windows / macOS 发版）、签名、本地开发 |
 | [development/release.md](development/release.md) | 发版流程、版本号与产物命名 |
 | [development/upstream-sync.md](development/upstream-sync.md) | 如何合并上游 FlClash 更新 |

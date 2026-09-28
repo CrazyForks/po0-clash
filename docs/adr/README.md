@@ -20,8 +20,9 @@
 |---|---|---|
 | [0001](0001-direct-routing-for-po0-api.md) | po0 API 请求的直连路由 | 已采纳 |
 | [0002](0002-build-infrastructure.md) | 构建基础设施：VPS + GitHub Actions | 已采纳，Android 构建与签名部分已取代（见 0006） |
-| [0003](0003-heroui-desktop-theme.md) | 桌面端 HeroUI 风格主题 | 已采纳 |
+| [0003](0003-heroui-desktop-theme.md) | 桌面端 HeroUI 风格主题 | 已取代（见 0008） |
 | [0004](0004-per-second-read-only-polling.md) | 每秒只读轮询白名单 | 已采纳，固定槽位部分已取代（见 0007） |
 | [0005](0005-token-list-and-poll-interval.md) | token 列表与可调刷新间隔 | 已采纳，固定槽位部分已取代（见 0007） |
 | [0006](0006-standalone-app-identity.md) | po0-clash 作为独立应用发布 | 已采纳 |
 | [0007](0007-remove-fixed-slots.md) | 去掉固定槽位 | 已采纳 |
+| [0008](0008-material3-on-every-platform.md) | 三端统一使用 Material 3 | 已采纳 |

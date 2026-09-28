@@ -3,7 +3,7 @@
 [**简体中文**](README_zh_CN.md)
 
 A multi-platform proxy client based on [FlClash](https://github.com/chen08209/FlClash), with a built-in po0 firewall
-auto-whitelist (port of [po0fw](https://github.com/w0ven/po0fw)) and a HeroUI-style UI on Windows and macOS.
+auto-whitelist (port of [po0fw](https://github.com/w0ven/po0fw)) and one Material 3 UI on Android, Windows and macOS.
 
 po0-clash is a standalone app with its own app id, installer, process and service names and data directory, so it
 installs and runs side by side with official FlClash.
@@ -20,7 +20,8 @@ installs and runs side by side with official FlClash.
 - **po0 auto-whitelist**: add a `pgnfw_` token for each po0 machine. While the app is open it checks the whitelist at
   the refresh interval (5 seconds by default) and adds your exit IP as soon as it is missing, whether or not the proxy is
   on. The request always goes direct, so the real exit is whitelisted rather than the proxy's.
-- **HeroUI-style desktop UI**: grouped settings cards, page fades and sidebar motion.
+- **Material 3 on every platform**: the same Android-style design, navigation and motion on Android, Windows and macOS,
+  with dynamic color.
 - Everything FlClash already does: ClashMeta core, subscription import, WebDAV sync, dark mode and more.
 
 ## Install
