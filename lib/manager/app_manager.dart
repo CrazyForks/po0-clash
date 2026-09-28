@@ -161,7 +161,9 @@ class _SidebarRail extends StatelessWidget {
       extended: extended,
       minExtendedWidth: extendedWidth,
       backgroundColor: Colors.transparent,
-      labelType: extended ? NavigationRailLabelType.none : null,
+      labelType: extended
+          ? NavigationRailLabelType.none
+          : NavigationRailLabelType.all,
       leading: onToggleExtended == null
           ? null
           : IconButton(
