@@ -403,9 +403,7 @@ double gridStride({
   return (crossAxisExtent + crossAxisSpacing) / crossAxisCount;
 }
 
-/// [RenderGrid] positions its children with this, and `SuperGrid` animates a
-/// drag to the slot it reports, so the preview and the final layout agree by
-/// construction.
+/// [RenderGrid] positions its children with this.
 GridGeometry packGridSlots({
   required List<int> crossAxisCellCounts,
   required List<double> mainAxisExtents,

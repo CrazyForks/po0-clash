@@ -5454,6 +5454,76 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Home`
+  String get home {
+    return Intl.message('Home', name: 'home', desc: '', args: []);
+  }
+
+  /// `Activity`
+  String get activity {
+    return Intl.message('Activity', name: 'activity', desc: '', args: []);
+  }
+
+  /// `Connections, requests and logs`
+  String get activityDesc {
+    return Intl.message(
+      'Connections, requests and logs',
+      name: 'activityDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy on`
+  String get proxyOn {
+    return Intl.message('Proxy on', name: 'proxyOn', desc: '', args: []);
+  }
+
+  /// `Tap to connect`
+  String get tapToConnect {
+    return Intl.message(
+      'Tap to connect',
+      name: 'tapToConnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No proxy selected`
+  String get noProxySelected {
+    return Intl.message(
+      'No proxy selected',
+      name: 'noProxySelected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current proxy`
+  String get currentProxy {
+    return Intl.message(
+      'Current proxy',
+      name: 'currentProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Appearance`
+  String get appearance {
+    return Intl.message('Appearance', name: 'appearance', desc: '', args: []);
+  }
+
+  /// `Network & core`
+  String get networkAndCore {
+    return Intl.message(
+      'Network & core',
+      name: 'networkAndCore',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

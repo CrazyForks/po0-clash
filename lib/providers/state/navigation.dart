@@ -22,11 +22,12 @@ NavigationItemsState navigationItemsState(Ref ref) {
 
 @riverpod
 NavigationItemsState currentNavigationItemsState(Ref ref) {
-  final viewWidth = ref.watch(viewWidthProvider);
+  final viewMode = ref.watch(viewModeProvider);
   final navigationItemsState = ref.watch(navigationItemsStateProvider);
-  final navigationItemMode = switch (viewWidth < maxMobileWidth) {
-    true => NavigationItemMode.mobile,
-    false => NavigationItemMode.desktop,
+  final navigationItemMode = switch (viewMode) {
+    ViewMode.mobile => NavigationItemMode.mobile,
+    ViewMode.laptop => NavigationItemMode.laptop,
+    ViewMode.desktop => NavigationItemMode.desktop,
   };
   return NavigationItemsState(
     value: navigationItemsState.value
@@ -52,40 +53,6 @@ NavigationState navigationState(Ref ref) {
     locale: locale,
     currentIndex: currentIndex,
   );
-}
-
-@riverpod
-DashboardState dashboardState(Ref ref) {
-  final dashboardWidgets = ref.watch(
-    appSettingProvider.select((state) => state.dashboardWidgets),
-  );
-  return DashboardState(dashboardWidgets: dashboardWidgets);
-}
-
-@riverpod
-MoreToolsSelectorState moreToolsSelectorState(Ref ref) {
-  final viewMode = ref.watch(viewModeProvider);
-  final navigationItems = ref
-      .watch(
-        navigationItemsStateProvider.select((state) {
-          return SelectValue(
-            state.value.where((element) {
-              final isMore = element.modes.contains(NavigationItemMode.more);
-              final isDesktop = element.modes.contains(
-                NavigationItemMode.desktop,
-              );
-              if (isMore && !isDesktop) return true;
-              if (viewMode != ViewMode.mobile || !isMore) {
-                return false;
-              }
-              return true;
-            }).toList(),
-          );
-        }),
-      )
-      .value;
-
-  return MoreToolsSelectorState(navigationItems: navigationItems);
 }
 
 @riverpod

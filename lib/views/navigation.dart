@@ -15,66 +15,42 @@ class Navigation implements NavigationPort {
     return [
       NavigationItem(
         keep: false,
-        icon: const Icon(Icons.space_dashboard),
+        icon: const Icon(Icons.blur_on_rounded),
         label: PageLabel.dashboard,
         builder: (_) =>
-            const DashboardView(key: GlobalObjectKey(PageLabel.dashboard)),
+            const ControlCenterView(key: GlobalObjectKey(PageLabel.dashboard)),
+        modes: const [NavigationItemMode.mobile, NavigationItemMode.laptop],
       ),
       NavigationItem(
-        icon: const Icon(Icons.article),
+        icon: const Icon(Icons.hub_rounded),
         label: PageLabel.proxies,
         builder: (_) =>
             const ProxiesView(key: GlobalObjectKey(PageLabel.proxies)),
-        modes: hasProxies
-            ? [NavigationItemMode.mobile, NavigationItemMode.desktop]
-            : [],
+        modes: hasProxies ? NavigationItemMode.values : const [],
       ),
       NavigationItem(
-        icon: const Icon(Icons.folder),
+        icon: const Icon(Icons.layers_rounded),
         label: PageLabel.profiles,
         builder: (_) =>
             const ProfilesView(key: GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
-        icon: const Icon(Icons.shield),
+        icon: const Icon(Icons.shield_rounded),
         label: PageLabel.po0,
         builder: (_) =>
             const Po0FirewallView(key: GlobalObjectKey(PageLabel.po0)),
       ),
       NavigationItem(
-        icon: const Icon(Icons.view_timeline),
-        label: PageLabel.requests,
+        icon: const Icon(Icons.insights_rounded),
+        label: PageLabel.activity,
         builder: (_) =>
-            const RequestsView(key: GlobalObjectKey(PageLabel.requests)),
-        modes: [NavigationItemMode.desktop, NavigationItemMode.more],
+            const ActivityView(key: GlobalObjectKey(PageLabel.activity)),
+        modes: const [NavigationItemMode.laptop, NavigationItemMode.desktop],
       ),
       NavigationItem(
-        icon: const Icon(Icons.ballot),
-        label: PageLabel.connections,
-        builder: (_) =>
-            const ConnectionsView(key: GlobalObjectKey(PageLabel.connections)),
-        modes: [NavigationItemMode.desktop, NavigationItemMode.more],
-      ),
-      NavigationItem(
-        icon: const Icon(Icons.storage),
-        label: PageLabel.resources,
-        builder: (_) =>
-            const ResourcesView(key: GlobalObjectKey(PageLabel.resources)),
-        modes: [NavigationItemMode.more],
-      ),
-      NavigationItem(
-        icon: const Icon(Icons.adb),
-        label: PageLabel.logs,
-        builder: (_) => const LogsView(key: GlobalObjectKey(PageLabel.logs)),
-        modes: openLogs
-            ? [NavigationItemMode.desktop, NavigationItemMode.more]
-            : [],
-      ),
-      NavigationItem(
-        icon: const Icon(Icons.construction),
+        icon: const Icon(Icons.tune_rounded),
         label: PageLabel.tools,
         builder: (_) => const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
-        modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
       ),
     ];
   }

@@ -2,12 +2,12 @@ import 'package:material_ui/material_ui.dart';
 
 abstract final class AppCorner {
   static const double none = 0;
-  static const double extraSmall = 4;
-  static const double small = 8;
-  static const double medium = 12;
-  static const double large = 16;
-  static const double largeIncreased = 20;
-  static const double extraLarge = 28;
+  static const double extraSmall = 8;
+  static const double small = 12;
+  static const double medium = 18;
+  static const double large = 24;
+  static const double largeIncreased = 28;
+  static const double extraLarge = 32;
   static const double full = 1000;
 }
 
@@ -47,52 +47,42 @@ abstract final class AppRadius {
 }
 
 abstract final class AppShape {
-  static const RoundedRectangleBorder none = RoundedRectangleBorder();
-  static const RoundedRectangleBorder extraSmall = RoundedRectangleBorder(
+  static const RoundedSuperellipseBorder none = RoundedSuperellipseBorder();
+  static const RoundedSuperellipseBorder extraSmall = RoundedSuperellipseBorder(
     borderRadius: AppRadius.extraSmall,
   );
-  static const RoundedRectangleBorder small = RoundedRectangleBorder(
+  static const RoundedSuperellipseBorder small = RoundedSuperellipseBorder(
     borderRadius: AppRadius.small,
   );
-  static const RoundedRectangleBorder medium = RoundedRectangleBorder(
+  static const RoundedSuperellipseBorder medium = RoundedSuperellipseBorder(
     borderRadius: AppRadius.medium,
   );
-  static const RoundedRectangleBorder large = RoundedRectangleBorder(
+  static const RoundedSuperellipseBorder large = RoundedSuperellipseBorder(
     borderRadius: AppRadius.large,
   );
-  static const RoundedRectangleBorder extraLarge = RoundedRectangleBorder(
+  static const RoundedSuperellipseBorder extraLarge = RoundedSuperellipseBorder(
     borderRadius: AppRadius.extraLarge,
   );
   static const StadiumBorder full = StadiumBorder();
   static const CircleBorder circle = CircleBorder();
   static const OutlineInputBorder input = OutlineInputBorder(
-    borderRadius: AppRadius.extraSmall,
+    borderRadius: AppRadius.small,
+    borderSide: BorderSide.none,
   );
 
-  static RoundedRectangleBorder all(double corner) =>
-      RoundedRectangleBorder(borderRadius: AppRadius.all(corner));
+  static RoundedSuperellipseBorder all(double corner) =>
+      RoundedSuperellipseBorder(borderRadius: AppRadius.all(corner));
 
-  static RoundedRectangleBorder top(double corner) =>
-      RoundedRectangleBorder(borderRadius: AppRadius.top(corner));
+  static RoundedSuperellipseBorder top(double corner) =>
+      RoundedSuperellipseBorder(borderRadius: AppRadius.top(corner));
 
-  static RoundedRectangleBorder vertical({
+  static RoundedSuperellipseBorder vertical({
     double top = AppCorner.none,
     double bottom = AppCorner.none,
-  }) => RoundedRectangleBorder(
+  }) => RoundedSuperellipseBorder(
     borderRadius: AppRadius.vertical(top: top, bottom: bottom),
   );
 
-  static RoundedRectangleBorder of(BorderRadius borderRadius) =>
-      RoundedRectangleBorder(borderRadius: borderRadius);
-}
-
-extension AppShapeThemeExt on ThemeData {
-  /// Component shapes follow the Material 3 defaults; text fields are the
-  /// outlined variant and progress indicators get rounded ends.
-  ThemeData get withAppShapes => copyWith(
-    inputDecorationTheme: inputDecorationTheme.copyWith(border: AppShape.input),
-    progressIndicatorTheme: progressIndicatorTheme.copyWith(
-      borderRadius: AppRadius.full,
-    ),
-  );
+  static RoundedSuperellipseBorder of(BorderRadius borderRadius) =>
+      RoundedSuperellipseBorder(borderRadius: borderRadius);
 }

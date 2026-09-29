@@ -160,10 +160,12 @@ class ApplicationState extends ConsumerState<Application> {
             return MaterialUiCompatibilityBridge(
               child: IconTheme(
                 data: Theme.of(context).iconTheme,
-                child: buildManagerStack(
-                  isDesktop: system.isDesktop,
-                  onConnectivityChanged: _handleConnectivityChanged,
-                  child: child!,
+                child: AppBackdrop(
+                  child: buildManagerStack(
+                    isDesktop: system.isDesktop,
+                    onConnectivityChanged: _handleConnectivityChanged,
+                    child: child!,
+                  ),
                 ),
               ),
             );

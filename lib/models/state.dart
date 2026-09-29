@@ -184,13 +184,6 @@ abstract class ProxyGroupSelectorState with _$ProxyGroupSelectorState {
 }
 
 @freezed
-abstract class MoreToolsSelectorState with _$MoreToolsSelectorState {
-  const factory MoreToolsSelectorState({
-    required List<NavigationItem> navigationItems,
-  }) = _MoreToolsSelectorState;
-}
-
-@freezed
 abstract class PackageListSelectorState with _$PackageListSelectorState {
   const factory PackageListSelectorState({
     required List<Package> packages,
@@ -282,13 +275,6 @@ abstract class CurrentProfileSelectorState with _$CurrentProfileSelectorState {
     required String label,
     required Map<String, String> selectedMap,
   }) = _CurrentProfileSelectorState;
-}
-
-@freezed
-abstract class DashboardState with _$DashboardState {
-  const factory DashboardState({
-    required List<DashboardWidget> dashboardWidgets,
-  }) = _DashboardState;
 }
 
 @freezed

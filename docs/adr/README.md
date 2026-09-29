@@ -25,4 +25,5 @@
 | [0005](0005-token-list-and-poll-interval.md) | token 列表与可调刷新间隔 | 已采纳，固定槽位部分已取代（见 0007） |
 | [0006](0006-standalone-app-identity.md) | po0-clash 作为独立应用发布 | 已采纳 |
 | [0007](0007-remove-fixed-slots.md) | 去掉固定槽位 | 已采纳 |
-| [0008](0008-material3-on-every-platform.md) | 三端统一使用 Material 3 | 已采纳 |
+| [0008](0008-material3-on-every-platform.md) | 三端统一使用 Material 3 | 已取代（见 0009） |
+| [0009](0009-frosted-glass-ui.md) | 磨砂玻璃界面与新的操作结构 | 已采纳 |

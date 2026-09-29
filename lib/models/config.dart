@@ -37,37 +37,10 @@ const defaultWindowProps = WindowProps();
 const defaultAccessControlProps = AccessControlProps();
 const defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
 
-const List<DashboardWidget> defaultDashboardWidgets = [
-  DashboardWidget.networkSpeed,
-  DashboardWidget.systemProxyButton,
-  DashboardWidget.tunButton,
-  DashboardWidget.outboundMode,
-  DashboardWidget.networkDetection,
-  DashboardWidget.trafficUsage,
-  DashboardWidget.intranetIp,
-];
-
-List<DashboardWidget> dashboardWidgetsSafeFormJson(
-  List<dynamic>? dashboardWidgets,
-) {
-  return decodeOrRestoreDefault(
-    'dashboard widgets',
-    () =>
-        dashboardWidgets
-            ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
-            .toList() ??
-        defaultDashboardWidgets,
-    () => defaultDashboardWidgets,
-  );
-}
-
 @freezed
 abstract class AppSettingProps with _$AppSettingProps {
   const factory AppSettingProps({
     String? locale,
-    @Default(defaultDashboardWidgets)
-    @JsonKey(fromJson: dashboardWidgetsSafeFormJson)
-    List<DashboardWidget> dashboardWidgets,
     @Default(false) bool onlyStatisticsProxy,
     @Default(true) bool showNotificationStopAction,
     @Default(false) bool autoLaunch,
@@ -254,11 +227,11 @@ abstract class ThemeProps with _$ThemeProps {
   }
 }
 
-const _legacyDefaultPrimaryColor = 0xFFD8C0C3;
+const _legacyDefaultPrimaryColors = {0xFFD8C0C3, 0xFF073042};
 
-/// A theme still on the 5.0.0 default (grey-pink, content) moves to today's.
+/// A theme still on an earlier release's default moves to today's.
 Map<String, Object?> _migrateLegacyDefaultTheme(Map<String, Object?> json) {
-  if (json['primaryColor'] != _legacyDefaultPrimaryColor) {
+  if (!_legacyDefaultPrimaryColors.contains(json['primaryColor'])) {
     return json;
   }
   final colors = json['primaryColors'];
@@ -270,7 +243,9 @@ Map<String, Object?> _migrateLegacyDefaultTheme(Map<String, Object?> json) {
     if (colors is List)
       'primaryColors': [
         for (final color in colors)
-          color == _legacyDefaultPrimaryColor ? defaultPrimaryColor : color,
+          _legacyDefaultPrimaryColors.contains(color)
+              ? defaultPrimaryColor
+              : color,
       ],
   };
 }

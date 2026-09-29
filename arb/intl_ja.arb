@@ -656,5 +656,14 @@
   "po0EditToken": "トークンを編集",
   "po0TokenName": "名前（任意）",
   "po0TokenDuplicate": "このトークンは既にリストにあります",
-  "po0TokensEmptyDesc": "po0 マシンごとの pgnfw_ トークンを追加します。各トークンが自分の許可リストを確認します"
+  "po0TokensEmptyDesc": "po0 マシンごとの pgnfw_ トークンを追加します。各トークンが自分の許可リストを確認します",
+  "home": "ホーム",
+  "activity": "アクティビティ",
+  "activityDesc": "接続・リクエスト・ログ",
+  "proxyOn": "プロキシ動作中",
+  "tapToConnect": "タップして接続",
+  "noProxySelected": "ノード未選択",
+  "currentProxy": "現在のノード",
+  "appearance": "外観",
+  "networkAndCore": "ネットワークとコア"
 }

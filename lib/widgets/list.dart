@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'card.dart';
+import 'glass.dart';
 import 'input.dart';
 import 'open_container.dart';
 import 'scaffold.dart';
@@ -375,7 +376,7 @@ class ListItem<T> extends StatelessWidget {
           },
           onClosed: onChanged,
           openBuilder: (_, action) {
-            return child;
+            return AuroraFloor(child: child);
           },
         );
       case final _NextAction nextDelegate:
@@ -566,7 +567,15 @@ class _SectionBody extends StatelessWidget {
     final children = separated
         ? items.separated(const Divider(height: 0)).toList()
         : items;
-    return Column(mainAxisSize: MainAxisSize.min, children: children);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: GlassSurface(
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(mainAxisSize: MainAxisSize.min, children: children),
+        ),
+      ),
+    );
   }
 }
 

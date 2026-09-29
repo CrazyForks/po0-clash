@@ -1,6 +1,6 @@
 ---
 name: ui-work
-description: Use when changing FlClash Flutter UI, widgets, screens, Material You styling, navigation surfaces, async feedback, or user-facing interactions.
+description: Use when changing FlClash Flutter UI, widgets, screens, glass styling, navigation surfaces, async feedback, or user-facing interactions.
 ---
 
 # UI Work
@@ -12,7 +12,8 @@ Use this for user-facing Flutter UI changes in `lib/`, including widgets, screen
 ## Workflow
 
 1. Locate existing nearby widgets and reuse their patterns before adding new abstractions.
-2. Follow Material 3 on every platform (`docs/features/material3-ui.md`); the look never branches on the platform.
+2. Follow the frosted glass language on every platform (`docs/features/glass-ui.md`); the look never branches on the
+   platform. Build surfaces from `GlassSurface` / `GlassButton` and colors from `context.glass`.
 3. Use existing providers, notifiers, and helpers where possible.
 4. Keep `child:` last in widget constructors.
 5. Prefer `const` constructors and final locals.
@@ -32,35 +33,24 @@ Use this for user-facing Flutter UI changes in `lib/`, including widgets, screen
 
 ## Shapes
 
-All corner radii come from `lib/common/shape.dart`. Never write a radius literal in a widget. The tokens are the
-Material 3 corner scale, and corners are plain rounded rectangles.
+All corner radii come from `lib/common/shape.dart`; never write a radius literal in a widget.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `none` | 0 | square edges, and the flat side of a grouped run |
-| `extraSmall` | 4 | menus, text fields, snack-bar style messages, blocks inside a rounded surface |
-| `small` | 8 | chips, small badges, swatches |
-| `medium` | 12 | cards (`CommonCard` and `SurfaceCard` default), icon containers |
-| `large` | 16 | FABs, the inner edge of side sheets, the outer corners of a grouped run |
-| `largeIncreased` | 20 | reserved |
-| `extraLarge` | 28 | dialogs, bottom sheets, full-screen containers |
-| `full` | 1000 | pills and circles: indicators, progress, navigation selection |
+| `extraSmall` | 8 | small blocks inside a surface |
+| `small` | 12 | text fields, badges, swatches |
+| `medium` | 18 | tiles and cards (`GlassSurface` default, `CommonCard`, `SurfaceCard`) |
+| `large` | 24 | hero panels |
+| `extraLarge` | 32 | workspace and sidebar panels, dialogs, sheets |
+| `full` | 1000 | pills, segmented tracks, the dock |
 
-- `AppCorner` holds the scale as `double`, for `radius:` on `CommonCard` and for arithmetic.
-- `AppRadius` mirrors it as `BorderRadius`, plus `all`, `top`, and `vertical` builders.
-- `AppShape` mirrors it as `RoundedRectangleBorder`, plus `full` (stadium), `circle`, `input`
-  (`OutlineInputBorder` on `extraSmall`), and the `all`/`top`/`vertical`/`of` builders.
-- Component shapes come from the theme's Material 3 defaults; `ThemeData.withAppShapes` only sets outlined text
-  fields and round progress ends. Do not restate component shapes at call sites, and leave `InputDecoration.border`
-  unset so inputs inherit `AppShape.input`.
-
-Nested radii are derived, never tokens. Concentric corners need `outer = inner + inset`, so name the inset and
-compute the outer value, as the selection ring in `lib/widgets/palette.dart` does.
+`AppShape` gives continuous corners (`RoundedSuperellipseBorder`); `AppRadius` stays circular for clips and
+decorations. Nested radii are derived, never tokens: `outer = inner + inset`.
 
 ## Motion
 
-Use `Durations.*` and `Easing.*` only; see `.agents/rules.md` ("Material 3 Shapes and Motion") and the transition
-table in `docs/features/material3-ui.md` for which pattern fits which change.
+Use `Durations.*` and `Easing.*` only; see `.agents/rules.md` ("Glass Shapes and Motion"). No endless animations:
+any repaint makes every backdrop blur redraw.
 
 ## Pitfalls
 

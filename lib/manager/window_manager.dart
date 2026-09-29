@@ -425,9 +425,7 @@ class WindowHeaderBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      shape: Border(
-        bottom: BorderSide(color: context.colorScheme.outlineVariant),
-      ),
+      type: MaterialType.transparency,
       child: SizedBox(
         height: height,
         child: Stack(
@@ -435,13 +433,11 @@ class WindowHeaderBar extends StatelessWidget {
           children: [
             Positioned.fill(
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onPanStart: (_) {
                   onDragStart();
                 },
                 onDoubleTap: onDoubleTap,
-                child: ColoredBox(
-                  color: context.colorScheme.surfaceContainerHighest,
-                ),
               ),
             ),
             if (title != null)

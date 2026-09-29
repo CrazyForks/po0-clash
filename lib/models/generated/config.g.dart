@@ -9,9 +9,6 @@ part of '../config.dart';
 _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
     _AppSettingProps(
       locale: json['locale'] as String?,
-      dashboardWidgets: json['dashboardWidgets'] == null
-          ? defaultDashboardWidgets
-          : dashboardWidgetsSafeFormJson(json['dashboardWidgets'] as List?),
       onlyStatisticsProxy: json['onlyStatisticsProxy'] as bool? ?? false,
       showNotificationStopAction:
           json['showNotificationStopAction'] as bool? ?? true,
@@ -44,9 +41,6 @@ _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
     <String, dynamic>{
       'locale': instance.locale,
-      'dashboardWidgets': instance.dashboardWidgets
-          .map((e) => _$DashboardWidgetEnumMap[e]!)
-          .toList(),
       'onlyStatisticsProxy': instance.onlyStatisticsProxy,
       'showNotificationStopAction': instance.showNotificationStopAction,
       'autoLaunch': instance.autoLaunch,
@@ -73,19 +67,6 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
 const _$RestoreStrategyEnumMap = {
   RestoreStrategy.compatible: 'compatible',
   RestoreStrategy.override: 'override',
-};
-
-const _$DashboardWidgetEnumMap = {
-  DashboardWidget.networkSpeed: 'networkSpeed',
-  DashboardWidget.outboundModeV2: 'outboundModeV2',
-  DashboardWidget.outboundMode: 'outboundMode',
-  DashboardWidget.trafficUsage: 'trafficUsage',
-  DashboardWidget.networkDetection: 'networkDetection',
-  DashboardWidget.tunButton: 'tunButton',
-  DashboardWidget.vpnButton: 'vpnButton',
-  DashboardWidget.systemProxyButton: 'systemProxyButton',
-  DashboardWidget.intranetIp: 'intranetIp',
-  DashboardWidget.memoryInfo: 'memoryInfo',
 };
 
 _AccessControlProps _$AccessControlPropsFromJson(Map<String, dynamic> json) =>

@@ -217,7 +217,7 @@ return $default(_that.icon,_that.label,_that.builder,_that.keep,_that.path,_that
 
 
 class _NavigationItem implements NavigationItem {
-  const _NavigationItem({required this.icon, required this.label, required this.builder, this.keep = true, this.path,  List<NavigationItemMode> modes = const [NavigationItemMode.mobile, NavigationItemMode.desktop]}): _modes = modes;
+  const _NavigationItem({required this.icon, required this.label, required this.builder, this.keep = true, this.path,  List<NavigationItemMode> modes = NavigationItemMode.values}): _modes = modes;
   
 
 @override final  Icon icon;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -9,7 +10,7 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _maxContentWidth = 880.0;
+const _maxContentWidth = 920.0;
 
 class Po0FirewallView extends StatelessWidget {
   const Po0FirewallView({super.key});
@@ -18,104 +19,97 @@ class Po0FirewallView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: context.appLocalizations.po0Firewall,
-      body: Align(
-        alignment: AlignmentDirectional.topStart,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _maxContentWidth),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            children: const [
-              _OverviewCard(),
-              _SettingsCard(),
-              _TokensSection(),
-              _TokenResults(),
-              _DirectTip(),
-            ],
+      body: Builder(
+        builder: (context) => ListView(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            4,
+            16,
+            24 + BottomInsetScope.of(context),
           ),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _OverviewPanel(),
+                    SizedBox(height: 12),
+                    _SettingsRow(),
+                    _TokensSection(),
+                    _TokenResults(),
+                    _DirectTip(),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-enum _Tone { success, warning, danger, primary, neutral }
+typedef Po0Overview = ({IconData icon, GlassTone tone, String title});
 
-/// Material 3 has no success or warning roles; they use primary and tertiary.
-({Color accent, Color container, Color onContainer}) _toneColors(
-  BuildContext context,
-  _Tone tone,
-) {
-  final colorScheme = context.colorScheme;
-  return switch (tone) {
-    _Tone.success || _Tone.primary => (
-      accent: colorScheme.primary,
-      container: colorScheme.primaryContainer,
-      onContainer: colorScheme.onPrimaryContainer,
-    ),
-    _Tone.warning => (
-      accent: colorScheme.tertiary,
-      container: colorScheme.tertiaryContainer,
-      onContainer: colorScheme.onTertiaryContainer,
-    ),
-    _Tone.danger => (
-      accent: colorScheme.error,
-      container: colorScheme.errorContainer,
-      onContainer: colorScheme.onErrorContainer,
-    ),
-    _Tone.neutral => (
-      accent: colorScheme.onSurfaceVariant,
-      container: colorScheme.surfaceContainerHighest,
-      onContainer: colorScheme.onSurfaceVariant,
-    ),
-  };
-}
-
-_Tone _toneOf(Po0ResultType type) => switch (type) {
-  Po0ResultType.applied => _Tone.success,
-  Po0ResultType.notApplied || Po0ResultType.disabled => _Tone.warning,
-  Po0ResultType.rejected || Po0ResultType.error => _Tone.danger,
-};
-
-class _Section extends StatelessWidget {
-  const _Section({this.title, this.trailing, required this.child});
-
-  final String? title;
-  final Widget? trailing;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final title = this.title;
-    final trailing = this.trailing;
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (title != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: context.textTheme.titleSmall?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  ?trailing,
-                ],
-              ),
-            ),
-          child,
-        ],
-      ),
+Po0Overview po0OverviewOf(
+  AppLocalizations appLocalizations, {
+  required bool enabled,
+  required bool hasTokens,
+  required Po0FirewallState state,
+}) {
+  final results = state.results;
+  final applied = results
+      .where((it) => it.type == Po0ResultType.applied)
+      .length;
+  if (!enabled) {
+    return (
+      icon: Icons.shield_outlined,
+      tone: GlassTone.neutral,
+      title: appLocalizations.po0StatusOff,
     );
   }
+  if (!hasTokens) {
+    return (
+      icon: Icons.key_off_rounded,
+      tone: GlassTone.warning,
+      title: appLocalizations.po0StatusNoToken,
+    );
+  }
+  if (state.isRunning) {
+    return (
+      icon: Icons.sync_rounded,
+      tone: GlassTone.accent,
+      title: appLocalizations.po0Running,
+    );
+  }
+  if (results.isEmpty) {
+    return (
+      icon: Icons.schedule_rounded,
+      tone: GlassTone.neutral,
+      title: appLocalizations.po0StatusWaiting,
+    );
+  }
+  if (applied == results.length) {
+    return (
+      icon: Icons.verified_user_rounded,
+      tone: GlassTone.success,
+      title: appLocalizations.po0StatusApplied,
+    );
+  }
+  return (
+    icon: Icons.gpp_maybe_rounded,
+    tone: applied == 0 ? GlassTone.danger : GlassTone.warning,
+    title: appLocalizations.po0StatusPartial(applied, results.length),
+  );
 }
+
+GlassTone _toneOf(Po0ResultType type) => switch (type) {
+  Po0ResultType.applied => GlassTone.success,
+  Po0ResultType.notApplied || Po0ResultType.disabled => GlassTone.warning,
+  Po0ResultType.rejected || Po0ResultType.error => GlassTone.danger,
+};
 
 /// Rebuilds its subtree periodically so relative times stay current.
 class _Ticker extends StatefulWidget {
@@ -149,60 +143,8 @@ class _TickerState extends State<_Ticker> {
   Widget build(BuildContext context) => widget.builder(context);
 }
 
-({IconData icon, _Tone tone, String title}) _overviewStatus(
-  AppLocalizations appLocalizations, {
-  required bool enabled,
-  required bool hasTokens,
-  required Po0FirewallState state,
-}) {
-  final results = state.results;
-  final applied = results
-      .where((it) => it.type == Po0ResultType.applied)
-      .length;
-  if (!enabled) {
-    return (
-      icon: Icons.shield_outlined,
-      tone: _Tone.neutral,
-      title: appLocalizations.po0StatusOff,
-    );
-  }
-  if (!hasTokens) {
-    return (
-      icon: Icons.key_off_outlined,
-      tone: _Tone.warning,
-      title: appLocalizations.po0StatusNoToken,
-    );
-  }
-  if (state.isRunning) {
-    return (
-      icon: Icons.sync,
-      tone: _Tone.primary,
-      title: appLocalizations.po0Running,
-    );
-  }
-  if (results.isEmpty) {
-    return (
-      icon: Icons.schedule,
-      tone: _Tone.neutral,
-      title: appLocalizations.po0StatusWaiting,
-    );
-  }
-  if (applied == results.length) {
-    return (
-      icon: Icons.verified_user,
-      tone: _Tone.success,
-      title: appLocalizations.po0StatusApplied,
-    );
-  }
-  return (
-    icon: Icons.gpp_maybe,
-    tone: applied == 0 ? _Tone.danger : _Tone.warning,
-    title: appLocalizations.po0StatusPartial(applied, results.length),
-  );
-}
-
-class _OverviewCard extends ConsumerWidget {
-  const _OverviewCard();
+class _OverviewPanel extends ConsumerWidget {
+  const _OverviewPanel();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -211,101 +153,79 @@ class _OverviewCard extends ConsumerWidget {
     final state = ref.watch(po0FirewallProvider);
     final notifier = ref.read(po0FirewallProvider.notifier);
     final hasTokens = po0TokensOf(setting.tokenEntries).isNotEmpty;
-    final (:icon, :tone, :title) = _overviewStatus(
+    final overview = po0OverviewOf(
       appLocalizations,
       enabled: setting.enable,
       hasTokens: hasTokens,
       state: state,
     );
+    final color = context.toneColor(overview.tone);
     final canRun = setting.enable && hasTokens && !state.isRunning;
     final exitIp = state.results.map((it) => it.currentIp).nonNulls.firstOrNull;
     final actions = Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: 10,
+      runSpacing: 10,
       children: [
-        OutlinedButton(
+        OutlinedButton.icon(
           onPressed: canRun ? () => unawaited(notifier.query()) : null,
-          child: Text(appLocalizations.po0QueryStatus),
+          icon: const Icon(Icons.travel_explore_rounded, size: 18),
+          label: Text(appLocalizations.po0QueryStatus),
         ),
         FilledButton.icon(
           onPressed: canRun ? () => unawaited(notifier.whitelist()) : null,
-          icon: const Icon(Icons.bolt, size: 18),
+          icon: const Icon(Icons.bolt_rounded, size: 18),
           label: Text(appLocalizations.po0WhitelistNow),
         ),
       ],
     );
-    return SurfaceCard(
+    return GlassSurface(
+      borderRadius: AppRadius.large,
+      elevated: true,
+      color: Color.alphaBlend(
+        color.withValues(alpha: context.glass.isDark ? 0.1 : 0.07),
+        context.glass.tile,
+      ),
       padding: const EdgeInsets.all(20),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final summary = Row(
             children: [
-              _StatusBadge(icon: icon, tone: tone, spinning: state.isRunning),
-              const SizedBox(width: 16),
+              _StatusBadge(
+                icon: overview.icon,
+                color: color,
+                spinning: state.isRunning,
+              ),
+              const SizedBox(width: 18),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AnimatedSwitcher(
-                      duration: Durations.short4,
-                      switchInCurve: Easing.standard,
-                      switchOutCurve: Easing.standard,
+                    FadeBox(
                       child: Text(
-                        title,
-                        key: ValueKey(title),
-                        style: context.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        overview.title,
+                        key: ValueKey(overview.title),
+                        style: context.textTheme.headlineSmall,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     _Ticker(
-                      builder: (context) {
-                        final lastRunAt = state.lastRunAt;
-                        final meta = [
-                          ?exitIp == null
-                              ? null
-                              : appLocalizations.po0Exit(exitIp),
-                          ?lastRunAt == null
-                              ? null
-                              : appLocalizations.po0LastShort(
-                                  lastRunAt.getLastUpdateTimeDesc(context),
-                                ),
-                          ?lastRunAt == null || !setting.enable
-                              ? null
-                              : appLocalizations.po0PollEvery(
-                                  setting.pollSeconds,
-                                ),
-                        ];
-                        final style = context.textTheme.bodyMedium?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        );
-                        if (meta.isEmpty) {
-                          return Text(
-                            appLocalizations.po0AutoWhitelistDesc,
-                            style: style,
-                          );
-                        }
-                        return Wrap(
-                          spacing: 8,
-                          children: [
-                            for (final (index, segment) in meta.indexed) ...[
-                              if (index > 0) Text('·', style: style),
-                              Text(segment, style: style),
-                            ],
-                          ],
-                        );
-                      },
+                      builder: (context) => _OverviewMeta(
+                        exitIp: exitIp,
+                        lastRunAt: state.lastRunAt,
+                        pollSeconds: setting.enable
+                            ? setting.pollSeconds
+                            : null,
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           );
-          if (constraints.maxWidth < 560) {
+          if (constraints.maxWidth < 600) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [summary, const SizedBox(height: 16), actions],
+              children: [summary, const SizedBox(height: 18), actions],
             );
           }
           return Row(
@@ -321,77 +241,223 @@ class _OverviewCard extends ConsumerWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({
-    required this.icon,
-    required this.tone,
-    required this.spinning,
+class _OverviewMeta extends StatelessWidget {
+  const _OverviewMeta({
+    required this.exitIp,
+    required this.lastRunAt,
+    required this.pollSeconds,
   });
 
-  final IconData icon;
-  final _Tone tone;
-  final bool spinning;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = _toneColors(context, tone);
-    return AnimatedContainer(
-      duration: Durations.medium2,
-      curve: Easing.standard,
-      width: 52,
-      height: 52,
-      decoration: ShapeDecoration(
-        color: colors.container,
-        shape: AppShape.medium,
-      ),
-      child: Center(
-        child: spinning
-            ? SizedBox.square(
-                dimension: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: colors.onContainer,
-                ),
-              )
-            : Icon(icon, color: colors.onContainer, size: 28),
-      ),
-    );
-  }
-}
-
-class _SettingsCard extends StatelessWidget {
-  const _SettingsCard();
+  final String? exitIp;
+  final DateTime? lastRunAt;
+  final int? pollSeconds;
 
   @override
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
-    return _Section(
-      title: appLocalizations.settings,
-      child: SurfaceCard(
-        child: Column(
-          children: [
-            ConfigToggleItem(
-              leading: const Icon(Icons.shield_outlined),
-              title: (l) => l.po0AutoWhitelist,
-              subtitle: (l) => l.po0AutoWhitelistDesc,
-              selector: po0FirewallSettingProvider.select(
-                (state) => state.enable,
-              ),
-              onChanged: (ref, value) => ref
-                  .read(po0FirewallSettingProvider.notifier)
-                  .update((state) => state.copyWith(enable: value)),
+    final exitIp = this.exitIp;
+    final lastRunAt = this.lastRunAt;
+    final pollSeconds = this.pollSeconds;
+    final style = context.textTheme.bodyMedium?.copyWith(
+      color: context.colorScheme.onSurfaceVariant,
+    );
+    if (exitIp == null && lastRunAt == null) {
+      return Text(appLocalizations.po0AutoWhitelistDesc, style: style);
+    }
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        if (exitIp != null)
+          GlassPill(
+            icon: Icons.my_location_rounded,
+            label: exitIp,
+            monospace: true,
+          ),
+        if (lastRunAt != null)
+          Text(
+            appLocalizations.po0LastShort(
+              lastRunAt.getLastUpdateTimeDesc(context),
             ),
-            const Divider(height: 0),
-            const _PollIntervalItem(),
-          ],
-        ),
+            style: style,
+          ),
+        if (lastRunAt != null && pollSeconds != null) ...[
+          Text('·', style: style),
+          Text(appLocalizations.po0PollEvery(pollSeconds), style: style),
+        ],
+      ],
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({
+    required this.icon,
+    required this.color,
+    required this.spinning,
+  });
+
+  static const _size = 60.0;
+
+  final IconData icon;
+  final Color color;
+  final bool spinning;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<Color?>(
+      tween: ColorTween(end: color),
+      duration: context.motionDuration(Durations.medium2),
+      curve: Easing.standard,
+      builder: (_, color, _) {
+        final accent = color ?? this.color;
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(color: accent.withValues(alpha: 0.35), blurRadius: 24),
+            ],
+          ),
+          child: GlassSurface(
+            circle: true,
+            color: accent.withValues(alpha: context.glass.isDark ? 0.24 : 0.16),
+            rimColor: accent.withValues(alpha: 0.45),
+            child: SizedBox.square(
+              dimension: _size,
+              child: Center(
+                child: spinning
+                    ? SizedBox.square(
+                        dimension: 26,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: accent,
+                        ),
+                      )
+                    : Icon(icon, color: accent, size: 30),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  const _SettingsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        const auto = _AutoWhitelistTile();
+        const interval = _PollIntervalTile();
+        if (constraints.maxWidth < 600) {
+          return const Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [auto, SizedBox(height: 12), interval],
+          );
+        }
+        return const IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(flex: 3, child: auto),
+              SizedBox(width: 12),
+              Expanded(flex: 2, child: interval),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AutoWhitelistTile extends ConsumerWidget {
+  const _AutoWhitelistTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
+    final enabled = ref.watch(
+      po0FirewallSettingProvider.select((state) => state.enable),
+    );
+    void toggle(bool value) => ref
+        .read(po0FirewallSettingProvider.notifier)
+        .update((state) => state.copyWith(enable: value));
+    return GlassButton(
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      onTap: () => toggle(!enabled),
+      child: Row(
+        children: [
+          GlassIconBadge(
+            icon: Icons.shield_rounded,
+            color: context.toneColor(GlassTone.success),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  appLocalizations.po0AutoWhitelist,
+                  style: context.textTheme.titleSmall,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  appLocalizations.po0AutoWhitelistDesc,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Switch(value: enabled, onChanged: toggle),
+        ],
       ),
     );
   }
 }
 
-class _PollIntervalItem extends ConsumerWidget {
-  const _PollIntervalItem();
+class _PollIntervalTile extends ConsumerWidget {
+  const _PollIntervalTile();
+
+  Future<void> _edit(BuildContext context, WidgetRef ref, int seconds) async {
+    final appLocalizations = context.appLocalizations;
+    final (:min, :max) = po0PollSecondsRange;
+    final value = await dialogs.showCommonDialog<String>(
+      child: InputDialog(
+        title: appLocalizations.po0PollInterval,
+        value: '$seconds',
+        suffixText: appLocalizations.seconds,
+        resetValue: '${defaultPo0FirewallProps.pollSeconds}',
+        inputFormatters: TextInputLimits.limit(TextInputLimits.interval),
+        validator: (value) {
+          final label = appLocalizations.po0PollInterval;
+          if (value == null || value.isEmpty) {
+            return appLocalizations.emptyTip(label);
+          }
+          final number = int.tryParse(value);
+          if (number == null) {
+            return appLocalizations.numberTip(label);
+          }
+          if (number < min || number > max) {
+            return appLocalizations.po0PollIntervalRange(min, max);
+          }
+          return null;
+        },
+      ),
+    );
+    if (value == null) {
+      return;
+    }
+    ref
+        .read(po0FirewallSettingProvider.notifier)
+        .update((state) => state.copyWith(pollSeconds: int.parse(value)));
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -399,38 +465,39 @@ class _PollIntervalItem extends ConsumerWidget {
     final seconds = ref.watch(
       po0FirewallSettingProvider.select((state) => state.pollSeconds),
     );
-    final (:min, :max) = po0PollSecondsRange;
-    return ListItem.input(
-      leading: const Icon(Icons.timer_outlined),
-      title: Text(appLocalizations.po0PollInterval),
-      subtitle: Text(appLocalizations.secondsCount(seconds)),
-      dialogTitle: appLocalizations.po0PollInterval,
-      suffixText: appLocalizations.seconds,
-      resetValue: '${defaultPo0FirewallProps.pollSeconds}',
-      value: '$seconds',
-      maxLength: TextInputLimits.interval,
-      validator: (value) {
-        final label = appLocalizations.po0PollInterval;
-        if (value == null || value.isEmpty) {
-          return appLocalizations.emptyTip(label);
-        }
-        final number = int.tryParse(value);
-        if (number == null) {
-          return appLocalizations.numberTip(label);
-        }
-        if (number < min || number > max) {
-          return appLocalizations.po0PollIntervalRange(min, max);
-        }
-        return null;
-      },
-      onChanged: (value) {
-        if (value == null) {
-          return;
-        }
-        ref
-            .read(po0FirewallSettingProvider.notifier)
-            .update((state) => state.copyWith(pollSeconds: int.parse(value)));
-      },
+    return GlassButton(
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      onTap: () => _edit(context, ref, seconds),
+      child: Row(
+        children: [
+          const GlassIconBadge(icon: Icons.timer_rounded),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  appLocalizations.po0PollInterval,
+                  style: context.textTheme.titleSmall,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  appLocalizations.secondsCount(seconds),
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.edit_rounded,
+            size: 18,
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -490,34 +557,59 @@ class _TokensSection extends ConsumerWidget {
     final entries = ref.watch(
       po0FirewallSettingProvider.select((state) => state.tokenEntries),
     );
-    return _Section(
-      title: appLocalizations.po0Tokens,
-      trailing: TextButton.icon(
-        onPressed: () => _edit(ref),
-        icon: const Icon(Icons.add, size: 18),
-        label: Text(appLocalizations.po0AddToken),
-      ),
-      child: SurfaceCard(
-        child: Column(
-          children: [
-            if (entries.isEmpty)
-              ListItem(
-                leading: const Icon(Icons.key_off_outlined),
-                title: Text(appLocalizations.po0TokensEmpty),
-                subtitle: Text(appLocalizations.po0TokensEmptyDesc),
-                onTap: () => _edit(ref),
-              ),
-            for (final (index, entry) in entries.indexed) ...[
-              if (index > 0) const Divider(height: 0),
-              _TokenEntryItem(
-                entry: entry,
-                onEdit: () => _edit(ref, index: index),
-                onDelete: () => _delete(context, ref, index),
-              ),
-            ],
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GlassSectionLabel(
+          appLocalizations.po0Tokens,
+          trailing: TextButton.icon(
+            onPressed: () => _edit(ref),
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: Text(appLocalizations.po0AddToken),
+          ),
+          padding: const EdgeInsets.fromLTRB(6, 16, 0, 6),
         ),
-      ),
+        if (entries.isEmpty)
+          GlassButton(
+            padding: const EdgeInsets.all(16),
+            onTap: () => _edit(ref),
+            child: Row(
+              children: [
+                GlassIconBadge(
+                  icon: Icons.key_off_rounded,
+                  color: context.toneColor(GlassTone.warning),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        appLocalizations.po0TokensEmpty,
+                        style: context.textTheme.titleSmall,
+                      ),
+                      Text(
+                        appLocalizations.po0TokensEmptyDesc,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        for (final (index, entry) in entries.indexed)
+          Padding(
+            padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
+            child: _TokenEntryItem(
+              entry: entry,
+              onEdit: () => _edit(ref, index: index),
+              onDelete: () => _delete(context, ref, index),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -537,13 +629,35 @@ class _TokenEntryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     final label = Po0Token(entry.token).label;
-    return ListItem(
-      leading: const Icon(Icons.key_outlined),
-      title: Text(entry.name.isNotEmpty ? entry.name : label),
-      subtitle: entry.name.isEmpty ? null : Text(label),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    return GlassButton(
+      padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+      onTap: onEdit,
+      child: Row(
         children: [
+          const GlassIconBadge(icon: Icons.key_rounded, size: 36),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.name.isNotEmpty ? entry.name : label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.titleSmall,
+                ),
+                if (entry.name.isNotEmpty)
+                  Text(
+                    label,
+                    maxLines: 1,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: context.colorScheme.onSurfaceVariant,
+                      fontFamily: FontFamily.jetBrainsMono.value,
+                    ),
+                  ),
+              ],
+            ),
+          ),
           IconButton(
             tooltip: appLocalizations.edit,
             onPressed: onEdit,
@@ -552,11 +666,10 @@ class _TokenEntryItem extends StatelessWidget {
           IconButton(
             tooltip: appLocalizations.delete,
             onPressed: onDelete,
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
           ),
         ],
       ),
-      onTap: onEdit,
     );
   }
 }
@@ -672,19 +785,18 @@ class _TokenResults extends ConsumerWidget {
     if (results.isEmpty) {
       return const SizedBox.shrink();
     }
-    return _Section(
-      title: context.appLocalizations.po0Whitelist,
-      child: Column(
-        children: [
-          for (final (index, result) in results.indexed)
-            Padding(
-              padding: EdgeInsets.only(top: index == 0 ? 0 : 12),
-              child: FadeScaleEnterBox(
-                child: _TokenCard(index: index, result: result),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GlassSectionLabel(context.appLocalizations.po0Whitelist),
+        for (final (index, result) in results.indexed)
+          Padding(
+            padding: EdgeInsets.only(top: index == 0 ? 0 : 10),
+            child: FadeScaleEnterBox(
+              child: _TokenCard(index: index, result: result),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
@@ -712,33 +824,43 @@ class _TokenCard extends StatelessWidget {
     final appLocalizations = context.appLocalizations;
     final textTheme = context.textTheme;
     final colorScheme = context.colorScheme;
+    final tone = context.toneColor(_toneOf(result.type));
     final limit = result.limit;
     final used = result.whitelist.length;
-    return SurfaceCard(
+    return GlassSurface(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(
-                '#${index + 1}',
-                style: textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              Container(
+                width: 26,
+                height: 26,
+                alignment: Alignment.center,
+                decoration: ShapeDecoration(
+                  color: tone.withValues(alpha: 0.16),
+                  shape: AppShape.small,
+                ),
+                child: Text(
+                  '${index + 1}',
+                  style: textTheme.labelMedium?.copyWith(
+                    color: tone,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   result.name ?? result.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: textTheme.titleMedium,
                 ),
               ),
-              _Pill(
+              GlassPill(
+                color: tone,
                 label: switch (result.type) {
                   Po0ResultType.applied => appLocalizations.po0ChipApplied,
                   Po0ResultType.notApplied =>
@@ -747,11 +869,10 @@ class _TokenCard extends StatelessWidget {
                   Po0ResultType.rejected => appLocalizations.po0ChipRejected,
                   Po0ResultType.error => appLocalizations.po0ChipError,
                 },
-                tone: _toneOf(result.type),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             _summary(appLocalizations),
             style: textTheme.bodyMedium?.copyWith(
@@ -773,7 +894,7 @@ class _TokenCard extends StatelessWidget {
                     builder: (_, value, _) => LinearProgressIndicator(
                       value: value,
                       minHeight: 6,
-                      color: _toneColors(context, _toneOf(result.type)).accent,
+                      color: tone,
                     ),
                   ),
                 ),
@@ -807,26 +928,6 @@ class _TokenCard extends StatelessWidget {
   }
 }
 
-class _Pill extends StatelessWidget {
-  const _Pill({required this.label, required this.tone});
-
-  final String label;
-  final _Tone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = _toneColors(context, tone);
-    return Chip(
-      label: Text(label),
-      labelStyle: TextStyle(color: colors.onContainer),
-      backgroundColor: colors.container,
-      side: BorderSide.none,
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
-
 class _EntryChip extends StatelessWidget {
   const _EntryChip({required this.entry, required this.isCurrent});
 
@@ -835,23 +936,16 @@ class _EntryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = _toneColors(context, _Tone.primary);
     final slot = entry.slot;
-    final chip = Chip(
-      avatar: isCurrent
-          ? const Icon(Icons.my_location)
+    final chip = GlassPill(
+      icon: isCurrent
+          ? Icons.my_location_rounded
           : slot != null
-          ? const Icon(Icons.push_pin)
+          ? Icons.push_pin_rounded
           : null,
-      label: Text(slot == null ? entry.ip : '${entry.ip} · $slot'),
-      labelStyle: TextStyle(
-        fontFamily: 'JetBrainsMono',
-        color: isCurrent ? colors.onContainer : null,
-      ),
-      backgroundColor: isCurrent ? colors.container : null,
-      side: isCurrent ? BorderSide.none : null,
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      color: isCurrent ? null : context.colorScheme.onSurfaceVariant,
+      label: slot == null ? entry.ip : '${entry.ip} · $slot',
+      monospace: true,
     );
     return isCurrent
         ? Tooltip(message: context.appLocalizations.po0CurrentExit, child: chip)
@@ -866,11 +960,11 @@ class _DirectTip extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = context.colorScheme.onSurfaceVariant;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 20, 4, 0),
+      padding: const EdgeInsets.fromLTRB(6, 20, 6, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 16, color: color),
+          Icon(Icons.info_outline_rounded, size: 16, color: color),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
