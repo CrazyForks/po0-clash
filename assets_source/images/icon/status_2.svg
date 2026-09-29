@@ -1,11 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <title>status_2</title>
-  <defs>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22D3EE"/>
-      <stop offset="1" stop-color="#8E5CFF"/>
-    </linearGradient>
-  </defs>
-  <path d="M53.35 26.68 A22 22 0 1 1 32 10" fill="none" stroke="url(#ring)" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="45.54" cy="14.66" r="5.5" fill="#22D3EE"/>
+  <path d="M53.35 26.68 A22 22 0 1 1 32 10" fill="none" stroke="#0A84FF" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="45.54" cy="14.66" r="5.5" fill="#0A84FF"/>
 </svg>

@@ -24,6 +24,8 @@ import 'theme.dart';
 class ToolsView extends ConsumerWidget {
   const ToolsView({super.key});
 
+  static const _maxWidth = 720.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appLocalizations = context.appLocalizations;
@@ -38,7 +40,7 @@ class ToolsView extends ConsumerWidget {
           [
             _SettingTile(
               icon: Icons.insights_rounded,
-              tone: GlassTone.accent,
+              tone: GlassTone.pink,
               title: appLocalizations.activity,
               subtitle: appLocalizations.activityDesc,
               onTap: (context) =>
@@ -51,7 +53,7 @@ class ToolsView extends ConsumerWidget {
         [
           _SettingTile.page(
             icon: Icons.palette_rounded,
-            tone: GlassTone.danger,
+            tone: GlassTone.indigo,
             title: appLocalizations.theme,
             subtitle: appLocalizations.themeDesc,
             page: const ThemeView(),
@@ -64,14 +66,14 @@ class ToolsView extends ConsumerWidget {
         [
           _SettingTile.page(
             icon: Icons.tune_rounded,
-            tone: GlassTone.accent,
+            tone: GlassTone.neutral,
             title: appLocalizations.basicConfig,
             subtitle: appLocalizations.basicConfigDesc,
             page: const ConfigView(),
           ),
           _SettingTile.page(
             icon: Icons.build_rounded,
-            tone: GlassTone.accent,
+            tone: GlassTone.neutral,
             title: appLocalizations.advancedConfig,
             subtitle: appLocalizations.advancedConfigDesc,
             page: const AdvancedConfigView(),
@@ -79,7 +81,7 @@ class ToolsView extends ConsumerWidget {
           if (system.isAndroid)
             _SettingTile.page(
               icon: Icons.apps_rounded,
-              tone: GlassTone.accent,
+              tone: GlassTone.success,
               title: appLocalizations.accessControl,
               subtitle: appLocalizations.accessControlDesc,
               page: const AccessView(),
@@ -87,7 +89,7 @@ class ToolsView extends ConsumerWidget {
           if (system.isWindows)
             _SettingTile(
               icon: Icons.lock_open_rounded,
-              tone: GlassTone.accent,
+              tone: GlassTone.warning,
               title: appLocalizations.loopback,
               subtitle: appLocalizations.loopbackDesc,
               onTap: (_) => windows?.runas(
@@ -98,11 +100,11 @@ class ToolsView extends ConsumerWidget {
         ],
       ),
       (
-        appLocalizations.application,
+        appLocalizations.system,
         [
           _SettingTile.page(
             icon: Icons.settings_rounded,
-            tone: GlassTone.success,
+            tone: GlassTone.neutral,
             title: appLocalizations.application,
             subtitle: appLocalizations.applicationDesc,
             page: const ApplicationSettingView(),
@@ -110,14 +112,14 @@ class ToolsView extends ConsumerWidget {
           if (system.isDesktop)
             _SettingTile.page(
               icon: Icons.keyboard_rounded,
-              tone: GlassTone.success,
+              tone: GlassTone.neutral,
               title: appLocalizations.hotkeyManagement,
               subtitle: appLocalizations.hotkeyManagementDesc,
               page: const HotKeyView(),
             ),
           _SettingTile.page(
             icon: Icons.cloud_sync_rounded,
-            tone: GlassTone.warning,
+            tone: GlassTone.teal,
             title: appLocalizations.backupAndRestore,
             subtitle: appLocalizations.backupAndRestoreDesc,
             page: const BackupAndRestore(),
@@ -144,7 +146,7 @@ class ToolsView extends ConsumerWidget {
             ),
           _SettingTile.page(
             icon: Icons.info_rounded,
-            tone: GlassTone.neutral,
+            tone: GlassTone.accent,
             title: appLocalizations.about,
             subtitle: appName,
             page: const AboutView(),
@@ -164,7 +166,13 @@ class ToolsView extends ConsumerWidget {
         ),
         children: [
           for (final (title, tiles) in sections)
-            if (tiles.isNotEmpty) _TileSection(title: title, tiles: tiles),
+            if (tiles.isNotEmpty)
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: _maxWidth),
+                  child: _TileSection(title: title, tiles: tiles),
+                ),
+              ),
         ],
       ),
     );
@@ -174,7 +182,7 @@ class ToolsView extends ConsumerWidget {
 class _TileSection extends StatelessWidget {
   const _TileSection({required this.title, required this.tiles});
 
-  static const _gap = 12.0;
+  static const _separatorIndent = 58.0;
 
   final String title;
   final List<Widget> tiles;
@@ -185,23 +193,19 @@ class _TileSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GlassSectionLabel(title),
-        LayoutBuilder(
-          builder: (_, constraints) {
-            final columns = switch (constraints.maxWidth) {
-              >= 820 => 3,
-              >= 520 => 2,
-              _ => 1,
-            };
-            final width =
-                (constraints.maxWidth - _gap * (columns - 1)) / columns;
-            return Wrap(
-              spacing: _gap,
-              runSpacing: _gap,
+        GlassSurface(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
               children: [
-                for (final tile in tiles) SizedBox(width: width, child: tile),
+                for (final (index, tile) in tiles.indexed) ...[
+                  if (index > 0)
+                    const Divider(height: 0.5, indent: _separatorIndent),
+                  tile,
+                ],
               ],
-            );
-          },
+            ),
+          ),
         ),
       ],
     );
@@ -234,43 +238,43 @@ class _SettingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subtitle = this.subtitle;
-    final colorScheme = context.colorScheme;
-    return GlassButton(
-      padding: const EdgeInsets.fromLTRB(14, 14, 10, 14),
+    final glass = context.glass;
+    return InkWell(
       onTap: () => onTap(context),
-      child: Row(
-        children: [
-          GlassIconBadge(icon: icon, color: context.toneColor(tone)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.titleSmall,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 10, 10),
+        child: Row(
+          children: [
+            GlassIconBadge(icon: icon, color: context.toneColor(tone)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle,
-                    maxLines: 2,
+                    title,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: context.textTheme.bodyLarge,
                   ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: glass.secondaryLabel,
+                      ),
+                    ),
                 ],
-              ],
+              ),
             ),
-          ),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-          ),
-        ],
+            Icon(
+              Icons.chevron_right_rounded,
+              color: glass.secondaryLabel.withValues(alpha: 0.5),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -292,7 +296,7 @@ class _LocaleTile extends ConsumerWidget {
     );
     return _SettingTile(
       icon: Icons.translate_rounded,
-      tone: GlassTone.danger,
+      tone: GlassTone.accent,
       title: appLocalizations.language,
       subtitle: _labelOf(context, locale),
       onTap: (context) async {

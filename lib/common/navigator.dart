@@ -20,15 +20,15 @@ const _glassFadeForwards = FadeForwardsPageTransitionsBuilder(
 );
 
 class BaseNavigator {
-  /// A page pushed over the whole window brings its own aurora; one pushed
-  /// inside a workspace panel stays glass over the panel.
+  /// A page pushed over the whole window brings its own floor; one pushed
+  /// inside the workspace stays transparent over it.
   static Future<T?> push<T>(BuildContext context, Widget child) {
     final navigator = Navigator.of(context);
     final coversWindow =
         navigator == Navigator.of(context, rootNavigator: true);
     return navigator.push<T>(
       MaterialPageRoute<T>(
-        builder: (_) => coversWindow ? AuroraFloor(child: child) : child,
+        builder: (_) => coversWindow ? AppFloor(child: child) : child,
       ),
     );
   }

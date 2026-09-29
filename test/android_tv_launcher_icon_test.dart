@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -8,14 +9,6 @@ String _androidAttribute(String source, String element, String attribute) {
   return RegExp(
     'android:$attribute="([^"]+)"',
   ).firstMatch(elementTag)!.group(1)!;
-}
-
-double _androidDoubleAttribute(
-  String source,
-  String element,
-  String attribute,
-) {
-  return double.parse(_androidAttribute(source, element, attribute));
 }
 
 void main() {
@@ -49,54 +42,48 @@ void main() {
     }
   });
 
-  test('TV adaptive launcher icon stays centered in the safe zone', () {
-    final adaptiveIcon = File(
-      'android/app/src/main/res/'
+  test('the adaptive launcher foreground stays inside the safe zone', () async {
+    for (final path in [
+      'mipmap-anydpi-v26/ic_launcher.xml',
       'mipmap-television-anydpi-v26/ic_launcher.xml',
-    ).readAsStringSync();
-    expect(
-      _androidAttribute(adaptiveIcon, 'foreground', 'drawable'),
-      '@drawable/ic_launcher_foreground_tv',
-    );
-    expect(
-      _androidAttribute(adaptiveIcon, 'background', 'drawable'),
-      '@color/ic_launcher_background',
-    );
+    ]) {
+      final adaptiveIcon = File(
+        'android/app/src/main/res/$path',
+      ).readAsStringSync();
+      expect(
+        _androidAttribute(adaptiveIcon, 'foreground', 'drawable'),
+        '@mipmap/ic_launcher_foreground',
+        reason: path,
+      );
+      expect(
+        _androidAttribute(adaptiveIcon, 'background', 'drawable'),
+        '@mipmap/ic_launcher_background',
+        reason: path,
+      );
+    }
 
-    final vector = File(
-      'android/app/src/main/res/drawable/'
-      'ic_launcher_foreground_tv.xml',
-    ).readAsStringSync();
-    final scaleX = _androidDoubleAttribute(vector, 'group', 'scaleX');
-    final scaleY = _androidDoubleAttribute(vector, 'group', 'scaleY');
-    final translateX = _androidDoubleAttribute(vector, 'group', 'translateX');
-    final translateY = _androidDoubleAttribute(vector, 'group', 'translateY');
-    final viewportWidth = _androidDoubleAttribute(
-      vector,
-      'vector',
-      'viewportWidth',
+    final file = File(
+      'android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png',
     );
-    final viewportHeight = _androidDoubleAttribute(
-      vector,
-      'vector',
-      'viewportHeight',
-    );
-
-    // Conservative bounds of the current logo, including the curved caps.
-    const logoBounds = ui.Rect.fromLTRB(54, 33, 179, 206.5);
-    final transformedBounds = ui.Rect.fromLTRB(
-      (logoBounds.left * scaleX + translateX) / viewportWidth * 108,
-      (logoBounds.top * scaleY + translateY) / viewportHeight * 108,
-      (logoBounds.right * scaleX + translateX) / viewportWidth * 108,
-      (logoBounds.bottom * scaleY + translateY) / viewportHeight * 108,
-    );
-    const safeZone = ui.Rect.fromLTWH(18, 18, 72, 72);
-
-    expect(transformedBounds.left, greaterThanOrEqualTo(safeZone.left));
-    expect(transformedBounds.top, greaterThanOrEqualTo(safeZone.top));
-    expect(transformedBounds.right, lessThanOrEqualTo(safeZone.right));
-    expect(transformedBounds.bottom, lessThanOrEqualTo(safeZone.bottom));
-    expect(transformedBounds.center.dx, closeTo(safeZone.center.dx, 0.05));
-    expect(transformedBounds.center.dy, closeTo(safeZone.center.dy, 0.05));
+    final codec = await ui.instantiateImageCodec(await file.readAsBytes());
+    final image = (await codec.getNextFrame()).image;
+    final pixels = (await image.toByteData())!;
+    final center = image.width / 2;
+    var reach = 0.0;
+    for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final alpha = pixels.getUint8((y * image.width + x) * 4 + 3);
+        if (alpha > 8) {
+          final dx = x + 0.5 - center;
+          final dy = y + 0.5 - center;
+          final distance = math.sqrt(dx * dx + dy * dy);
+          if (distance > reach) reach = distance;
+        }
+      }
+    }
+    // Launchers crop the 108dp layer to a 66dp circle at most.
+    expect(reach, lessThanOrEqualTo(image.width * 33 / 108));
+    image.dispose();
+    codec.dispose();
   });
 }

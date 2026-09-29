@@ -1,156 +1,103 @@
-import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// The ambient light behind every glass surface: a two stop base gradient and
-/// four soft blobs, all derived from the seed hue so any theme color works.
-@immutable
-class AuroraPalette {
-  const AuroraPalette({required this.base, required this.blobs});
-
-  final List<Color> base;
-  final List<Color> blobs;
-
-  static AuroraPalette lerp(AuroraPalette a, AuroraPalette b, double t) {
-    return AuroraPalette(
-      base: [
-        for (var i = 0; i < a.base.length; i++)
-          Color.lerp(a.base[i], b.base[i], t)!,
-      ],
-      blobs: [
-        for (var i = 0; i < a.blobs.length; i++)
-          Color.lerp(a.blobs[i], b.blobs[i], t)!,
-      ],
-    );
-  }
-}
-
-/// Fills, rims and shadows of the frosted glass language. Structural panels
-/// sit on the static aurora and only tint it; floating chrome (the dock,
-/// dialogs, sheets) blurs whatever scrolls beneath it with [blurSigma].
+/// The Liquid Glass palette. Content sits on neutral, opaque grouped cells;
+/// only floating controls (sidebar, dock, segmented tracks, toolbars and
+/// dialogs) are glass, which blurs and saturates what lies beneath it and
+/// carries a specular rim.
 @immutable
 class GlassStyle extends ThemeExtension<GlassStyle> {
   const GlassStyle({
     required this.brightness,
-    required this.panel,
-    required this.tile,
-    required this.tileHover,
-    required this.chrome,
-    required this.menu,
+    required this.background,
+    required this.card,
+    required this.fill,
+    required this.thumb,
+    required this.glass,
+    required this.glassStrong,
     required this.rimLight,
     required this.rimShade,
-    required this.sheen,
-    required this.divider,
+    required this.separator,
     required this.shadow,
     required this.selected,
-    required this.selectedRim,
-    required this.glow,
-    required this.aurora,
+    required this.secondaryLabel,
     required this.blurSigma,
   });
 
   final Brightness brightness;
-  final Color panel;
-  final Color tile;
-  final Color tileHover;
-  final Color chrome;
-  final Color menu;
+  final Color background;
+  final Color card;
+  final Color fill;
+  final Color thumb;
+  final Color glass;
+  final Color glassStrong;
   final Color rimLight;
   final Color rimShade;
-  final Color sheen;
-  final Color divider;
+  final Color separator;
   final Color shadow;
   final Color selected;
-  final Color selectedRim;
-  final Color glow;
-  final AuroraPalette aurora;
+  final Color secondaryLabel;
   final double blurSigma;
 
   bool get isDark => brightness == Brightness.dark;
 
+  static const saturation = 1.8;
+
+  /// Dark mode follows macOS unless [pureBlack] asks for iOS's OLED black.
   factory GlassStyle.of(ColorScheme scheme, {bool pureBlack = false}) {
-    final dark = scheme.brightness == Brightness.dark;
-    final hue = Hct.fromInt(scheme.primary.toARGB32()).hue;
-    Color tone(double shift, double chroma, double tone) =>
-        Color(Hct.from((hue + shift) % 360, chroma, tone).toInt());
-    final aurora = dark
-        ? AuroraPalette(
-            base: pureBlack
-                ? const [Colors.black, Colors.black]
-                : [tone(0, 18, 7), tone(30, 22, 11)],
-            blobs: [
-              tone(0, 72, pureBlack ? 30 : 40),
-              tone(48, 64, pureBlack ? 26 : 36),
-              tone(-56, 60, pureBlack ? 24 : 34),
-              tone(150, 40, pureBlack ? 20 : 28),
-            ],
-          )
-        : AuroraPalette(
-            base: [tone(0, 10, 97), tone(30, 14, 93)],
-            blobs: [
-              tone(0, 56, 80),
-              tone(48, 50, 86),
-              tone(-56, 48, 84),
-              tone(150, 30, 90),
-            ],
-          );
-    if (dark) {
+    if (scheme.brightness == Brightness.dark) {
       return GlassStyle(
-        brightness: scheme.brightness,
-        panel: Colors.white.withValues(alpha: 0.055),
-        tile: Colors.white.withValues(alpha: 0.07),
-        tileHover: Colors.white.withValues(alpha: 0.11),
-        chrome: tone(0, 16, 10).withValues(alpha: 0.62),
-        menu: tone(0, 14, 14).withValues(alpha: 0.94),
-        rimLight: Colors.white.withValues(alpha: 0.2),
-        rimShade: Colors.white.withValues(alpha: 0.04),
-        sheen: Colors.white.withValues(alpha: 0.05),
-        divider: Colors.white.withValues(alpha: 0.08),
-        shadow: Colors.black.withValues(alpha: 0.42),
-        selected: scheme.primary.withValues(alpha: 0.2),
-        selectedRim: scheme.primary.withValues(alpha: 0.62),
-        glow: scheme.primary.withValues(alpha: 0.55),
-        aurora: aurora,
-        blurSigma: 28,
+        brightness: Brightness.dark,
+        background: pureBlack ? Colors.black : const Color(0xFF1C1C1E),
+        card: pureBlack ? const Color(0xFF1C1C1E) : const Color(0xFF2C2C2E),
+        fill: const Color(0x3D767680),
+        thumb: const Color(0xFF636366),
+        glass: pureBlack ? const Color(0x8C1E1E20) : const Color(0x99343437),
+        glassStrong: pureBlack
+            ? const Color(0xE62C2C2E)
+            : const Color(0xEB38383B),
+        rimLight: Colors.white.withValues(alpha: 0.26),
+        rimShade: Colors.white.withValues(alpha: 0.06),
+        separator: const Color(0x99545458),
+        shadow: Colors.black.withValues(alpha: 0.5),
+        selected: Colors.white.withValues(alpha: 0.1),
+        secondaryLabel: const Color(0x99EBEBF5),
+        blurSigma: 24,
       );
     }
     return GlassStyle(
-      brightness: scheme.brightness,
-      panel: Colors.white.withValues(alpha: 0.4),
-      tile: Colors.white.withValues(alpha: 0.52),
-      tileHover: Colors.white.withValues(alpha: 0.7),
-      chrome: Colors.white.withValues(alpha: 0.6),
-      menu: tone(0, 6, 98).withValues(alpha: 0.95),
-      rimLight: Colors.white.withValues(alpha: 0.9),
-      rimShade: Colors.white.withValues(alpha: 0.3),
-      sheen: Colors.white.withValues(alpha: 0.35),
-      divider: tone(0, 20, 20).withValues(alpha: 0.07),
-      shadow: tone(0, 40, 20).withValues(alpha: 0.12),
-      selected: scheme.primary.withValues(alpha: 0.14),
-      selectedRim: scheme.primary.withValues(alpha: 0.5),
-      glow: scheme.primary.withValues(alpha: 0.4),
-      aurora: aurora,
-      blurSigma: 28,
+      brightness: Brightness.light,
+      background: const Color(0xFFF2F2F7),
+      card: Colors.white,
+      fill: const Color(0x1F767680),
+      thumb: Colors.white,
+      glass: Colors.white.withValues(alpha: 0.62),
+      glassStrong: const Color(0xEBF9F9FB),
+      rimLight: Colors.white.withValues(alpha: 0.95),
+      rimShade: Colors.white.withValues(alpha: 0.4),
+      separator: const Color(0x2E3C3C43),
+      shadow: Colors.black.withValues(alpha: 0.1),
+      selected: Colors.black.withValues(alpha: 0.06),
+      secondaryLabel: const Color(0x993C3C43),
+      blurSigma: 24,
     );
   }
 
   @override
-  GlassStyle copyWith({AuroraPalette? aurora, double? blurSigma}) {
+  GlassStyle copyWith({double? blurSigma}) {
     return GlassStyle(
       brightness: brightness,
-      panel: panel,
-      tile: tile,
-      tileHover: tileHover,
-      chrome: chrome,
-      menu: menu,
+      background: background,
+      card: card,
+      fill: fill,
+      thumb: thumb,
+      glass: glass,
+      glassStrong: glassStrong,
       rimLight: rimLight,
       rimShade: rimShade,
-      sheen: sheen,
-      divider: divider,
+      separator: separator,
       shadow: shadow,
       selected: selected,
-      selectedRim: selectedRim,
-      glow: glow,
-      aurora: aurora ?? this.aurora,
+      secondaryLabel: secondaryLabel,
       blurSigma: blurSigma ?? this.blurSigma,
     );
   }
@@ -163,20 +110,18 @@ class GlassStyle extends ThemeExtension<GlassStyle> {
     Color mix(Color a, Color b) => Color.lerp(a, b, t)!;
     return GlassStyle(
       brightness: t < 0.5 ? brightness : other.brightness,
-      panel: mix(panel, other.panel),
-      tile: mix(tile, other.tile),
-      tileHover: mix(tileHover, other.tileHover),
-      chrome: mix(chrome, other.chrome),
-      menu: mix(menu, other.menu),
+      background: mix(background, other.background),
+      card: mix(card, other.card),
+      fill: mix(fill, other.fill),
+      thumb: mix(thumb, other.thumb),
+      glass: mix(glass, other.glass),
+      glassStrong: mix(glassStrong, other.glassStrong),
       rimLight: mix(rimLight, other.rimLight),
       rimShade: mix(rimShade, other.rimShade),
-      sheen: mix(sheen, other.sheen),
-      divider: mix(divider, other.divider),
+      separator: mix(separator, other.separator),
       shadow: mix(shadow, other.shadow),
       selected: mix(selected, other.selected),
-      selectedRim: mix(selectedRim, other.selectedRim),
-      glow: mix(glow, other.glow),
-      aurora: AuroraPalette.lerp(aurora, other.aurora, t),
+      secondaryLabel: mix(secondaryLabel, other.secondaryLabel),
       blurSigma: blurSigma + (other.blurSigma - blurSigma) * t,
     );
   }
@@ -188,20 +133,40 @@ extension GlassContextExt on BuildContext {
       GlassStyle.of(Theme.of(this).colorScheme);
 }
 
-enum GlassTone { accent, success, warning, danger, neutral }
+/// Apple's system colors, for states and the settings icons.
+enum GlassTone {
+  accent,
+  success,
+  warning,
+  danger,
+  neutral,
+  indigo,
+  teal,
+  pink;
+
+  (Color, Color) get lightAndDark => switch (this) {
+    GlassTone.accent => (const Color(0xFF007AFF), const Color(0xFF0A84FF)),
+    GlassTone.success => (const Color(0xFF34C759), const Color(0xFF30D158)),
+    GlassTone.warning => (const Color(0xFFFF9500), const Color(0xFFFF9F0A)),
+    GlassTone.danger => (const Color(0xFFFF3B30), const Color(0xFFFF453A)),
+    GlassTone.neutral => (const Color(0xFF8E8E93), const Color(0xFF8E8E93)),
+    GlassTone.indigo => (const Color(0xFF5856D6), const Color(0xFF5E5CE6)),
+    GlassTone.teal => (const Color(0xFF30B0C7), const Color(0xFF40C8E0)),
+    GlassTone.pink => (const Color(0xFFFF2D55), const Color(0xFFFF375F)),
+  };
+
+  Color on(Brightness brightness) {
+    final (light, dark) = lightAndDark;
+    return brightness == Brightness.dark ? dark : light;
+  }
+}
 
 extension GlassToneExt on BuildContext {
   Color toneColor(GlassTone tone) {
     final colorScheme = Theme.of(this).colorScheme;
-    final dark = colorScheme.brightness == Brightness.dark;
-    return switch (tone) {
-      GlassTone.accent => colorScheme.primary,
-      GlassTone.success =>
-        dark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
-      GlassTone.warning =>
-        dark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
-      GlassTone.danger => colorScheme.error,
-      GlassTone.neutral => colorScheme.onSurfaceVariant,
-    };
+    if (tone == GlassTone.accent) {
+      return colorScheme.primary;
+    }
+    return tone.on(colorScheme.brightness);
   }
 }

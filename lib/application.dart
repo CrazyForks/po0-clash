@@ -13,6 +13,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/widgets/glass.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -160,7 +161,7 @@ class ApplicationState extends ConsumerState<Application> {
             return MaterialUiCompatibilityBridge(
               child: IconTheme(
                 data: Theme.of(context).iconTheme,
-                child: AppBackdrop(
+                child: AppFloor(
                   child: buildManagerStack(
                     isDesktop: system.isDesktop,
                     onConnectivityChanged: _handleConnectivityChanged,

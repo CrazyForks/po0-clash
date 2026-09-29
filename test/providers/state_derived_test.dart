@@ -63,44 +63,45 @@ void main() {
   });
 
   test('navigation providers select items for width and current page', () {
+    Iterable<PageLabel> labels() => container
+        .read(currentNavigationItemsStateProvider)
+        .value
+        .map((item) => item.label);
+
     container
         .read(viewSizeProvider.notifier)
         .update((_) => const Size(maxMobileWidth - 1, 800));
-    final mobile = container.read(currentNavigationItemsStateProvider).value;
     expect(container.read(navigationStateProvider).viewMode, ViewMode.mobile);
     expect(
-      mobile.map((item) => item.label),
-      containsAll([PageLabel.dashboard, PageLabel.profiles, PageLabel.tools]),
+      labels(),
+      containsAll([
+        PageLabel.dashboard,
+        PageLabel.profiles,
+        PageLabel.po0,
+        PageLabel.tools,
+      ]),
     );
-    expect(
-      mobile.map((item) => item.label),
-      isNot(contains(PageLabel.connections)),
-    );
+    expect(labels(), isNot(contains(PageLabel.activity)));
 
     container
         .read(viewSizeProvider.notifier)
         .update((_) => Size(maxMobileWidth.toDouble(), 800));
     expect(container.read(navigationStateProvider).viewMode, ViewMode.laptop);
-    expect(
-      container
-          .read(currentNavigationItemsStateProvider)
-          .value
-          .map((item) => item.label),
-      contains(PageLabel.connections),
-    );
+    expect(labels(), containsAll([PageLabel.dashboard, PageLabel.activity]));
 
     container
         .read(viewSizeProvider.notifier)
         .update((_) => const Size(1200, 800));
+    expect(labels(), isNot(contains(PageLabel.dashboard)));
     container
         .read(currentPageLabelProvider.notifier)
-        .toPage(PageLabel.connections);
+        .toPage(PageLabel.activity);
     final desktop = container.read(navigationStateProvider);
     expect(desktop.viewMode, ViewMode.desktop);
     expect(desktop.currentIndex, greaterThan(0));
     expect(
       desktop.navigationItems[desktop.currentIndex].label,
-      PageLabel.connections,
+      PageLabel.activity,
     );
 
     container
@@ -121,9 +122,6 @@ void main() {
     final profiles = container.read(profilesStateProvider);
     expect(profiles.profiles.single.label, 'Primary');
     expect(profiles.currentProfileId, profile.id);
-
-    final dashboard = container.read(dashboardStateProvider);
-    expect(dashboard.dashboardWidgets, isNotEmpty);
 
     final actions = container.read(proxiesActionsStateProvider);
     expect(actions.pageLabel, PageLabel.dashboard);

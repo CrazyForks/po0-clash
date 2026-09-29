@@ -401,15 +401,21 @@ void main() {
       );
     });
 
-    test('a failed authorization continues but stays unauthorized', () async {
-      action.authorizeResult = AuthorizeCode.error;
+    test(
+      'a failed authorization continues on the system proxy and resets',
+      () async {
+        await AppLocalizations.load(const Locale('en'));
+        action.authorizeResult = AuthorizeCode.error;
 
-      expect(await action.requestAdmin(true), isTrue);
-      expect(
-        container.read(authorizedTunEnableProvider),
-        TunAuthorizationState.unauthorized,
-      );
-    });
+        expect(await action.requestAdmin(true), isTrue);
+        expect(
+          container.read(authorizedTunEnableProvider),
+          TunAuthorizationState.none,
+        );
+        expect(container.read(patchClashConfigProvider).tun.enable, isFalse);
+        expect(container.read(networkSettingProvider).systemProxy, isTrue);
+      },
+    );
   });
 
   group('recoverMissingProfile', () {

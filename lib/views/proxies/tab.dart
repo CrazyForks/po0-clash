@@ -224,6 +224,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                         right: 16 + (value ? 16 : 0),
                       ),
                       dividerColor: Colors.transparent,
+                      indicatorPadding: const EdgeInsets.symmetric(vertical: 6),
                       isScrollable: true,
                       tabAlignment: TabAlignment.start,
                       tabs: [

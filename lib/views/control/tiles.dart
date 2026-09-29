@@ -34,10 +34,10 @@ class _TileHeader extends StatelessWidget {
     final trailing = this.trailing;
     return Row(
       children: [
-        GlassIconBadge(icon: icon, color: color, size: 30),
-        const SizedBox(width: 10),
+        Icon(icon, size: 18, color: color ?? context.glass.secondaryLabel),
+        const SizedBox(width: 8),
         Expanded(
-          child: Text(
+          child: EmojiText(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -178,7 +178,6 @@ class TrafficCard extends ConsumerWidget {
             _TileHeader(
               icon: Icons.speed_rounded,
               label: appLocalizations.networkSpeed,
-              color: colorScheme.tertiary,
             ),
             const SizedBox(height: 14),
             Row(
@@ -194,7 +193,7 @@ class TrafficCard extends ConsumerWidget {
                   child: _SpeedValue(
                     icon: Icons.south_rounded,
                     value: last.down,
-                    color: colorScheme.tertiary,
+                    color: context.toneColor(GlassTone.teal),
                   ),
                 ),
               ],
@@ -315,7 +314,6 @@ class Po0StatusCard extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.bodySmall?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
-                fontFamily: FontFamily.jetBrainsMono.value,
               ),
             ),
           ],
@@ -343,7 +341,6 @@ class CurrentProfileCard extends ConsumerWidget {
           _TileHeader(
             icon: Icons.layers_rounded,
             label: appLocalizations.profile,
-            color: context.colorScheme.secondary,
           ),
           const SizedBox(height: 12),
           Text(
@@ -362,95 +359,124 @@ class CurrentProfileCard extends ConsumerWidget {
   }
 }
 
+const _toggleHeight = 48.0;
+
+void _showOptions(BuildContext context, String title, List<Widget> items) {
+  showSheet(
+    context: context,
+    builder: (_) => AdaptiveSheetScaffold(
+      body: generateListView(generateSection(items: items)),
+      title: title,
+    ),
+  );
+}
+
 class _QuickToggle extends StatelessWidget {
   const _QuickToggle({
     required this.label,
     required this.icon,
     required this.items,
-    required this.selector,
-    required this.onChanged,
+    required this.selected,
+    required this.onTap,
+    this.compact = false,
   });
 
   final String label;
   final IconData icon;
   final List<Widget> items;
-  final ProviderListenable<bool> selector;
-  final void Function(WidgetRef ref, bool value) onChanged;
-
-  void _showOptions(BuildContext context) {
-    showSheet(
-      context: context,
-      builder: (_) => AdaptiveSheetScaffold(
-        body: generateListView(generateSection(items: items)),
-        title: label,
-      ),
-    );
-  }
+  final bool selected;
+  final VoidCallback onTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    return Consumer(
-      builder: (_, ref, _) {
-        final value = ref.watch(selector);
-        return GlassButton(
-          selected: value,
-          padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-          onTap: () => onChanged(ref, !value),
-          onLongPress: () => _showOptions(context),
-          onSecondaryTap: () => _showOptions(context),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: value
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.labelLarge,
+    return SizedBox(
+      height: _toggleHeight,
+      child: GlassButton(
+        selected: selected,
+        rimColor: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(12, 0, 6, 0),
+        onTap: onTap,
+        onLongPress: () => _showOptions(context, label, items),
+        onSecondaryTap: () => _showOptions(context, label, items),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: selected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: selected ? colorScheme.primary : null,
                 ),
               ),
-              IconButton(
+            ),
+            if (!compact)
+              GlassIconButton(
                 tooltip: context.appLocalizations.options,
-                visualDensity: VisualDensity.compact,
-                iconSize: 18,
-                onPressed: () => _showOptions(context),
-                icon: const Icon(Icons.tune_rounded),
+                icon: Icons.tune_rounded,
+                onPressed: () => _showOptions(context, label, items),
               ),
-            ],
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
 
-class QuickToggles extends StatelessWidget {
+/// The routing switches with the detected exit beside them: on desktop TUN
+/// and the system proxy exclude each other, on Android it is the VPN.
+class QuickToggles extends ConsumerWidget {
   const QuickToggles({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final systemAction = ref.read(systemActionProvider.notifier);
+    return LayoutBuilder(
+      builder: (_, constraints) => _buildRow(
+        context,
+        ref,
+        systemAction,
+        compact: constraints.maxWidth < _compactWidth,
+      ),
+    );
+  }
+
+  static const _compactWidth = 480.0;
+
+  Widget _buildRow(
+    BuildContext context,
+    WidgetRef ref,
+    SystemAction systemAction, {
+    required bool compact,
+  }) {
     final appLocalizations = context.appLocalizations;
-    final toggles = [
+    final toggles = <Widget>[
       if (system.isAndroid)
         _QuickToggle(
+          compact: compact,
           label: 'VPN',
           icon: Icons.vpn_lock_rounded,
           items: const [VPNItem(), VpnSystemProxyItem(), TunStackItem()],
-          selector: vpnSettingProvider.select((state) => state.enable),
-          onChanged: (ref, value) => ref
+          selected: ref.watch(
+            vpnSettingProvider.select((state) => state.enable),
+          ),
+          onTap: () => ref
               .read(vpnSettingProvider.notifier)
-              .update((state) => state.copyWith(enable: value)),
+              .update((state) => state.copyWith(enable: !state.enable)),
         ),
       if (system.isDesktop) ...[
         _QuickToggle(
+          compact: compact,
           label: appLocalizations.tun,
           icon: Icons.lan_rounded,
           items: [
@@ -458,23 +484,23 @@ class QuickToggles extends StatelessWidget {
             if (system.isMacOS) const AutoSetSystemDnsItem(),
             const TunStackItem(),
           ],
-          selector: patchClashConfigProvider.select(
-            (state) => state.tun.enable,
+          selected: ref.watch(
+            patchClashConfigProvider.select((state) => state.tun.enable),
           ),
-          onChanged: (ref, value) => ref
-              .read(patchClashConfigProvider.notifier)
-              .update((state) => state.copyWith.tun(enable: value)),
+          onTap: () => systemAction.useRoute(DesktopRoute.tun),
         ),
         _QuickToggle(
+          compact: compact,
           label: appLocalizations.systemProxy,
           icon: Icons.settings_ethernet_rounded,
           items: const [SystemProxyItem(), BypassDomainItem()],
-          selector: networkSettingProvider.select((state) => state.systemProxy),
-          onChanged: (ref, value) => ref
-              .read(networkSettingProvider.notifier)
-              .update((state) => state.copyWith(systemProxy: value)),
+          selected: ref.watch(
+            networkSettingProvider.select((state) => state.systemProxy),
+          ),
+          onTap: () => systemAction.useRoute(DesktopRoute.systemProxy),
         ),
       ],
+      const IpDetectionChip(),
     ];
     return Row(
       children: [
@@ -483,6 +509,31 @@ class QuickToggles extends StatelessWidget {
           Expanded(child: toggle),
         ],
       ],
+    );
+  }
+}
+
+/// The desktop route as one two-way switch, for the sidebar.
+class DesktopRouteSwitch extends ConsumerWidget {
+  const DesktopRouteSwitch({super.key, this.height = 40});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
+    final tun = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.enable),
+    );
+    return GlassSegmented<DesktopRoute>(
+      height: height,
+      values: DesktopRoute.values,
+      selected: tun ? DesktopRoute.tun : DesktopRoute.systemProxy,
+      labelOf: (route) => switch (route) {
+        DesktopRoute.tun => appLocalizations.tun,
+        DesktopRoute.systemProxy => appLocalizations.systemProxy,
+      },
+      onChanged: ref.read(systemActionProvider.notifier).useRoute,
     );
   }
 }
@@ -498,106 +549,154 @@ String _flagOf(String countryCode) {
   ]);
 }
 
-class NetworkCard extends ConsumerWidget {
-  const NetworkCard({super.key});
+/// The exit IP as seen from outside; a tap checks again, a long press
+/// explains where the answer comes from.
+class IpDetectionChip extends ConsumerWidget {
+  const IpDetectionChip({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appLocalizations = context.appLocalizations;
     final detection = ref.watch(networkDetectionProvider);
     final ipInfo = detection.ipInfo;
-    final localIp = ref.watch(localIpProvider);
-    final valueStyle = context.textTheme.bodyMedium?.copyWith(
+    final valueStyle = context.textTheme.labelLarge?.copyWith(
       fontFamily: FontFamily.jetBrainsMono.value,
     );
-    return GlassSurface(
-      padding: _tilePadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _TileHeader(
-            icon: Icons.public_rounded,
-            label: appLocalizations.networkDetection,
-            color: context.toneColor(GlassTone.success),
-            trailing: IconButton(
-              tooltip: appLocalizations.tip,
-              visualDensity: VisualDensity.compact,
-              iconSize: 18,
-              onPressed: () => dialogs.showMessage(
-                title: appLocalizations.tip,
-                message: TextSpan(text: appLocalizations.detectionTip),
-                cancelable: false,
-              ),
-              icon: const Icon(Icons.info_outline_rounded),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 24,
-            child: FadeThroughBox(
-              alignment: Alignment.centerLeft,
-              child: ipInfo != null
-                  ? Row(
-                      key: ValueKey(ipInfo),
-                      children: [
-                        Text(
-                          _flagOf(ipInfo.countryCode),
-                          style: context.textTheme.titleMedium?.copyWith(
-                            fontFamily: FontFamily.twEmoji.value,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: TooltipText(
-                            text: Text(
-                              ipInfo.ip,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: valueStyle,
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : detection.isLoading
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CommonCircleLoading(),
-                    )
-                  : Text(
-                      'Timeout',
-                      style: valueStyle?.copyWith(
-                        color: context.toneColor(GlassTone.danger),
-                      ),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
+    return SizedBox(
+      height: _toggleHeight,
+      child: GlassButton(
+        tooltip: ipInfo == null
+            ? appLocalizations.networkDetection
+            : '${ipInfo.countryCode} · ${ipInfo.ip}',
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        onTap: () => ref.read(checkIpNumProvider.notifier).add(),
+        onLongPress: () => dialogs.showMessage(
+          title: appLocalizations.networkDetection,
+          message: TextSpan(text: appLocalizations.detectionTip),
+          cancelable: false,
+        ),
+        child: FadeThroughBox(
+          alignment: Alignment.centerLeft,
+          child: Row(
+            key: ValueKey((ipInfo, detection.isLoading)),
             children: [
-              Icon(
-                Icons.devices_rounded,
-                size: 16,
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  localIp == null
-                      ? '…'
-                      : localIp.isNotEmpty
-                      ? localIp
-                      : appLocalizations.noNetwork,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: valueStyle?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
+              if (ipInfo != null)
+                Text(
+                  _flagOf(ipInfo.countryCode),
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontFamily: FontFamily.twEmoji.value,
                   ),
+                )
+              else
+                Icon(
+                  Icons.public_rounded,
+                  size: 20,
+                  color: context.toneColor(GlassTone.success),
                 ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ipInfo != null
+                    ? Text(
+                        ipInfo.ip,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: valueStyle,
+                      )
+                    : detection.isLoading
+                    ? const Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox.square(
+                          dimension: 16,
+                          child: CommonCircleLoading(),
+                        ),
+                      )
+                    : Text(
+                        'Timeout',
+                        style: valueStyle?.copyWith(
+                          color: context.toneColor(GlassTone.danger),
+                        ),
+                      ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String label;
+  final Widget value;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassButton(
+      padding: const EdgeInsets.all(14),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 22, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.labelMedium?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                DefaultTextStyle.merge(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                  child: value,
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class NetworkCard extends ConsumerWidget {
+  const NetworkCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
+    final localIp = ref.watch(localIpProvider);
+    return _StatTile(
+      icon: Icons.devices_rounded,
+      color: context.toneColor(GlassTone.success),
+      label: appLocalizations.intranetIP,
+      value: Text(
+        localIp == null
+            ? '…'
+            : localIp.isNotEmpty
+            ? localIp
+            : appLocalizations.noNetwork,
+        style: TextStyle(fontFamily: FontFamily.jetBrainsMono.value),
       ),
     );
   }
@@ -660,31 +759,14 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
 
   @override
   Widget build(BuildContext context) {
-    return GlassButton(
-      padding: _tilePadding,
-      tooltip: context.appLocalizations.memoryInfo,
+    return _StatTile(
+      icon: Icons.memory_rounded,
+      color: context.toneColor(GlassTone.warning),
+      label: context.appLocalizations.memoryInfo,
       onTap: _core.requestGc,
-      child: Row(
-        children: [
-          GlassIconBadge(
-            icon: Icons.memory_rounded,
-            color: context.toneColor(GlassTone.warning),
-            size: 30,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: _memoryStateNotifier,
-              builder: (_, memory, _) => Text(
-                memory.traffic.show,
-                maxLines: 1,
-                style: context.textTheme.titleMedium?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ),
-          ),
-        ],
+      value: ValueListenableBuilder(
+        valueListenable: _memoryStateNotifier,
+        builder: (_, memory, _) => Text(memory.traffic.show),
       ),
     );
   }

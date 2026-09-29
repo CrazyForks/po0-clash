@@ -3,6 +3,7 @@ import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/hotkey_manager.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/pages/home.dart';
+import 'package:fl_clash/pages/shell.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -133,7 +134,7 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(ControlSidebar), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.search));
     await tester.pumpAndSettle();

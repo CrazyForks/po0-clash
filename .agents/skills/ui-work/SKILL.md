@@ -12,8 +12,9 @@ Use this for user-facing Flutter UI changes in `lib/`, including widgets, screen
 ## Workflow
 
 1. Locate existing nearby widgets and reuse their patterns before adding new abstractions.
-2. Follow the frosted glass language on every platform (`docs/features/glass-ui.md`); the look never branches on the
-   platform. Build surfaces from `GlassSurface` / `GlassButton` and colors from `context.glass`.
+2. Follow the Liquid Glass language on every platform (`docs/features/glass-ui.md`); the look never branches on the
+   platform. Content is opaque cells, glass is for floating controls only; build them from `GlassSurface` /
+   `GlassButton` and take colors from `context.glass` and `GlassTone`.
 3. Use existing providers, notifiers, and helpers where possible.
 4. Keep `child:` last in widget constructors.
 5. Prefer `const` constructors and final locals.

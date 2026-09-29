@@ -1,6 +1,7 @@
 import 'package:fl_clash/models/config.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'constant.dart';
 import 'glass.dart';
 import 'shape.dart';
 
@@ -10,8 +11,10 @@ ThemeData buildAppTheme({
   required PageTransitionsTheme pageTransitionsTheme,
   required ThemeProps themeProps,
 }) {
-  final pureBlack = brightness == Brightness.dark && themeProps.pureBlack;
-  final glass = GlassStyle.of(materialScheme, pureBlack: pureBlack);
+  final glass = GlassStyle.of(
+    materialScheme,
+    pureBlack: brightness == Brightness.dark && themeProps.pureBlack,
+  );
   final colorScheme = materialScheme.toGlass(glass);
   final base = ThemeData(
     useMaterial3: true,
@@ -19,40 +22,53 @@ ThemeData buildAppTheme({
     pageTransitionsTheme: pageTransitionsTheme,
     extensions: [glass],
   );
+  final text = _glassTextTheme(base.textTheme);
+  final floatingSide = BorderSide(color: glass.rimShade);
   return base.copyWith(
+    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     scaffoldBackgroundColor: Colors.transparent,
-    dividerColor: glass.divider,
-    textTheme: _glassTextTheme(base.textTheme),
-    appBarTheme: _appBarTheme(base, colorScheme),
+    canvasColor: glass.background,
+    dividerColor: glass.separator,
+    textTheme: text,
+    appBarTheme: AppBarThemeData(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      titleTextStyle: text.headlineSmall?.copyWith(
+        color: colorScheme.onSurface,
+        fontSize: 26,
+      ),
+    ),
     cardTheme: CardThemeData(
-      color: glass.tile,
+      color: glass.card,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: AppShape.medium.copyWith(side: BorderSide(color: glass.rimShade)),
+      shape: AppShape.medium,
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: glass.menu,
+      backgroundColor: glass.glassStrong,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shape: AppShape.extraLarge.copyWith(
-        side: BorderSide(color: glass.rimLight.withValues(alpha: 0.5)),
-      ),
+      shape: AppShape.extraLarge.copyWith(side: floatingSide),
       barrierColor: colorScheme.modalScrim,
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: glass.menu,
+      backgroundColor: glass.glassStrong,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       modalElevation: 0,
       modalBarrierColor: colorScheme.modalScrim,
       shape: AppShape.top(AppCorner.extraLarge),
     ),
-    dividerTheme: DividerThemeData(color: glass.divider, thickness: 1),
+    dividerTheme: DividerThemeData(color: glass.separator, thickness: 0.5),
     inputDecorationTheme: _inputTheme(glass, colorScheme),
     filledButtonTheme: const FilledButtonThemeData(
       style: ButtonStyle(
         shape: WidgetStatePropertyAll(AppShape.full),
+        elevation: WidgetStatePropertyAll(0),
         padding: WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
@@ -61,14 +77,8 @@ ThemeData buildAppTheme({
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
         shape: const WidgetStatePropertyAll(AppShape.full),
-        backgroundColor: WidgetStatePropertyAll(glass.tile),
-        side: WidgetStateProperty.resolveWith(
-          (states) => BorderSide(
-            color: states.contains(WidgetState.disabled)
-                ? glass.divider
-                : glass.rimLight,
-          ),
-        ),
+        backgroundColor: WidgetStatePropertyAll(glass.fill),
+        side: const WidgetStatePropertyAll(BorderSide.none),
         padding: const WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
@@ -81,7 +91,7 @@ ThemeData buildAppTheme({
       style: ButtonStyle(
         shape: const WidgetStatePropertyAll(AppShape.full),
         elevation: const WidgetStatePropertyAll(0),
-        backgroundColor: WidgetStatePropertyAll(glass.tile),
+        backgroundColor: WidgetStatePropertyAll(glass.fill),
       ),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -93,46 +103,61 @@ ThemeData buildAppTheme({
       highlightElevation: 0,
       shape: AppShape.full,
     ),
-    segmentedButtonTheme: _segmentedTheme(glass, colorScheme),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        shape: const WidgetStatePropertyAll(AppShape.full),
+        side: const WidgetStatePropertyAll(BorderSide.none),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? glass.thumb : glass.fill,
+        ),
+        foregroundColor: WidgetStatePropertyAll(colorScheme.onSurface),
+      ),
+    ),
     switchTheme: _switchTheme(glass, colorScheme),
     chipTheme: ChipThemeData(
-      backgroundColor: glass.tile,
-      selectedColor: glass.selected,
-      side: BorderSide(color: glass.rimShade),
+      backgroundColor: glass.fill,
+      selectedColor: colorScheme.secondaryContainer,
+      side: BorderSide.none,
       shape: AppShape.full,
     ),
-    menuTheme: MenuThemeData(style: _menuStyle(glass)),
+    menuTheme: MenuThemeData(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(glass.glassStrong),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        shadowColor: WidgetStatePropertyAll(glass.shadow),
+        elevation: const WidgetStatePropertyAll(12),
+        padding: const WidgetStatePropertyAll(EdgeInsets.all(6)),
+        shape: WidgetStatePropertyAll(
+          AppShape.medium.copyWith(side: floatingSide),
+        ),
+      ),
+    ),
     popupMenuTheme: PopupMenuThemeData(
-      color: glass.menu,
+      color: glass.glassStrong,
       surfaceTintColor: Colors.transparent,
       shadowColor: glass.shadow,
       elevation: 12,
-      shape: AppShape.medium.copyWith(side: BorderSide(color: glass.rimShade)),
+      shape: AppShape.medium.copyWith(side: floatingSide),
     ),
     tooltipTheme: TooltipThemeData(
       decoration: ShapeDecoration(
-        color: glass.isDark
-            ? Colors.white.withValues(alpha: 0.92)
-            : const Color(0xE6161A2A),
+        color: glass.isDark ? const Color(0xF23A3A3C) : const Color(0xE6202022),
         shape: AppShape.small,
       ),
-      textStyle: base.textTheme.bodySmall?.copyWith(
-        color: glass.isDark ? Colors.black : Colors.white,
-      ),
+      textStyle: text.bodySmall?.copyWith(color: Colors.white),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: glass.menu,
-      contentTextStyle: base.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onSurface,
-      ),
+      backgroundColor: glass.glassStrong,
+      contentTextStyle: text.bodyMedium?.copyWith(color: colorScheme.onSurface),
       elevation: 0,
-      shape: AppShape.medium.copyWith(side: BorderSide(color: glass.rimShade)),
+      shape: AppShape.medium.copyWith(side: floatingSide),
     ),
-    listTileTheme: ListTileThemeData(iconColor: colorScheme.onSurfaceVariant),
+    listTileTheme: ListTileThemeData(iconColor: glass.secondaryLabel),
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      linearTrackColor: glass.divider,
+      linearTrackColor: glass.fill,
       borderRadius: AppRadius.full,
     ),
     scrollbarTheme: ScrollbarThemeData(
@@ -146,26 +171,28 @@ ThemeData buildAppTheme({
       dividerColor: Colors.transparent,
       indicatorSize: TabBarIndicatorSize.tab,
       indicator: ShapeDecoration(
-        color: glass.selected,
-        shape: AppShape.full.copyWith(
-          side: BorderSide(color: glass.selectedRim),
-        ),
+        color: glass.thumb,
+        shape: AppShape.full,
+        shadows: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: glass.isDark ? 0.3 : 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      indicatorAnimation: TabIndicatorAnimation.elastic,
       splashBorderRadius: AppRadius.full,
-      labelColor: colorScheme.primary,
-      unselectedLabelColor: colorScheme.onSurfaceVariant,
+      labelColor: colorScheme.onSurface,
+      unselectedLabelColor: glass.secondaryLabel,
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-      labelStyle: base.textTheme.titleSmall?.copyWith(
-        fontWeight: FontWeight.w600,
-      ),
+      labelStyle: text.titleSmall,
     ),
   );
 }
 
 TextTheme _glassTextTheme(TextTheme text) {
   TextStyle? weight(TextStyle? style, FontWeight weight) =>
-      style?.copyWith(fontWeight: weight);
+      style?.copyWith(fontWeight: weight, letterSpacing: 0);
   return text.copyWith(
     displaySmall: weight(text.displaySmall, FontWeight.w700),
     headlineLarge: weight(text.headlineLarge, FontWeight.w700),
@@ -177,20 +204,6 @@ TextTheme _glassTextTheme(TextTheme text) {
   );
 }
 
-AppBarThemeData _appBarTheme(ThemeData base, ColorScheme colorScheme) {
-  return AppBarThemeData(
-    backgroundColor: Colors.transparent,
-    surfaceTintColor: Colors.transparent,
-    elevation: 0,
-    scrolledUnderElevation: 0,
-    centerTitle: false,
-    titleTextStyle: base.textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.w700,
-      color: colorScheme.onSurface,
-    ),
-  );
-}
-
 InputDecorationThemeData _inputTheme(GlassStyle glass, ColorScheme scheme) {
   OutlineInputBorder border(Color color, [double width = 1]) =>
       AppShape.input.copyWith(
@@ -198,84 +211,59 @@ InputDecorationThemeData _inputTheme(GlassStyle glass, ColorScheme scheme) {
       );
   return InputDecorationThemeData(
     filled: true,
-    fillColor: glass.tile,
+    fillColor: glass.fill,
     border: AppShape.input,
-    enabledBorder: border(glass.rimShade),
-    disabledBorder: border(glass.divider),
+    enabledBorder: AppShape.input,
+    disabledBorder: AppShape.input,
     focusedBorder: border(scheme.primary, 1.5),
     errorBorder: border(scheme.error),
     focusedErrorBorder: border(scheme.error, 1.5),
   );
 }
 
-SegmentedButtonThemeData _segmentedTheme(GlassStyle glass, ColorScheme scheme) {
-  return SegmentedButtonThemeData(
-    style: ButtonStyle(
-      shape: const WidgetStatePropertyAll(AppShape.full),
-      side: WidgetStatePropertyAll(BorderSide(color: glass.rimShade)),
-      backgroundColor: WidgetStateProperty.resolveWith(
-        (states) =>
-            states.contains(WidgetState.selected) ? glass.selected : glass.tile,
-      ),
-      foregroundColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? scheme.primary
-            : scheme.onSurfaceVariant,
-      ),
-    ),
-  );
-}
-
 SwitchThemeData _switchTheme(GlassStyle glass, ColorScheme scheme) {
+  final on = GlassTone.success.on(scheme.brightness);
   return SwitchThemeData(
-    thumbColor: WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.disabled)) {
-        return scheme.onSurface.withValues(alpha: 0.3);
-      }
-      return states.contains(WidgetState.selected)
-          ? scheme.onPrimary
-          : Colors.white;
-    }),
-    trackColor: WidgetStateProperty.resolveWith(
-      (states) => states.contains(WidgetState.selected)
-          ? scheme.primary
-          : scheme.onSurface.withValues(alpha: glass.isDark ? 0.18 : 0.14),
+    thumbColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.disabled)
+          ? Colors.white.withValues(alpha: 0.6)
+          : Colors.white,
     ),
+    trackColor: WidgetStateProperty.resolveWith((states) {
+      final selected = states.contains(WidgetState.selected);
+      final color = selected ? on : glass.fill;
+      return states.contains(WidgetState.disabled)
+          ? color.withValues(alpha: color.a * 0.5)
+          : color;
+    }),
     trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
   );
 }
 
-MenuStyle _menuStyle(GlassStyle glass) {
-  return MenuStyle(
-    backgroundColor: WidgetStatePropertyAll(glass.menu),
-    surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-    shadowColor: WidgetStatePropertyAll(glass.shadow),
-    elevation: const WidgetStatePropertyAll(12),
-    padding: const WidgetStatePropertyAll(EdgeInsets.all(6)),
-    shape: WidgetStatePropertyAll(
-      AppShape.medium.copyWith(side: BorderSide(color: glass.rimShade)),
-    ),
-  );
-}
-
 extension GlassSchemeExt on ColorScheme {
-  Color get modalScrim => scrim.withValues(alpha: 0.18);
+  Color get modalScrim => scrim.withValues(alpha: 0.2);
 
-  /// Containers turn into white veils so every Material surface reads as
-  /// glass over the aurora; [surface] stays opaque as the floor behind it.
+  /// Neutral Apple grouped surfaces in place of the seeded, tinted ones, so
+  /// the accent is the only color a screen carries.
   ColorScheme toGlass(GlassStyle glass) {
-    Color veil(double light, double dark) =>
-        Colors.white.withValues(alpha: glass.isDark ? dark : light);
+    final dark = glass.isDark;
     return copyWith(
-      surface: glass.aurora.base.first,
+      surface: glass.background,
+      onSurface: dark ? Colors.white : Colors.black,
+      onSurfaceVariant: glass.secondaryLabel,
       surfaceTint: Colors.transparent,
-      surfaceContainerLowest: veil(0.3, 0.03),
-      surfaceContainerLow: veil(0.42, 0.05),
-      surfaceContainer: veil(0.52, 0.07),
-      surfaceContainerHigh: veil(0.62, 0.09),
-      surfaceContainerHighest: veil(0.7, 0.11),
-      outlineVariant: onSurface.withValues(alpha: glass.isDark ? 0.14 : 0.1),
-      secondaryContainer: glass.selected,
+      surfaceContainerLowest: glass.card,
+      surfaceContainerLow: glass.card,
+      surfaceContainer: glass.card,
+      surfaceContainerHigh: dark
+          ? const Color(0xFF2C2C2E)
+          : const Color(0xFFF2F2F7),
+      surfaceContainerHighest: dark
+          ? const Color(0xFF3A3A3C)
+          : const Color(0xFFE5E5EA),
+      outline: dark ? const Color(0xFF545458) : const Color(0xFFC6C6C8),
+      outlineVariant: glass.separator,
+      secondaryContainer: primary.withValues(alpha: dark ? 0.24 : 0.14),
       onSecondaryContainer: primary,
     );
   }
@@ -286,9 +274,16 @@ ColorScheme seededColorScheme(
   Brightness brightness,
   DynamicSchemeVariant variant,
 ) {
-  return ColorScheme.fromSeed(
+  final scheme = ColorScheme.fromSeed(
     seedColor: seed,
     brightness: brightness,
     dynamicSchemeVariant: variant,
+  );
+  if (seed.toARGB32() != defaultPrimaryColor) {
+    return scheme;
+  }
+  return scheme.copyWith(
+    primary: GlassTone.accent.on(brightness),
+    onPrimary: Colors.white,
   );
 }

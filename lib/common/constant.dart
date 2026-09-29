@@ -104,7 +104,7 @@ const proxiesListStoreKey = PageStorageKey<String>('proxies_list');
 const toolsStoreKey = PageStorageKey<String>('tools');
 const profilesStoreKey = PageStorageKey<String>('profiles');
 
-const defaultPrimaryColor = 0xFF5E6BFF;
+const defaultPrimaryColor = 0xFF007AFF;
 
 const maxLogsLength = 5000;
 const maxRequestsLength = 2000;
@@ -115,12 +115,13 @@ const trafficSampleLength = 30;
 
 const defaultPrimaryColors = [
   defaultPrimaryColor,
-  0xFF00B4D8,
-  0xFF8E5CFF,
-  0xFFFF5C8A,
-  0xFF1FBF9F,
-  0xFFFF9F1C,
-  0xFF6C7A89,
+  0xFF5856D6,
+  0xFFAF52DE,
+  0xFFFF2D55,
+  0xFFFF9500,
+  0xFF34C759,
+  0xFF30B0C7,
+  0xFF8E8E93,
 ];
 
 const scriptTemplate = '''

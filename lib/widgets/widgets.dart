@@ -9,7 +9,6 @@ export 'config_item.dart';
 export 'dialog.dart';
 export 'disabled_mask.dart';
 export 'dismissible.dart';
-export 'donut_chart.dart';
 export 'effect.dart';
 export 'fade_box.dart';
 export 'float_layout.dart';

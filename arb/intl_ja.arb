@@ -665,5 +665,6 @@
   "noProxySelected": "ノード未選択",
   "currentProxy": "現在のノード",
   "appearance": "外観",
-  "networkAndCore": "ネットワークとコア"
+  "networkAndCore": "ネットワークとコア",
+  "tunAuthorizationFallbackTip": "TUN が許可されなかったため、システムプロキシに切り替えました。TUN を再度オンにすると許可を求め直します。"
 }

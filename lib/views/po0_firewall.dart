@@ -180,11 +180,6 @@ class _OverviewPanel extends ConsumerWidget {
     );
     return GlassSurface(
       borderRadius: AppRadius.large,
-      elevated: true,
-      color: Color.alphaBlend(
-        color.withValues(alpha: context.glass.isDark ? 0.1 : 0.07),
-        context.glass.tile,
-      ),
       padding: const EdgeInsets.all(20),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -201,6 +196,7 @@ class _OverviewPanel extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FadeBox(
+                      alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         overview.title,
                         key: ValueKey(overview.title),
@@ -313,29 +309,22 @@ class _StatusBadge extends StatelessWidget {
       builder: (_, color, _) {
         final accent = color ?? this.color;
         return DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: accent.withValues(alpha: 0.35), blurRadius: 24),
-            ],
+          decoration: ShapeDecoration(
+            color: accent.withValues(alpha: context.glass.isDark ? 0.22 : 0.14),
+            shape: const CircleBorder(),
           ),
-          child: GlassSurface(
-            circle: true,
-            color: accent.withValues(alpha: context.glass.isDark ? 0.24 : 0.16),
-            rimColor: accent.withValues(alpha: 0.45),
-            child: SizedBox.square(
-              dimension: _size,
-              child: Center(
-                child: spinning
-                    ? SizedBox.square(
-                        dimension: 26,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: accent,
-                        ),
-                      )
-                    : Icon(icon, color: accent, size: 30),
-              ),
+          child: SizedBox.square(
+            dimension: _size,
+            child: Center(
+              child: spinning
+                  ? SizedBox.square(
+                      dimension: 26,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: accent,
+                      ),
+                    )
+                  : Icon(icon, color: accent, size: 30),
             ),
           ),
         );

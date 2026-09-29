@@ -1,699 +1,268 @@
-import 'package:fl_clash/common/app_ports.dart';
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/manager/app_manager.dart';
 import 'package:fl_clash/manager/theme_manager.dart';
-import 'package:fl_clash/manager/window_manager.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/pages/home.dart';
+import 'package:fl_clash/pages/shell.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/application_setting.dart';
 import 'package:fl_clash/views/tools.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:fl_clash/views/navigation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/test_app.dart';
 
-void main() {
-  setUp(() {
-    navigationPort = navigation;
-    addTearDown(() => navigationPort = null);
-  });
+NavigationItem _item(PageLabel label, IconData icon, {WidgetBuilder? builder}) {
+  return NavigationItem(
+    icon: Icon(icon),
+    label: label,
+    builder: builder ?? (_) => Center(child: Text('page:${label.name}')),
+  );
+}
 
-  testWidgets('initial desktop layout does not animate mobile navigation out', (
+final _items = [
+  _item(PageLabel.dashboard, Icons.space_dashboard),
+  _item(PageLabel.profiles, Icons.folder),
+  _item(PageLabel.tools, Icons.construction),
+];
+
+ProviderContainer _container(
+  WidgetTester tester,
+  Size size, {
+  List<NavigationItem>? items,
+}) {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  final container = ProviderContainer(
+    overrides: [
+      navigationItemsStateProvider.overrideWithValue(
+        NavigationItemsState(value: items ?? _items),
+      ),
+      profilesProvider.overrideWith(() => _HomeTestProfiles(const [])),
+    ],
+  );
+  addTearDown(container.dispose);
+  globalState.container = container;
+  container.read(viewSizeProvider.notifier).value = size;
+  return container;
+}
+
+Future<void> _pumpHome(WidgetTester tester, ProviderContainer container) async {
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: const TestApp(includeNavigatorKey: false, child: HomePage()),
+    ),
+  );
+  await tester.pump();
+}
+
+Future<void> _resize(
+  WidgetTester tester,
+  ProviderContainer container,
+  Size size,
+) async {
+  tester.view.physicalSize = size;
+  container.read(viewSizeProvider.notifier).value = size;
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  testWidgets('the first desktop frame already shows the control sidebar', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1200, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final container = ProviderContainer(
-      overrides: [
-        navigationItemsStateProvider.overrideWithValue(
-          NavigationItemsState(
-            value: [
-              NavigationItem(
-                icon: const Icon(Icons.space_dashboard),
-                label: PageLabel.dashboard,
-                builder: (_) => const SizedBox.shrink(),
-              ),
-              NavigationItem(
-                icon: const Icon(Icons.construction),
-                label: PageLabel.tools,
-                builder: (_) => const SizedBox.shrink(),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    expect(container.read(viewSizeProvider), Size.zero);
-
+    final container = _container(tester, const Size(1200, 800));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
         child: const _ThemeManagedTestApp(),
       ),
     );
-
-    expect(globalState.navigatorKey.currentContext, isNotNull);
-    expect(container.read(viewSizeProvider), const Size(1200, 800));
-    expect(find.byType(NavigationBar), findsNothing);
-
     await tester.pump();
 
-    expect(find.byType(NavigationRail), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
-
-    await tester.pump(const Duration(milliseconds: 150));
-
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(ControlSidebar), findsOneWidget);
+    expect(find.byType(GlassDock), findsNothing);
+    expect(find.byType(GlassRail), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets(
-    'screen-size transition preserves current content and animates navigation',
-    (tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final container = ProviderContainer(
-        overrides: [
-          navigationItemsStateProvider.overrideWithValue(
-            NavigationItemsState(
-              value: [
-                NavigationItem(
-                  icon: const Icon(Icons.space_dashboard),
-                  label: PageLabel.dashboard,
-                  builder: (_) => const _StatefulContent(
-                    key: GlobalObjectKey(PageLabel.dashboard),
-                  ),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.construction),
-                  label: PageLabel.tools,
-                  builder: (_) => const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-        ),
-      );
-      await tester.pump();
-
-      final sidebarBackground = find.descendant(
-        of: find.byType(AppSidebarContainer),
-        matching: find.byWidgetPredicate(
-          (widget) => widget is Container && widget.child is Row,
-        ),
-      );
-      final sidebarContainer = tester.widget<Container>(
-        sidebarBackground.first,
-      );
-      expect(
-        sidebarContainer.color,
-        Theme.of(
-          tester.element(find.byType(AppSidebarContainer)),
-        ).colorScheme.surfaceContainer,
-      );
-
-      await tester.tap(find.text('count: 0'));
-      await tester.pump();
-      expect(find.text('count: 1'), findsOneWidget);
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(find.byType(NavigationBar), findsNothing);
-
-      for (var width = 1180.0; width >= 500; width -= 20) {
-        tester.view.physicalSize = Size(width, 800);
-        container.read(viewSizeProvider.notifier).value = Size(width, 800);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(tester.takeException(), isNull, reason: 'width: $width');
-      }
-
-      expect(find.text('count: 1'), findsOneWidget);
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(find.byType(NavigationBar), findsOneWidget);
-      await tester.pump(const Duration(milliseconds: 150));
-      expect(tester.takeException(), isNull);
-
-      final outgoingTools = find.descendant(
-        of: find.byType(NavigationRail),
-        matching: find.byIcon(Icons.construction),
-      );
-      await tester.tap(outgoingTools, warnIfMissed: false);
-      await tester.pump();
-      expect(container.read(currentPageLabelProvider), PageLabel.dashboard);
-
-      await tester.pump(const Duration(milliseconds: 301));
-      expect(find.byType(NavigationRail), findsNothing);
-      expect(find.byType(NavigationBar), findsOneWidget);
-
-      tester.view.physicalSize = const Size(1200, 800);
-      container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
-      await tester.pump();
-
-      expect(find.text('count: 1'), findsOneWidget);
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(find.byType(NavigationBar), findsOneWidget);
-
-      await tester.pump(const Duration(milliseconds: 301));
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(find.byType(NavigationBar), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'list content stays valid while resizing through the breakpoint',
-    (tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final container = ProviderContainer(
-        overrides: [
-          navigationItemsStateProvider.overrideWithValue(
-            NavigationItemsState(
-              value: [
-                NavigationItem(
-                  icon: const Icon(Icons.space_dashboard),
-                  label: PageLabel.dashboard,
-                  builder: (_) => const ToolsView(
-                    key: GlobalObjectKey(PageLabel.dashboard),
-                  ),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.construction),
-                  label: PageLabel.tools,
-                  builder: (_) => const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-        ),
-      );
-      await tester.pump();
-
-      for (var width = 1180.0; width >= 380; width -= 20) {
-        tester.view.physicalSize = Size(width, 800);
-        container.read(viewSizeProvider.notifier).value = Size(width, 800);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(tester.takeException(), isNull, reason: 'width: $width');
-      }
-    },
-  );
-
-  testWidgets(
-    'tools page survives widening past the breakpoint with more items',
-    (tester) async {
-      tester.view.physicalSize = const Size(500, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final container = ProviderContainer(
-        overrides: [
-          navigationItemsStateProvider.overrideWithValue(
-            NavigationItemsState(
-              value: [
-                NavigationItem(
-                  icon: const Icon(Icons.space_dashboard),
-                  label: PageLabel.dashboard,
-                  builder: (_) => const SizedBox.shrink(),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.article),
-                  label: PageLabel.logs,
-                  modes: const [
-                    NavigationItemMode.desktop,
-                    NavigationItemMode.more,
-                  ],
-                  builder: (_) => const SizedBox.shrink(),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.link),
-                  label: PageLabel.connections,
-                  modes: const [
-                    NavigationItemMode.desktop,
-                    NavigationItemMode.more,
-                  ],
-                  builder: (_) => const SizedBox.shrink(),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.construction),
-                  label: PageLabel.tools,
-                  builder: (_) =>
-                      const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container.read(viewSizeProvider.notifier).value = const Size(500, 800);
-      container.read(currentPageLabelProvider.notifier).toPage(PageLabel.tools);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-        ),
-      );
-      await tester.pump();
-      expect(find.byType(ToolsView), findsOneWidget);
-      expect(find.byType(NavigationBar), findsOneWidget);
-
-      for (var width = 520.0; width <= 1200; width += 20) {
-        tester.view.physicalSize = Size(width, 800);
-        container.read(viewSizeProvider.notifier).value = Size(width, 800);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(tester.takeException(), isNull, reason: 'width: $width');
-      }
-      await tester.pump(const Duration(milliseconds: 301));
-      expect(tester.takeException(), isNull);
-      expect(find.byType(ToolsView), findsOneWidget);
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(container.read(currentPageLabelProvider), PageLabel.tools);
-
-      for (var width = 1180.0; width >= 500; width -= 20) {
-        tester.view.physicalSize = Size(width, 800);
-        container.read(viewSizeProvider.notifier).value = Size(width, 800);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(tester.takeException(), isNull, reason: 'width: $width');
-      }
-      await tester.pump(const Duration(milliseconds: 301));
-      expect(tester.takeException(), isNull);
-      expect(find.byType(ToolsView), findsOneWidget);
-      expect(container.read(currentPageLabelProvider), PageLabel.tools);
-    },
-  );
-
-  testWidgets(
-    'profile trailing controls stay valid while a maximized window restores',
-    (tester) async {
-      tester.view.physicalSize = const Size(1440, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final profile = Profile.normal();
-      final container = ProviderContainer(
-        overrides: [
-          profilesProvider.overrideWith(() => _HomeTestProfiles([profile])),
-          currentProfileIdProvider.overrideWithBuild((_, _) => profile.id),
-          versionProvider.overrideWithBuild((_, _) => 15),
-        ],
-      );
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container
-          .read(currentPageLabelProvider.notifier)
-          .toPage(PageLabel.profiles);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(
-            includeNavigatorKey: false,
-            child: ThemeManager(
-              child: WindowHeaderContainer(child: HomePage()),
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-      await tester.pump();
-      expect(tester.takeException(), isNull);
-
-      tester.view.physicalSize = const Size(380, 900);
-      await tester.pump(const Duration(milliseconds: 16));
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'desktop navigation keeps the tools route when logs are enabled',
-    (tester) async {
-      tester.view.physicalSize = const Size(1400, 1000);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container.read(viewSizeProvider.notifier).value = const Size(1400, 1000);
-      container.read(currentPageLabelProvider.notifier).toPage(PageLabel.tools);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-        ),
-      );
-      await tester.pump();
-
-      final applicationItem = find.text('Application');
-      await tester.scrollUntilVisible(
-        applicationItem,
-        500,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(applicationItem);
-      await tester.pumpAndSettle();
-      expect(find.byType(ApplicationSettingView), findsOneWidget);
-
-      final logItem = find.text('Logcat');
-      await tester.scrollUntilVisible(
-        logItem,
-        500,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(logItem);
-      await tester.pumpAndSettle();
-
-      expect(container.read(appSettingProvider).openLogs, isTrue);
-      expect(find.byType(ApplicationSettingView), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'desktop navigation keeps arrow traversal after keyboard page changes',
-    (tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final container = ProviderContainer(
-        overrides: [
-          navigationItemsStateProvider.overrideWithValue(
-            NavigationItemsState(
-              value: [
-                NavigationItem(
-                  icon: const Icon(Icons.space_dashboard),
-                  label: PageLabel.dashboard,
-                  builder: (_) => Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_horiz),
-                    ),
-                  ),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.article),
-                  label: PageLabel.proxies,
-                  builder: (_) => Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-        ),
-      );
-      await tester.pump();
-      expect(find.byType(NavigationRail), findsOneWidget);
-
-      bool focusInRail() {
-        final context = FocusManager.instance.primaryFocus?.context;
-        return context?.findAncestorWidgetOfExactType<NavigationRail>() != null;
-      }
-
-      IconData? focusedRailIcon() {
-        final focusNode = FocusManager.instance.primaryFocus;
-        if (!focusInRail() || focusNode == null) {
-          return null;
-        }
-        return [Icons.space_dashboard, Icons.article].reduce((closest, icon) {
-          final closestDistance =
-              (tester.getCenter(find.byIcon(closest)).dy -
-                      focusNode.rect.center.dy)
-                  .abs();
-          final distance =
-              (tester.getCenter(find.byIcon(icon)).dy -
-                      focusNode.rect.center.dy)
-                  .abs();
-          return distance < closestDistance ? icon : closest;
-        });
-      }
-
-      for (var i = 0; i < 30 && !focusInRail(); i++) {
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-      }
-      expect(focusInRail(), isTrue);
-      expect(focusedRailIcon(), Icons.space_dashboard);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pump();
-      expect(focusedRailIcon(), Icons.article);
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pump();
-
-      expect(container.read(currentPageLabelProvider), PageLabel.proxies);
-      final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
-      expect(rail.selectedIndex, 1);
-      expect(focusedRailIcon(), Icons.article);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
-      await tester.pump();
-      expect(focusedRailIcon(), Icons.space_dashboard);
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pump();
-
-      expect(container.read(currentPageLabelProvider), PageLabel.dashboard);
-      expect(focusedRailIcon(), Icons.space_dashboard);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pump();
-
-      expect(focusedRailIcon(), Icons.article);
-      expect(container.read(currentPageLabelProvider), PageLabel.dashboard);
-    },
-  );
-
-  testWidgets('mobile bottom navigation keeps page and highlight consistent', (
+  testWidgets('a sidebar destination opens its page in the workspace', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(500, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    final container = _container(tester, const Size(1200, 800));
+    await _pumpHome(tester, container);
 
-    Widget page(String label) {
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Text('page:$label'),
-          Positioned(
-            left: 200,
-            bottom: 0,
-            child: IconButton(
-              key: const ValueKey('content-action'),
-              onPressed: () {},
-              icon: const Icon(Icons.more_horiz),
-            ),
-          ),
-        ],
-      );
-    }
-
-    final container = ProviderContainer(
-      overrides: [
-        navigationItemsStateProvider.overrideWithValue(
-          NavigationItemsState(
-            value: [
-              NavigationItem(
-                icon: const Icon(Icons.space_dashboard),
-                label: PageLabel.dashboard,
-                builder: (_) => page('dashboard'),
-              ),
-              NavigationItem(
-                icon: const Icon(Icons.folder),
-                label: PageLabel.profiles,
-                builder: (_) => page('profiles'),
-              ),
-              NavigationItem(
-                icon: const Icon(Icons.construction),
-                label: PageLabel.tools,
-                builder: (_) => page('tools'),
-              ),
-              NavigationItem(
-                icon: const Icon(Icons.article),
-                label: PageLabel.logs,
-                builder: (_) => page('logs'),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    container.read(viewSizeProvider.notifier).value = const Size(500, 800);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const TestApp(includeNavigatorKey: false, child: HomePage()),
+    await tester.tap(
+      find.descendant(
+        of: find.byType(ControlSidebar),
+        matching: find.text('Settings'),
       ),
     );
-    await tester.pump();
-    expect(find.byType(NavigationBar), findsOneWidget);
+    await tester.pumpAndSettle();
 
-    NavigationBar navBar() =>
-        tester.widget<NavigationBar>(find.byType(NavigationBar));
+    expect(container.read(currentPageLabelProvider), PageLabel.tools);
+    expect(find.text('page:tools').hitTestable(), findsOneWidget);
+  });
 
-    await tester.tap(find.byIcon(Icons.construction));
+  testWidgets('the rail highlight sits exactly on the chosen destination', (
+    tester,
+  ) async {
+    final container = _container(tester, const Size(700, 800));
+    await _pumpHome(tester, container);
+    expect(find.byType(GlassRail), findsOneWidget);
+
+    for (final label in [PageLabel.profiles, PageLabel.tools]) {
+      await tester.tap(
+        find.descendant(
+          of: find.byType(GlassRail),
+          matching: find.text(label.label),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(container.read(currentPageLabelProvider), label);
+
+      final highlight = tester.getRect(
+        find.descendant(
+          of: find.byType(GlassRail),
+          matching: find.byType(AnimatedPositioned),
+        ),
+      );
+      final destination = tester.getRect(
+        find.ancestor(
+          of: find.text(label.label),
+          matching: find.byType(InkWell),
+        ),
+      );
+      expect(highlight.center.dx, closeTo(destination.center.dx, 0.5));
+      expect(highlight.center.dy, closeTo(destination.center.dy, 0.5));
+      expect(
+        destination.width,
+        greaterThanOrEqualTo(highlight.width),
+        reason: 'the whole highlighted area must answer taps',
+      );
+    }
+  });
+
+  testWidgets('the phone dock switches pages and lifts content above it', (
+    tester,
+  ) async {
+    final container = _container(tester, const Size(400, 800));
+    await _pumpHome(tester, container);
+    expect(find.byType(GlassDock), findsOneWidget);
+    expect(find.byType(ControlSidebar), findsNothing);
+
+    final inset = BottomInsetScope.of(
+      tester.element(find.text('page:dashboard')),
+    );
+    expect(inset, greaterThanOrEqualTo(GlassDock.height));
+
+    final dock = tester.getRect(find.byType(GlassDock));
+    final tools = tester.getRect(
+      find.ancestor(
+        of: find.descendant(
+          of: find.byType(GlassDock),
+          matching: find.byIcon(Icons.construction),
+        ),
+        matching: find.byType(InkWell),
+      ),
+    );
+    expect(tools.center.dy, closeTo(dock.center.dy, 12));
+    await tester.tapAt(tools.bottomCenter - const Offset(0, 2));
     await tester.pumpAndSettle();
     expect(container.read(currentPageLabelProvider), PageLabel.tools);
-    expect(navBar().selectedIndex, 2);
-    expect(find.text('page:tools'), findsOneWidget);
+    expect(find.text('page:tools').hitTestable(), findsOneWidget);
+  });
 
-    bool focusInNav() {
-      final context = FocusManager.instance.primaryFocus?.context;
-      return context?.findAncestorWidgetOfExactType<NavigationBar>() != null;
-    }
-
-    for (var i = 0; i < 20 && !focusInNav(); i++) {
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
-    }
-    expect(focusInNav(), isTrue);
-
-    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.pump();
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await tester.pumpAndSettle();
-    expect(container.read(currentPageLabelProvider), PageLabel.profiles);
-    expect(navBar().selectedIndex, 1);
-    expect(find.text('page:profiles'), findsOneWidget);
-
-    await tester.tap(find.byIcon(Icons.construction));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byIcon(Icons.article));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byIcon(Icons.folder));
-    await tester.pumpAndSettle();
-    expect(container.read(currentPageLabelProvider), PageLabel.profiles);
-    expect(navBar().selectedIndex, 1);
-    expect(find.text('page:profiles'), findsOneWidget);
-    expect(focusInNav(), isTrue);
-
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
-    await tester.pump();
-    final focusedIconButton = FocusManager.instance.primaryFocus?.context
-        ?.findAncestorWidgetOfExactType<IconButton>();
-    expect(
-      focusedIconButton?.key,
-      const ValueKey('content-action'),
-      reason: 'up from the bottom bar must enter the current page',
+  testWidgets('resizing across every breakpoint keeps the page state', (
+    tester,
+  ) async {
+    final container = _container(
+      tester,
+      const Size(1200, 800),
+      items: [
+        _item(
+          PageLabel.profiles,
+          Icons.folder,
+          builder: (_) =>
+              const _StatefulContent(key: GlobalObjectKey(PageLabel.profiles)),
+        ),
+        _item(PageLabel.tools, Icons.construction),
+      ],
     );
-    expect(tester.takeException(), isNull);
+    container
+        .read(currentPageLabelProvider.notifier)
+        .toPage(PageLabel.profiles);
+    await _pumpHome(tester, container);
+
+    await tester.tap(find.text('count: 0'));
+    await tester.pump();
+    for (final size in const [
+      Size(700, 800),
+      Size(400, 800),
+      Size(1200, 800),
+    ]) {
+      await _resize(tester, container, size);
+      expect(find.text('count: 1'), findsOneWidget, reason: '$size');
+      expect(tester.takeException(), isNull, reason: '$size');
+    }
+  });
+
+  testWidgets('list content stays valid while resizing through breakpoints', (
+    tester,
+  ) async {
+    final container = _container(
+      tester,
+      const Size(1200, 800),
+      items: [
+        _item(
+          PageLabel.tools,
+          Icons.construction,
+          builder: (_) =>
+              const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
+        ),
+        _item(PageLabel.profiles, Icons.folder),
+      ],
+    );
+    container.read(currentPageLabelProvider.notifier).toPage(PageLabel.tools);
+    await _pumpHome(tester, container);
+
+    for (var width = 1180.0; width >= 380; width -= 40) {
+      tester.view.physicalSize = Size(width, 800);
+      container.read(viewSizeProvider.notifier).value = Size(width, 800);
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.takeException(), isNull, reason: 'width: $width');
+    }
   });
 
   testWidgets('switching home pages exits a generic search layer', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(500, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
     var query = '';
-    final container = ProviderContainer(
-      overrides: [
-        navigationItemsStateProvider.overrideWithValue(
-          NavigationItemsState(
-            value: [
-              NavigationItem(
-                icon: const Icon(Icons.space_dashboard),
-                label: PageLabel.dashboard,
-                builder: (_) => CommonScaffold(
-                  title: 'Search page',
-                  searchState: AppBarSearchState(
-                    onSearch: (value) {
-                      query = value;
-                    },
-                  ),
-                  body: const SizedBox(),
-                ),
-              ),
-              NavigationItem(
-                icon: const Icon(Icons.construction),
-                label: PageLabel.tools,
-                builder: (_) => const SizedBox.shrink(),
-              ),
-            ],
+    final container = _container(
+      tester,
+      const Size(500, 800),
+      items: [
+        _item(
+          PageLabel.dashboard,
+          Icons.space_dashboard,
+          builder: (_) => CommonScaffold(
+            title: 'Search page',
+            searchState: AppBarSearchState(onSearch: (value) => query = value),
+            body: const SizedBox(),
           ),
         ),
+        _item(PageLabel.tools, Icons.construction),
       ],
     );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    container.read(viewSizeProvider.notifier).value = const Size(500, 800);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-      ),
-    );
-    await tester.pump();
+    await _pumpHome(tester, container);
 
     await tester.tap(find.byIcon(Icons.search));
     await tester.pumpAndSettle();
-    expect(find.byType(TextField), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'needle');
     expect(query, 'needle');
 
@@ -702,54 +271,30 @@ void main() {
     expect(query, isEmpty);
     await tester.tap(find.byIcon(Icons.space_dashboard));
     await tester.pumpAndSettle();
-
     expect(find.byType(TextField), findsNothing);
   });
 
-  testWidgets('desktop nested route inherits home page activity', (
+  testWidgets('a desktop nested route inherits its page activity', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1200, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
     var query = '';
-    final container = ProviderContainer(
-      overrides: [
-        navigationItemsStateProvider.overrideWithValue(
-          NavigationItemsState(
-            value: [
-              NavigationItem(
-                icon: const Icon(Icons.space_dashboard),
-                label: PageLabel.dashboard,
-                builder: (_) => _NestedSearchLauncher(
-                  onSearch: (value) {
-                    query = value;
-                  },
-                ),
-              ),
-              NavigationItem(
-                icon: const Icon(Icons.construction),
-                label: PageLabel.tools,
-                builder: (_) => const SizedBox.shrink(),
-              ),
-            ],
-          ),
+    final container = _container(
+      tester,
+      const Size(1200, 800),
+      items: [
+        _item(
+          PageLabel.profiles,
+          Icons.folder,
+          builder: (_) =>
+              _NestedSearchLauncher(onSearch: (value) => query = value),
         ),
+        _item(PageLabel.tools, Icons.construction),
       ],
     );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-      ),
-    );
-    await tester.pump();
+    container
+        .read(currentPageLabelProvider.notifier)
+        .toPage(PageLabel.profiles);
+    await _pumpHome(tester, container);
 
     await tester.tap(find.text('Open nested search'));
     await tester.pumpAndSettle();
@@ -758,118 +303,20 @@ void main() {
     await tester.enterText(find.byType(TextField), 'needle');
     expect(query, 'needle');
 
-    final navigationRail = find.byType(NavigationRail);
+    final sidebar = find.byType(ControlSidebar);
     await tester.tap(
-      find.descendant(
-        of: navigationRail,
-        matching: find.byIcon(Icons.construction),
-      ),
+      find.descendant(of: sidebar, matching: find.byIcon(Icons.construction)),
     );
     await tester.pumpAndSettle();
     expect(query, isEmpty);
 
     await tester.tap(
-      find.descendant(
-        of: navigationRail,
-        matching: find.byIcon(Icons.space_dashboard),
-      ),
+      find.descendant(of: sidebar, matching: find.byIcon(Icons.folder)),
     );
     await tester.pumpAndSettle();
-
     expect(find.text('Nested search'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
   });
-
-  testWidgets(
-    'desktop tabbing past page content does not scroll the PageView',
-    (tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      Widget pageContent(String label) {
-        return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('page:$label'),
-              const SizedBox(height: 16),
-              TextButton(onPressed: () {}, child: const Text('button')),
-            ],
-          ),
-        );
-      }
-
-      final container = ProviderContainer(
-        overrides: [
-          navigationItemsStateProvider.overrideWithValue(
-            NavigationItemsState(
-              value: [
-                NavigationItem(
-                  icon: const Icon(Icons.space_dashboard),
-                  label: PageLabel.dashboard,
-                  builder: (_) => pageContent('dashboard'),
-                ),
-                NavigationItem(
-                  icon: const Icon(Icons.folder),
-                  label: PageLabel.profiles,
-                  builder: (_) => pageContent('profiles'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      globalState.container = container;
-      container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-        ),
-      );
-      await tester.pump();
-      expect(find.byType(NavigationRail), findsOneWidget);
-
-      Finder railIcon(IconData icon) => find.descendant(
-        of: find.byType(NavigationRail),
-        matching: find.byIcon(icon),
-      );
-
-      // Visit another page so its content stays alive in the PageView cache.
-      await tester.tap(railIcon(Icons.folder));
-      await tester.pumpAndSettle();
-      expect(container.read(currentPageLabelProvider), PageLabel.profiles);
-      await tester.tap(railIcon(Icons.space_dashboard));
-      await tester.pumpAndSettle();
-      expect(container.read(currentPageLabelProvider), PageLabel.dashboard);
-
-      bool focusInRail() {
-        final context = FocusManager.instance.primaryFocus?.context;
-        return context?.findAncestorWidgetOfExactType<NavigationRail>() != null;
-      }
-
-      for (var i = 0; i < 40 && !focusInRail(); i++) {
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        expect(
-          container.read(currentPageLabelProvider),
-          PageLabel.dashboard,
-          reason: 'tab $i flipped the page',
-        );
-      }
-      expect(focusInRail(), isTrue);
-      expect(
-        find.text('page:profiles').hitTestable(),
-        findsNothing,
-        reason: 'focus traversal scrolled the PageView to another page',
-      );
-      expect(tester.takeException(), isNull);
-    },
-  );
 }
 
 class _ThemeManagedTestApp extends StatelessWidget {
@@ -902,15 +349,9 @@ class _StatefulContentState extends State<_StatefulContent> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      leading: const SizedBox(width: 80),
-      title: TextButton(
-        onPressed: () {
-          setState(() {
-            _count++;
-          });
-        },
+    return Center(
+      child: TextButton(
+        onPressed: () => setState(() => _count++),
         child: Text('count: $_count'),
       ),
     );

@@ -5524,6 +5524,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `TUN was not authorized, so po0-clash switched to the system proxy. Turn TUN on again to retry the authorization.`
+  String get tunAuthorizationFallbackTip {
+    return Intl.message(
+      'TUN was not authorized, so po0-clash switched to the system proxy. Turn TUN on again to retry the authorization.',
+      name: 'tunAuthorizationFallbackTip',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

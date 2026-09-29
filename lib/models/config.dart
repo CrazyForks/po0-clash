@@ -31,7 +31,7 @@ const defaultBypassDomain = [
 const defaultAppSettingProps = AppSettingProps(locale: 'zh_CN');
 const defaultVpnProps = VpnProps();
 const defaultAuthenticationProps = AuthenticationProps();
-const defaultNetworkProps = NetworkProps();
+const defaultNetworkProps = NetworkProps(systemProxy: false);
 const defaultProxiesStyleProps = ProxiesStyleProps();
 const defaultWindowProps = WindowProps();
 const defaultAccessControlProps = AccessControlProps();
@@ -227,7 +227,7 @@ abstract class ThemeProps with _$ThemeProps {
   }
 }
 
-const _legacyDefaultPrimaryColors = {0xFFD8C0C3, 0xFF073042};
+const _legacyDefaultPrimaryColors = {0xFFD8C0C3, 0xFF073042, 0xFF5E6BFF};
 
 /// A theme still on an earlier release's default moves to today's.
 Map<String, Object?> _migrateLegacyDefaultTheme(Map<String, Object?> json) {
