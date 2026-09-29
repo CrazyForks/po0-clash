@@ -27,23 +27,19 @@ throw stays catchable as an `Exception` and carries a stack trace. Assert on it
 with `isA<MessageException>().having((e) => e.message, 'message', ...)`, not on a
 raw string.
 
-### Material 3 Shapes and Motion
+### Glass Shapes and Motion
 
-Every platform follows Material 3 (`docs/adr/0008-material3-on-every-platform.md`,
-`docs/features/material3-ui.md`).
+Every platform uses the frosted glass language (`docs/adr/0009-frosted-glass-ui.md`, `docs/features/glass-ui.md`).
 
-- Corner radii come from the Material 3 scale in `lib/common/shape.dart` (`AppCorner`, `AppRadius`,
-  `AppShape`); never write a radius literal in a widget. Corners are circular: `RoundedRectangleBorder`,
-  `ClipRRect`, `BorderRadius` and `RRect`.
-- Component shapes are the theme's Material 3 defaults (cards 12, menus and text fields 4, dialogs and
-  sheets 28); do not restate them at call sites.
-- Durations come from `Durations.*` and curves from `Easing.*`, with `Curves.easeInOutCubicEmphasized`
-  for the full emphasized curve. No overshoot (`easeOutBack`, cubics past 1), springs or jiggle.
-- Enter on a decelerate curve and exit on an accelerate one. `CurvedAnimation.reverseCurve` and
-  `AnimatedSwitcher.switchOutCurve` apply the curve as given while the value falls, so an exit that
-  accelerates in time is `Easing.xxxAccelerate.flipped`.
-- Respect `context.disableAnimations`, and prefer stock Material 3 components (`SegmentedButton`,
-  `MenuAnchor`, chips) over hand-drawn ones.
+- Corner radii come from `lib/common/shape.dart` (`AppCorner`, `AppRadius`, `AppShape`); never write a radius literal in
+  a widget. Surfaces use continuous corners (`RoundedSuperellipseBorder`).
+- Colors for surfaces come from `context.glass` (`GlassStyle`) and semantic states from `GlassTone`; do not add opaque
+  fills over the aurora.
+- Only floating chrome that content scrolls under may blur (`GlassKind.chrome`, dialogs); panels and tiles tint the
+  static aurora instead.
+- Durations come from `Durations.*` and curves from `Easing.*`, with `Curves.easeInOutCubicEmphasized` for the full
+  emphasized curve. Enter on a decelerate curve and exit on an accelerate one (`Easing.xxxAccelerate.flipped` for
+  reverse curves), and respect `context.disableAnimations`. Avoid endless animations: they force every blur to redraw.
 
 CI gates formatting: `dart format --output=none --set-exit-if-changed lib test
 tool plugins setup.dart` runs before `flutter analyze`.

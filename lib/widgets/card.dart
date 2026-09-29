@@ -140,20 +140,17 @@ class CommonCard extends StatelessWidget {
       return BorderSide.none;
     }
     if (isSelected || states.contains(WidgetState.focused)) {
-      return BorderSide(color: colorScheme.primary);
+      return BorderSide(color: context.glass.selectedRim);
     }
-    return BorderSide(color: colorScheme.outlineVariant);
+    return BorderSide(color: context.glass.rimShade);
   }
 
   Color? _buildBackgroundColor(BuildContext context) {
-    final colorScheme = context.colorScheme;
+    final glass = context.glass;
     if (isSelected) {
-      return colorScheme.secondaryContainer;
+      return Color.alphaBlend(glass.selected, glass.tile);
     }
-    if (type == CommonCardType.filled) {
-      return colorScheme.surfaceContainerHighest;
-    }
-    return colorScheme.surface;
+    return glass.tile;
   }
 
   Color? _buildForegroundColor(BuildContext context) {

@@ -1,13 +1,12 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/manager/app_manager.dart';
 import 'package:fl_clash/models/common.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef OnSelected = void Function(int index);
+import 'shell.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -21,90 +20,140 @@ class HomePage extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     return HomeBackScopeContainer(
-      child: AppSidebarContainer(
-        child: _HomeShell(
-          child: Consumer(
-            builder: (_, ref, _) {
-              final navigationItems = ref
-                  .watch(currentNavigationItemsStateProvider)
-                  .value;
-              final isMobile = ref.watch(isMobileViewProvider);
-              return _HomePageView(
-                navigationItems: navigationItems,
-                pageBuilder: (_, index) {
-                  final navigationItem = navigationItems[index];
-                  return _NavigationPage(
-                    key: ValueKey(navigationItem.label),
-                    item: navigationItem,
-                    isMobile: isMobile,
-                    view: navigationItem.builder(context),
-                  );
-                },
-              );
-            },
-          ),
+      child: _GlassShell(
+        child: Consumer(
+          builder: (_, ref, _) {
+            final navigationItems = ref
+                .watch(currentNavigationItemsStateProvider)
+                .value;
+            final isMobile = ref.watch(isMobileViewProvider);
+            return _HomePageView(
+              navigationItems: navigationItems,
+              pageBuilder: (_, index) {
+                final navigationItem = navigationItems[index];
+                return _NavigationPage(
+                  key: ValueKey(navigationItem.label),
+                  item: navigationItem,
+                  isMobile: isMobile,
+                  view: navigationItem.builder(context),
+                );
+              },
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _HomeShell extends ConsumerWidget {
-  const _HomeShell({required this.child});
+/// Lays the spaces out on the aurora: a floating dock on phones, a rail and a
+/// glass workspace on narrow windows, and the control sidebar beside the
+/// workspace on wide ones.
+class _GlassShell extends ConsumerWidget {
+  const _GlassShell({required this.child});
+
+  static const _gutter = 12.0;
 
   final Widget child;
 
-  void _handleToPage(PageLabel pageLabel, WidgetRef ref) {
+  void _handleToPage(WidgetRef ref, PageLabel pageLabel) {
     ref.read(currentPageLabelProvider.notifier).toPage(pageLabel);
+  }
+
+  void _updateSideWidth(WidgetRef ref, double contentWidth) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(sideWidthProvider.notifier).value =
+          ref.read(viewSizeProvider.select((state) => state.width)) -
+          contentWidth;
+    });
+  }
+
+  Widget _buildWorkspace(WidgetRef ref) {
+    return GlassSurface(
+      kind: GlassKind.panel,
+      child: LayoutBuilder(
+        builder: (_, constraints) {
+          _updateSideWidth(ref, constraints.maxWidth);
+          return FocusTraversalGroup(
+            policy: PageTraversalPolicy(),
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(navigationStateProvider);
-    final isMobile = state.viewMode == ViewMode.mobile;
-    final navigationItems = state.navigationItems;
+    final items = state.navigationItems;
+    final currentIndex = state.currentIndex;
+    void onSelected(PageLabel label) => _handleToPage(ref, label);
+    if (state.viewMode == ViewMode.mobile) {
+      final dockExtent = GlassDock.extentOf(context);
+      return Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: BottomInsetScope(
+                inset: dockExtent - MediaQuery.paddingOf(context).bottom,
+                child: FocusTraversalGroup(
+                  policy: PageTraversalPolicy(),
+                  child: child,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: GlassDock(
+                items: items,
+                currentIndex: currentIndex,
+                onSelected: onSelected,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final showsHeader = showsWindowHeader(
+      isDesktop: system.isDesktop,
+      isMacOS: system.isMacOS,
+      version: ref.watch(versionProvider),
+      isMobileView: false,
+    );
+    final topInset = system.isMacOS && !showsHeader ? 24.0 : 0.0;
+    final navigation = state.viewMode == ViewMode.desktop
+        ? ControlSidebar(
+            items: items,
+            currentIndex: currentIndex,
+            onSelected: onSelected,
+            topInset: topInset,
+          )
+        : Padding(
+            padding: EdgeInsets.only(top: topInset),
+            child: GlassRail(
+              items: items,
+              currentIndex: currentIndex,
+              onSelected: onSelected,
+            ),
+          );
     return Material(
-      color: context.colorScheme.surface,
-      child: Column(
-        children: [
-          Flexible(
-            flex: 1,
-            child: FocusTraversalGroup(
-              policy: PageTraversalPolicy(),
-              child: MediaQuery.removePadding(
-                removeTop: false,
-                removeBottom: isMobile,
-                removeLeft: isMobile,
-                removeRight: isMobile,
-                context: context,
-                child: child,
-              ),
-            ),
+      type: MaterialType.transparency,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(_gutter),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              navigation,
+              const SizedBox(width: _gutter),
+              Expanded(child: _buildWorkspace(ref)),
+            ],
           ),
-          AnimatedVisibility.bottomNavigation(
-            visible: isMobile,
-            child: MediaQuery.removePadding(
-              removeTop: true,
-              removeBottom: false,
-              removeLeft: true,
-              removeRight: true,
-              context: context,
-              child: NavigationBar(
-                destinations: [
-                  for (final item in navigationItems)
-                    NavigationDestination(
-                      icon: item.icon,
-                      label: item.label.label,
-                    ),
-                ],
-                onDestinationSelected: (index) {
-                  _handleToPage(navigationItems[index].label, ref);
-                },
-                selectedIndex: state.currentIndex,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -161,7 +210,8 @@ class _NavigationPage extends StatelessWidget {
   }
 }
 
-/// The incoming 65% of the fade-through; stays in the tree when disabled.
+/// The incoming 65% of the fade-through: the page rises and clears into
+/// place. It stays in the tree when disabled.
 class PageEntrance extends StatefulWidget {
   const PageEntrance({
     super.key,
@@ -185,6 +235,7 @@ class _PageEntranceState extends State<PageEntrance>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<double> _scale;
+  late final Animation<Offset> _slide;
 
   @override
   void initState() {
@@ -199,7 +250,11 @@ class _PageEntranceState extends State<PageEntrance>
       curve: Easing.emphasizedDecelerate,
     );
     _opacity = curve;
-    _scale = Tween(begin: 0.92, end: 1.0).animate(curve);
+    _scale = Tween(begin: 0.97, end: 1.0).animate(curve);
+    _slide = Tween(
+      begin: const Offset(0, 0.02),
+      end: Offset.zero,
+    ).animate(curve);
     if (widget.enabled && widget.active) {
       _controller.forward(from: 0);
     }
@@ -223,7 +278,10 @@ class _PageEntranceState extends State<PageEntrance>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _opacity,
-      child: ScaleTransition(scale: _scale, child: widget.child),
+      child: SlideTransition(
+        position: _slide,
+        child: ScaleTransition(scale: _scale, child: widget.child),
+      ),
     );
   }
 }
@@ -275,7 +333,10 @@ class _HomePageViewState extends ConsumerState<_HomePageView>
 
   int get _pageIndex {
     final pageLabel = ref.read(currentPageLabelProvider);
-    return widget.navigationItems.indexWhere((item) => item.label == pageLabel);
+    final index = widget.navigationItems.indexWhere(
+      (item) => item.label == pageLabel,
+    );
+    return index == -1 ? 0 : index;
   }
 
   Future<void> _toPage(
@@ -308,6 +369,15 @@ class _HomePageViewState extends ConsumerState<_HomePageView>
 
   void _updatePageController() {
     final pageLabel = ref.read(currentPageLabelProvider);
+    final isShown = widget.navigationItems.any(
+      (item) => item.label == pageLabel,
+    );
+    if (!isShown) {
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(0);
+      }
+      return;
+    }
     _toPage(pageLabel, true);
   }
 

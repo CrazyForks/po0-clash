@@ -55,7 +55,7 @@ Future<T?> showSheet<T>({
           child: builder(context),
         );
       },
-      backgroundColor: props.backgroundColor,
+      backgroundColor: props.backgroundColor ?? context.glass.menu,
       showDragHandle: false,
       useSafeArea: props.useSafeArea,
     ),
@@ -112,7 +112,7 @@ Future<T?> _showSideSheet<T>({
     context: context,
     useSafeArea: useSafeArea,
     isScrollControlled: isScrollControlled,
-    backgroundColor: backgroundColor ?? context.colorScheme.surfaceContainerLow,
+    backgroundColor: backgroundColor ?? context.glass.menu,
     constraints: BoxConstraints(maxWidth: maxWidth ?? 360),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadiusDirectional.horizontal(

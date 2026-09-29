@@ -656,5 +656,14 @@
   "po0EditToken": "Edit token",
   "po0TokenName": "Name (optional)",
   "po0TokenDuplicate": "This token is already in the list",
-  "po0TokensEmptyDesc": "Add the pgnfw_ token from each po0 machine; every token checks its own whitelist"
+  "po0TokensEmptyDesc": "Add the pgnfw_ token from each po0 machine; every token checks its own whitelist",
+  "home": "Home",
+  "activity": "Activity",
+  "activityDesc": "Connections, requests and logs",
+  "proxyOn": "Proxy on",
+  "tapToConnect": "Tap to connect",
+  "noProxySelected": "No proxy selected",
+  "currentProxy": "Current proxy",
+  "appearance": "Appearance",
+  "networkAndCore": "Network & core"
 }

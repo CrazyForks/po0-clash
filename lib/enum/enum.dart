@@ -156,7 +156,7 @@ extension MessageLevelExt on MessageLevel {
 
 enum TrafficUnit { B, KB, MB, GB, TB }
 
-enum NavigationItemMode { mobile, desktop, more }
+enum NavigationItemMode { mobile, laptop, desktop }
 
 enum Network { tcp, udp }
 
@@ -275,23 +275,6 @@ enum FunctionTag {
   coreErrorNotifier,
 }
 
-enum DashboardWidget {
-  networkSpeed,
-  outboundModeV2,
-  outboundMode,
-  trafficUsage,
-  networkDetection,
-  tunButton(platforms: desktopPlatforms),
-  vpnButton(platforms: [SupportPlatform.Android]),
-  systemProxyButton(platforms: desktopPlatforms),
-  intranetIp,
-  memoryInfo;
-
-  final List<SupportPlatform> platforms;
-
-  const DashboardWidget({this.platforms = SupportPlatform.values});
-}
-
 enum GeodataLoader { standard, memconservative }
 
 enum GeoResource {
@@ -338,6 +321,7 @@ enum PageLabel {
   resources,
   connections,
   po0,
+  activity,
 }
 
 enum RuleAction {

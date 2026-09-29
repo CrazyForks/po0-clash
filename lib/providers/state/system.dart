@@ -109,20 +109,10 @@ HotKeyAction getHotKeyAction(Ref ref, HotAction hotAction) {
 }
 
 @riverpod
-({bool isInit, int checkIpNum, bool containsDetection}) checkIp(Ref ref) {
+({bool isInit, int checkIpNum}) checkIp(Ref ref) {
   final isInit = ref.watch(initProvider);
   final checkIpNum = ref.watch(checkIpNumProvider);
-  final containsDetection = ref.watch(
-    dashboardStateProvider.select(
-      (state) =>
-          state.dashboardWidgets.contains(DashboardWidget.networkDetection),
-    ),
-  );
-  return (
-    isInit: isInit,
-    checkIpNum: checkIpNum,
-    containsDetection: containsDetection,
-  );
+  return (isInit: isInit, checkIpNum: checkIpNum);
 }
 
 @riverpod

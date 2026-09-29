@@ -656,5 +656,14 @@
   "po0EditToken": "编辑 token",
   "po0TokenName": "备注名（可选）",
   "po0TokenDuplicate": "该 token 已在列表中",
-  "po0TokensEmptyDesc": "添加每台 po0 机器的 pgnfw_ token，每把 token 各自检查自己的白名单"
+  "po0TokensEmptyDesc": "添加每台 po0 机器的 pgnfw_ token，每把 token 各自检查自己的白名单",
+  "home": "主页",
+  "activity": "活动",
+  "activityDesc": "连接、请求与日志",
+  "proxyOn": "代理已开启",
+  "tapToConnect": "轻点连接",
+  "noProxySelected": "未选择节点",
+  "currentProxy": "当前节点",
+  "appearance": "外观",
+  "networkAndCore": "网络与内核"
 }

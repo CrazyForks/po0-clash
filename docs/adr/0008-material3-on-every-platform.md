@@ -1,6 +1,6 @@
 # 0008. 三端统一使用 Material 3
 
-- 状态：已采纳
+- 状态：已取代（见 [0009](0009-frosted-glass-ui.md)）
 - 日期：2026-09-29
 - 取代：[0003](0003-heroui-desktop-theme.md)
 

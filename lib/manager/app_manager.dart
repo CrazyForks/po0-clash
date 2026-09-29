@@ -4,11 +4,9 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/permission.dart';
 import 'package:fl_clash/common/system_dns.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/plugins/po0_screen.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/animated_visibility.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +27,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     ref.listenManual(checkIpProvider, (prev, next) {
-      if (prev != next && next.isInit && next.containsDetection) {
+      if (prev != next && next.isInit) {
         ref.read(networkDetectionProvider.notifier).startCheck();
       }
     });
@@ -133,153 +131,5 @@ class AppEnvManager extends StatelessWidget {
       );
     }
     return child;
-  }
-}
-
-class _SidebarRail extends StatelessWidget {
-  const _SidebarRail({
-    required this.items,
-    required this.currentIndex,
-    required this.extended,
-    required this.onSelected,
-    this.onToggleExtended,
-  });
-
-  static const extendedWidth = 220.0;
-
-  final List<NavigationItem> items;
-  final int currentIndex;
-  final bool extended;
-  final void Function(int index) onSelected;
-  final VoidCallback? onToggleExtended;
-
-  @override
-  Widget build(BuildContext context) {
-    final onToggleExtended = this.onToggleExtended;
-    return NavigationRail(
-      scrollable: true,
-      extended: extended,
-      minExtendedWidth: extendedWidth,
-      backgroundColor: Colors.transparent,
-      labelType: extended
-          ? NavigationRailLabelType.none
-          : NavigationRailLabelType.all,
-      leading: onToggleExtended == null
-          ? null
-          : IconButton(
-              tooltip: context.appLocalizations.toggleLabel,
-              onPressed: onToggleExtended,
-              icon: Icon(extended ? Icons.menu_open : Icons.menu),
-            ),
-      destinations: [
-        for (final item in items)
-          NavigationRailDestination(
-            icon: item.icon,
-            label: Text(item.label.label),
-          ),
-      ],
-      onDestinationSelected: onSelected,
-      selectedIndex: currentIndex,
-    );
-  }
-}
-
-class AppSidebarContainer extends ConsumerWidget {
-  final Widget child;
-
-  const AppSidebarContainer({super.key, required this.child});
-
-  Widget _buildBackground({
-    required BuildContext context,
-    required Widget child,
-  }) {
-    return Material(color: context.colorScheme.surfaceContainer, child: child);
-  }
-
-  void _updateSideBarWidth(WidgetRef ref, double contentWidth) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(sideWidthProvider.notifier).value =
-          ref.read(viewSizeProvider.select((state) => state.width)) -
-          contentWidth;
-    });
-  }
-
-  void _handleToPage(WidgetRef ref, PageLabel pageLabel) {
-    final focusNode = FocusManager.instance.primaryFocus;
-    final preserveNavigationFocus =
-        focusNode?.context?.findAncestorWidgetOfExactType<NavigationRail>() !=
-        null;
-    ref.read(currentPageLabelProvider.notifier).toPage(pageLabel);
-    if (!preserveNavigationFocus || focusNode == null) {
-      return;
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (focusNode.context != null && focusNode.canRequestFocus) {
-        focusNode.requestFocus();
-      }
-    });
-  }
-
-  void _toggleLabel(WidgetRef ref) {
-    ref
-        .read(appSettingProvider.notifier)
-        .update((state) => state.copyWith(showLabel: !state.showLabel));
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final navigationState = ref.watch(navigationStateProvider);
-    final navigationItems = navigationState.navigationItems;
-    final viewMode = navigationState.viewMode;
-    final currentIndex = navigationState.currentIndex;
-    final showLabel = ref.watch(appSettingProvider).showLabel;
-    final canExtend = viewMode == ViewMode.desktop;
-    return Container(
-      color: context.colorScheme.surfaceContainer,
-      child: Row(
-        children: [
-          AnimatedVisibility.sidebar(
-            visible: viewMode != ViewMode.mobile,
-            child: _buildBackground(
-              context: context,
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    if (system.isMacOS) const SizedBox(height: 22),
-                    Expanded(
-                      child: ScrollConfiguration(
-                        behavior: const HiddenBarScrollBehavior(),
-                        child: _SidebarRail(
-                          items: navigationItems,
-                          currentIndex: currentIndex,
-                          extended: canExtend && showLabel,
-                          onToggleExtended: canExtend
-                              ? () => _toggleLabel(ref)
-                              : null,
-                          onSelected: (index) {
-                            _handleToPage(ref, navigationItems[index].label);
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: ClipRect(
-              child: LayoutBuilder(
-                builder: (_, constraints) {
-                  _updateSideBarWidth(ref, constraints.maxWidth);
-                  return child;
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

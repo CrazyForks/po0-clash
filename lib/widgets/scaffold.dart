@@ -217,6 +217,10 @@ class CommonScaffoldState extends State<CommonScaffold> {
 
   Widget _buildTitle(AppBarSearchState? startState) {
     final appLocalizations = context.appLocalizations;
+    final slot = ScaffoldTitleSlot.maybeOf(context);
+    if (slot != null && !_isSearch && !_isEdit) {
+      return slot;
+    }
     return _isSearch
         ? TextField(
             autofocus: true,
@@ -432,4 +436,23 @@ class BaseScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return CommonScaffold(body: body, title: title, actions: actions);
   }
+}
+
+/// Lets a container put its own control, such as a segmented switch between
+/// sibling pages, where every [CommonScaffold] below it shows its title.
+class ScaffoldTitleSlot extends InheritedWidget {
+  const ScaffoldTitleSlot({
+    super.key,
+    required this.title,
+    required super.child,
+  });
+
+  final Widget title;
+
+  static Widget? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ScaffoldTitleSlot>()?.title;
+
+  @override
+  bool updateShouldNotify(ScaffoldTitleSlot oldWidget) =>
+      title != oldWidget.title;
 }
