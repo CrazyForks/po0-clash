@@ -425,8 +425,22 @@ class SetupAction extends _$SetupAction {
         authorizationNotifier.value = TunAuthorizationState.authorized;
         return true;
       case AuthorizeCode.error:
+        if (system.isDesktop) {
+          authorizationNotifier.value = TunAuthorizationState.none;
+          _fallBackFromTun();
+        }
         return true;
     }
+  }
+
+  /// A declined or failed authorization must not leave TUN looking on while
+  /// the Core runs without it; the next time TUN is turned on it asks again.
+  void _fallBackFromTun() {
+    ref.read(systemActionProvider.notifier).useRoute(DesktopRoute.systemProxy);
+    dialogs.showNotifier(
+      currentAppLocalizations.tunAuthorizationFallbackTip,
+      level: MessageLevel.warning,
+    );
   }
 
   /// An empty profile list is left alone: it is the first-run state, and it is

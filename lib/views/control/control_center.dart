@@ -92,7 +92,7 @@ class _NarrowLayout extends StatelessWidget {
       children: [
         BrandHeader(),
         SizedBox(height: 16),
-        Center(child: ConnectOrb(size: 212)),
+        Center(child: ConnectOrb(size: 120)),
         SizedBox(height: 20),
         OutboundModeSwitch(),
         gap,
@@ -104,7 +104,7 @@ class _NarrowLayout extends StatelessWidget {
         gap,
         TrafficCard(),
         gap,
-        _Pair(first: NetworkCard(), second: MemoryInfo()),
+        _Pair(first: NetworkCard(), second: MemoryInfo(), minHeight: 0),
       ],
     );
   }
@@ -129,11 +129,9 @@ class _WideLayout extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(child: ConnectOrb(size: 228)),
+                  Center(child: ConnectOrb(size: 132)),
                   SizedBox(height: 16),
                   OutboundModeSwitch(),
-                  gap,
-                  QuickToggles(),
                 ],
               ),
             ),
@@ -142,13 +140,19 @@ class _WideLayout extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  QuickToggles(),
+                  gap,
                   CurrentNodeCard(),
                   gap,
                   _Pair(first: Po0StatusCard(), second: CurrentProfileCard()),
                   gap,
                   TrafficCard(),
                   gap,
-                  _Pair(first: NetworkCard(), second: MemoryInfo()),
+                  _Pair(
+                    first: NetworkCard(),
+                    second: MemoryInfo(),
+                    minHeight: 0,
+                  ),
                 ],
               ),
             ),
@@ -160,35 +164,45 @@ class _WideLayout extends StatelessWidget {
 }
 
 class _Pair extends StatelessWidget {
-  const _Pair({required this.first, required this.second});
+  const _Pair({
+    required this.first,
+    required this.second,
+    this.minHeight = _PairSlot.cardHeight,
+  });
 
   final Widget first;
   final Widget second;
+  final double minHeight;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _PairSlot(child: first)),
+        Expanded(
+          child: _PairSlot(minHeight: minHeight, child: first),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _PairSlot(child: second)),
+        Expanded(
+          child: _PairSlot(minHeight: minHeight, child: second),
+        ),
       ],
     );
   }
 }
 
 class _PairSlot extends StatelessWidget {
-  const _PairSlot({required this.child});
+  const _PairSlot({required this.minHeight, required this.child});
 
-  static const _minHeight = 118.0;
+  static const cardHeight = 118.0;
 
+  final double minHeight;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: _minHeight),
+      constraints: BoxConstraints(minHeight: minHeight),
       child: child,
     );
   }

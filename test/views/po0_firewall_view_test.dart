@@ -1,4 +1,3 @@
-import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/pages/home.dart';
 import 'package:fl_clash/providers/app.dart';
@@ -110,7 +109,8 @@ void main() {
 
     expect(find.text('Auto whitelist is off'), findsOneWidget);
     expect(_filled(tester, 'Whitelist now').onPressed, isNull);
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Auto whitelist'), findsOneWidget);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
   });
 
   testWidgets('asks for a token before it can run', (tester) async {
@@ -129,15 +129,14 @@ void main() {
     );
 
     expect(find.text('1/2 whitelisted'), findsOneWidget);
-    expect(find.text('Exit 45.82.120.0/24'), findsOneWidget);
     expect(find.text('Every 5 s'), findsOneWidget);
     expect(find.text('pgnfw_1a2b3c…'), findsNWidgets(2));
     expect(find.text('Whitelisted'), findsOneWidget);
     expect(find.text('Failed'), findsOneWidget);
-    expect(find.byIcon(Icons.push_pin), findsOneWidget);
+    expect(find.byIcon(Icons.push_pin_rounded), findsOneWidget);
     expect(find.text('2/5 used'), findsOneWidget);
-    expect(find.text('45.82.120.0/24'), findsOneWidget);
-    expect(find.byIcon(Icons.my_location), findsOneWidget);
+    expect(find.text('45.82.120.0/24'), findsNWidgets(2));
+    expect(find.byIcon(Icons.my_location_rounded), findsNWidgets(2));
     expect(find.text('Request failed: timeout'), findsOneWidget);
 
     await tester.tap(find.text('Whitelist now'));
@@ -239,7 +238,7 @@ void main() {
       ),
     );
     expect(find.text('Exit whitelisted'), findsOneWidget);
-    expect(find.byIcon(Icons.verified_user), findsOneWidget);
+    expect(find.byIcon(Icons.verified_user_rounded), findsOneWidget);
   });
 
   testWidgets('shows progress while a run is in flight', (tester) async {
@@ -253,22 +252,17 @@ void main() {
     expect(_filled(tester, 'Whitelist now').onPressed, isNull);
   });
 
-  testWidgets('surfaces are Material 3 filled cards', (tester) async {
+  testWidgets('every block is a glass surface', (tester) async {
     await _pump(tester, props: _enabled);
-    final material = tester.widget<Material>(
-      find
-          .descendant(
-            of: find.byType(SurfaceCard).first,
-            matching: find.byType(Material),
-          )
-          .first,
+    expect(find.byType(GlassSurface), findsWidgets);
+    expect(find.byType(SurfaceCard), findsNothing);
+    final auto = find.ancestor(
+      of: find.text('Auto whitelist'),
+      matching: find.byType(GlassButton),
     );
-    final context = tester.element(find.byType(SurfaceCard).first);
-    expect(
-      material.color,
-      Theme.of(context).colorScheme.surfaceContainerHighest,
-    );
-    expect(material.shape, AppShape.medium);
+    await tester.tap(auto);
+    await tester.pumpAndSettle();
+    expect(_setting().enable, isFalse);
   });
 
   testWidgets('generateSection keeps full-width rows', (tester) async {
@@ -287,7 +281,7 @@ void main() {
         ),
       ),
     );
-    expect(find.byType(SurfaceCard), findsNothing);
+    expect(find.byType(GlassSurface), findsOneWidget);
     expect(find.byType(Divider), findsOneWidget);
     expect(find.text('Group'), findsOneWidget);
   });
@@ -322,7 +316,7 @@ void main() {
       await tester.pumpWidget(entrance(active: true, enabled: true));
       await tester.pump(PageEntrance.duration ~/ 4);
       expect(opacity(tester), inExclusiveRange(0, 1));
-      expect(scale(tester), inExclusiveRange(0.92, 1));
+      expect(scale(tester), inExclusiveRange(0.97, 1));
       await tester.pumpAndSettle();
       expect(opacity(tester), 1);
       expect(scale(tester), 1);

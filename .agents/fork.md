@@ -10,10 +10,10 @@ fork. Human-facing documentation lives in `docs/` (Chinese).
   `lib/providers/po0_firewall.dart`, `lib/views/po0_firewall.dart`. The page is a top-level navigation item
   (`PageLabel.po0`), not a Tools entry. Design: `docs/features/po0-firewall.md`, decision record:
   `docs/adr/0001-direct-routing-for-po0-api.md`.
-- One frosted glass UI on every platform (ADR 0009, `docs/features/glass-ui.md`): glass tokens in
-  `lib/common/glass.dart`, glass widgets in `lib/widgets/glass.dart`, a control sidebar / rail / floating dock chosen by
-  window width, and motion only from `Durations` and `Easing`. Only floating chrome blurs; widgets never branch on the
-  platform for their look.
+- One Liquid Glass UI on every platform (ADR 0009 for the structure, ADR 0010 for the look,
+  `docs/features/glass-ui.md`): neutral backgrounds and opaque content cells, glass only on floating controls, tokens in
+  `lib/common/glass.dart`, widgets in `lib/widgets/glass.dart`, and a control sidebar / rail / floating dock chosen by
+  window width. Widgets never branch on the platform for their look.
 - Its own app identity (`docs/adr/0006-standalone-app-identity.md`): app id `io.github.yuuukicreation.po0clash`, executable
   and display name `po0-clash`, `Po0ClashCore` / `Po0ClashHelperService`, its own Inno Setup `AppId`, IPC names, data
   directory and `po0clash://` scheme. No Firebase.
@@ -38,6 +38,9 @@ fork. Human-facing documentation lives in `docs/` (Chinese).
   to turn them into requests. Other code only signals it (`start`, `pollNow`, `onNetworkChanged`, `setScreenOn`); it must not grow a
   second timer or call the client directly. On Android the screen state comes from `Po0ScreenPlugin`
   (`lib/plugins/po0_screen.dart`).
+- On desktop exactly one of TUN and the system proxy is on (ADR 0011). Route changes go through
+  `SystemAction.useRoute`; the `AppStateManager` listener runs `reconcileDesktopRoute` for every other writer, and a
+  failed TUN authorization falls back to the system proxy. Do not add a second place that enforces or bypasses this.
 - Tokens are credentials: never log or display more than `Po0Token.label`, and redact them from error text.
 - The app has its own semver, independent of upstream; this repository starts at 5.0.0 and the maintainer picks every
   release's version. `pubspec.yaml` `version` is the only source; a release tag is `v<version without +build>`

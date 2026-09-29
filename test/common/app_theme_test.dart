@@ -39,45 +39,52 @@ void main() {
       expect(light.colorScheme.surface, isNot(Colors.black));
     });
 
-    test('text fields are outlined with the extra-small corner', () {
-      final border = _build().inputDecorationTheme.border;
+    test('text fields are filled glass with the small corner', () {
+      final theme = _build();
+      final border = theme.inputDecorationTheme.border;
+      expect(theme.inputDecorationTheme.filled, isTrue);
       expect(border, isA<OutlineInputBorder>());
-      expect(
-        (border! as OutlineInputBorder).borderRadius,
-        AppRadius.extraSmall,
-      );
+      expect((border! as OutlineInputBorder).borderRadius, AppRadius.small);
     });
 
-    test('components keep the Material 3 default corners', () {
+    test('content is opaque and neutral, the scaffold shows the floor', () {
       final theme = _build();
-      expect(theme.cardTheme.shape, isNull);
-      expect(theme.dialogTheme.shape, isNull);
-      expect(theme.menuTheme.style, isNull);
+      final glass = theme.extension<GlassStyle>()!;
+      expect(theme.scaffoldBackgroundColor, Colors.transparent);
+      expect(theme.colorScheme.surface, const Color(0xFFF2F2F7));
+      expect(theme.colorScheme.surfaceContainer, Colors.white);
+      expect(theme.colorScheme.onSurface, Colors.black);
+      expect(theme.cardTheme.color, glass.card);
+      expect(theme.cardTheme.shape, isA<RoundedSuperellipseBorder>());
+    });
+
+    test('taps land exactly where controls are drawn', () {
+      expect(_build().materialTapTargetSize, MaterialTapTargetSize.shrinkWrap);
+    });
+
+    test('dark glass is macOS gray and switches turn system green', () {
+      final dark = _build(brightness: Brightness.dark);
+      expect(dark.colorScheme.surface, const Color(0xFF1C1C1E));
+      expect(dark.extension<GlassStyle>()!.isDark, isTrue);
+      final track = dark.switchTheme.trackColor!.resolve({
+        WidgetState.selected,
+      });
+      expect(track, GlassTone.success.on(Brightness.dark));
     });
   });
 
   group('seededColorScheme', () {
-    ColorScheme seeded(Color seed, DynamicSchemeVariant variant) =>
-        ColorScheme.fromSeed(seedColor: seed, dynamicSchemeVariant: variant);
-
-    test(
-      'the default seed pairs navy actions with Android green selection',
-      () {
-        const variant = DynamicSchemeVariant.fidelity;
+    test('the default seed is exactly system blue', () {
+      for (final brightness in Brightness.values) {
         final scheme = seededColorScheme(
           const Color(defaultPrimaryColor),
-          Brightness.light,
-          variant,
+          brightness,
+          DynamicSchemeVariant.fidelity,
         );
-        final green = seeded(const Color(0xFF3DDC84), variant);
-        expect(
-          scheme.primary,
-          seeded(const Color(defaultPrimaryColor), variant).primary,
-        );
-        expect(scheme.secondaryContainer, green.primaryContainer);
-        expect(scheme.primaryContainer, green.primaryContainer);
-      },
-    );
+        expect(scheme.primary, GlassTone.accent.on(brightness));
+        expect(scheme.onPrimary, Colors.white);
+      }
+    });
 
     test('any other seed is a plain seeded scheme', () {
       expect(
@@ -86,7 +93,10 @@ void main() {
           Brightness.light,
           DynamicSchemeVariant.tonalSpot,
         ),
-        seeded(Colors.teal, DynamicSchemeVariant.tonalSpot),
+        ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
+        ),
       );
     });
   });

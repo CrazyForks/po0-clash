@@ -42,12 +42,13 @@ for density in "${!scale[@]}"; do
   s=${scale[$density]}
   layer=$(python3 -c "print(int(108 * $s))")
   legacy=$(python3 -c "print(int(48 * $s))")
+  tv=$(python3 -c "print(int(80 * $s))")
   mkdir -p "$res/mipmap-$density" "$res/mipmap-television-$density"
   render "$src/launcher_foreground.svg" "$layer" "$layer" "$res/mipmap-$density/ic_launcher_foreground.png"
   render "$src/launcher_background.svg" "$layer" "$layer" "$res/mipmap-$density/ic_launcher_background.png"
   webp "$tmp/rounded.svg" "$legacy" "$res/mipmap-$density/ic_launcher.webp"
   webp "$tmp/round.svg" "$legacy" "$res/mipmap-$density/ic_launcher_round.webp"
-  webp "$tmp/rounded.svg" "$legacy" "$res/mipmap-television-$density/ic_launcher.webp"
+  webp "$tmp/rounded.svg" "$tv" "$res/mipmap-television-$density/ic_launcher.webp"
 done
 render "$src/banner.svg" 320 180 "$res/mipmap-xhdpi/ic_banner.png"
 

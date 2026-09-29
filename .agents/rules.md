@@ -29,17 +29,19 @@ raw string.
 
 ### Glass Shapes and Motion
 
-Every platform uses the frosted glass language (`docs/adr/0009-frosted-glass-ui.md`, `docs/features/glass-ui.md`).
+Every platform uses the Liquid Glass language (`docs/adr/0010-liquid-glass.md`, `docs/features/glass-ui.md`).
 
 - Corner radii come from `lib/common/shape.dart` (`AppCorner`, `AppRadius`, `AppShape`); never write a radius literal in
   a widget. Surfaces use continuous corners (`RoundedSuperellipseBorder`).
-- Colors for surfaces come from `context.glass` (`GlassStyle`) and semantic states from `GlassTone`; do not add opaque
-  fills over the aurora.
-- Only floating chrome that content scrolls under may blur (`GlassKind.chrome`, dialogs); panels and tiles tint the
-  static aurora instead.
+- Colors come from `context.glass` (`GlassStyle`) and states from `GlassTone`, Apple's system colors. Content cells are
+  opaque (`GlassKind.tile`); only floating controls are glass (`GlassKind.panel`, and `GlassKind.chrome` where content
+  scrolls beneath). Do not add gradients, glows or colored backgrounds.
+- Icons are monochrome; the solid colored squares of `GlassIconBadge` belong to settings rows only.
 - Durations come from `Durations.*` and curves from `Easing.*`, with `Curves.easeInOutCubicEmphasized` for the full
   emphasized curve. Enter on a decelerate curve and exit on an accelerate one (`Easing.xxxAccelerate.flipped` for
   reverse curves), and respect `context.disableAnimations`. Avoid endless animations: they force every blur to redraw.
+- A control's hit area is what it draws: fill tracks and rows with `StackFit.expand` / `CrossAxisAlignment.stretch`,
+  and size icon buttons with `GlassIconButton`.
 
 CI gates formatting: `dart format --output=none --set-exit-if-changed lib test
 tool plugins setup.dart` runs before `flutter analyze`.

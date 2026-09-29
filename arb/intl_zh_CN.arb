@@ -665,5 +665,6 @@
   "noProxySelected": "未选择节点",
   "currentProxy": "当前节点",
   "appearance": "外观",
-  "networkAndCore": "网络与内核"
+  "networkAndCore": "网络与内核",
+  "tunAuthorizationFallbackTip": "虚拟网卡未获得授权，已自动改用系统代理。再次开启虚拟网卡会重新请求授权。"
 }

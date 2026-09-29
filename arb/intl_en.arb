@@ -665,5 +665,6 @@
   "noProxySelected": "No proxy selected",
   "currentProxy": "Current proxy",
   "appearance": "Appearance",
-  "networkAndCore": "Network & core"
+  "networkAndCore": "Network & core",
+  "tunAuthorizationFallbackTip": "TUN was not authorized, so po0-clash switched to the system proxy. Turn TUN on again to retry the authorization."
 }

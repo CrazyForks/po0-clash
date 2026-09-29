@@ -16,8 +16,8 @@ class SurfaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final glass = context.glass;
     return Material(
-      color: glass.tile,
-      shape: AppShape.medium.copyWith(side: BorderSide(color: glass.rimShade)),
+      color: glass.card,
+      shape: AppShape.medium,
       clipBehavior: Clip.antiAlias,
       child: Padding(padding: padding, child: child),
     );

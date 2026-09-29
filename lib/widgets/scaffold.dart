@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 
 import 'chip.dart';
+import 'glass.dart';
 import 'inherited.dart';
 
 typedef OnKeywordsUpdateCallback = void Function(List<String> keywords);
@@ -245,7 +246,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
 
   List<Widget> _buildActions(bool hasSearch, List<Widget> actions) {
     if (_isSearch) {
-      return genActions([
+      return _toolbarGroup([
         IconButton(
           tooltip: context.appLocalizations.clearSearch,
           onPressed: _handleClear,
@@ -253,7 +254,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
         ),
       ]);
     }
-    return genActions([
+    return _toolbarGroup([
       if (hasSearch && widget.searchState?.autoAddSearch == true)
         IconButton(
           tooltip: context.appLocalizations.search,
@@ -264,6 +265,28 @@ class CommonScaffoldState extends State<CommonScaffold> {
         ),
       ...actions,
     ]);
+  }
+
+  /// Toolbar actions share one glass capsule, as Liquid Glass toolbars do.
+  List<Widget> _toolbarGroup(List<Widget> actions) {
+    if (actions.isEmpty) {
+      return const [];
+    }
+    return [
+      Center(
+        child: GlassSurface(
+          kind: GlassKind.panel,
+          borderRadius: AppRadius.full,
+          elevated: false,
+          padding: const EdgeInsets.all(2),
+          child: Material(
+            type: MaterialType.transparency,
+            child: Row(mainAxisSize: MainAxisSize.min, children: actions),
+          ),
+        ),
+      ),
+      const SizedBox(width: 12),
+    ];
   }
 
   Widget _buildAppBarWrap(Widget child) {

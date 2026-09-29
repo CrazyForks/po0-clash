@@ -15,7 +15,7 @@ class Navigation implements NavigationPort {
     return [
       NavigationItem(
         keep: false,
-        icon: const Icon(Icons.blur_on_rounded),
+        icon: const Icon(Icons.home_rounded),
         label: PageLabel.dashboard,
         builder: (_) =>
             const ControlCenterView(key: GlobalObjectKey(PageLabel.dashboard)),

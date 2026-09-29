@@ -665,5 +665,6 @@
   "noProxySelected": "Узел не выбран",
   "currentProxy": "Текущий узел",
   "appearance": "Оформление",
-  "networkAndCore": "Сеть и ядро"
+  "networkAndCore": "Сеть и ядро",
+  "tunAuthorizationFallbackTip": "TUN не получил разрешение, поэтому po0-clash переключился на системный прокси. Включите TUN снова, чтобы повторить запрос."
 }

@@ -46,9 +46,9 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-/// Lays the spaces out on the aurora: a floating dock on phones, a rail and a
-/// glass workspace on narrow windows, and the control sidebar beside the
-/// workspace on wide ones.
+/// Lays the spaces out on the window floor: a floating glass dock on phones,
+/// a glass rail on narrow windows and the glass control sidebar on wide ones,
+/// with the page itself resting directly on the floor.
 class _GlassShell extends ConsumerWidget {
   const _GlassShell({required this.child});
 
@@ -69,17 +69,11 @@ class _GlassShell extends ConsumerWidget {
   }
 
   Widget _buildWorkspace(WidgetRef ref) {
-    return GlassSurface(
-      kind: GlassKind.panel,
-      child: LayoutBuilder(
-        builder: (_, constraints) {
-          _updateSideWidth(ref, constraints.maxWidth);
-          return FocusTraversalGroup(
-            policy: PageTraversalPolicy(),
-            child: child,
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        _updateSideWidth(ref, constraints.maxWidth);
+        return FocusTraversalGroup(policy: PageTraversalPolicy(), child: child);
+      },
     );
   }
 

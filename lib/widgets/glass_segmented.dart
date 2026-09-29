@@ -1,9 +1,7 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'glass.dart';
-
-/// A glass track with a lit pill that slides to the chosen segment.
+/// A recessed track with a lifted thumb that slides to the chosen segment.
 class GlassSegmented<T> extends StatelessWidget {
   const GlassSegmented({
     super.key,
@@ -12,7 +10,7 @@ class GlassSegmented<T> extends StatelessWidget {
     required this.labelOf,
     required this.onChanged,
     this.iconOf,
-    this.height = 44,
+    this.height = 40,
   });
 
   final List<T> values;
@@ -24,19 +22,18 @@ class GlassSegmented<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
     final glass = context.glass;
     final index = values.indexOf(selected);
     final count = values.length;
     final duration = context.motionDuration(Durations.medium2);
-    const inset = 4.0;
     return SizedBox(
       height: height,
-      child: GlassSurface(
-        borderRadius: AppRadius.full,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(color: glass.fill, shape: AppShape.full),
         child: Padding(
-          padding: const EdgeInsets.all(inset),
+          padding: const EdgeInsets.all(3),
           child: Stack(
+            fit: StackFit.expand,
             children: [
               if (index >= 0)
                 AnimatedAlign(
@@ -51,24 +48,15 @@ class GlassSegmented<T> extends StatelessWidget {
                     heightFactor: 1,
                     child: DecoratedBox(
                       decoration: ShapeDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            colorScheme.primary,
-                            Color.lerp(
-                              colorScheme.primary,
-                              colorScheme.tertiary,
-                              0.45,
-                            )!,
-                          ],
-                        ),
+                        color: glass.thumb,
                         shape: AppShape.full,
                         shadows: [
                           BoxShadow(
-                            color: glass.glow.withValues(alpha: 0.35),
-                            blurRadius: 12,
-                            offset: const Offset(0, 3),
+                            color: Colors.black.withValues(
+                              alpha: glass.isDark ? 0.3 : 0.12,
+                            ),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -78,6 +66,7 @@ class GlassSegmented<T> extends StatelessWidget {
               Material(
                 type: MaterialType.transparency,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final value in values)
                       Expanded(
@@ -85,7 +74,6 @@ class GlassSegmented<T> extends StatelessWidget {
                           label: labelOf(value),
                           icon: iconOf?.call(value),
                           selected: value == selected,
-                          duration: duration,
                           onTap: () {
                             if (value != selected) {
                               onChanged(value);
@@ -109,22 +97,17 @@ class _Segment extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.selected,
-    required this.duration,
     required this.onTap,
   });
 
   final String label;
   final IconData? icon;
   final bool selected;
-  final Duration duration;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-    final color = selected
-        ? colorScheme.onPrimary
-        : colorScheme.onSurfaceVariant;
+    final color = context.colorScheme.onSurface;
     final icon = this.icon;
     return Semantics(
       button: true,
@@ -133,35 +116,27 @@ class _Segment extends StatelessWidget {
         onTap: onTap,
         customBorder: AppShape.full,
         overlayColor: WidgetStatePropertyAll(
-          colorScheme.onSurface.withValues(alpha: selected ? 0 : 0.05),
+          color.withValues(alpha: selected ? 0 : 0.04),
         ),
-        child: AnimatedDefaultTextStyle(
-          duration: duration,
-          curve: Easing.standard,
-          style: context.textTheme.labelLarge!.copyWith(
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                TweenAnimationBuilder<Color?>(
-                  tween: ColorTween(end: color),
-                  duration: duration,
-                  builder: (_, color, _) => Icon(icon, size: 18, color: color),
-                ),
-                const SizedBox(width: 6),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 17, color: color),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

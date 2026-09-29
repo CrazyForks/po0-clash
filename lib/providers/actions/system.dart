@@ -134,6 +134,35 @@ class SystemAction extends _$SystemAction {
         .update((state) => state.copyWith(systemProxy: !state.systemProxy));
   }
 
+  void useRoute(DesktopRoute route) {
+    _applyRoute((
+      tun: route == DesktopRoute.tun,
+      systemProxy: route == DesktopRoute.systemProxy,
+    ));
+  }
+
+  void reconcileRoute({DesktopRoute? changed}) {
+    _applyRoute(
+      reconcileDesktopRoute((
+        tun: ref.read(patchClashConfigProvider).tun.enable,
+        systemProxy: ref.read(networkSettingProvider).systemProxy,
+      ), changed: changed),
+    );
+  }
+
+  void _applyRoute(DesktopRouteState route) {
+    if (ref.read(patchClashConfigProvider).tun.enable != route.tun) {
+      ref
+          .read(patchClashConfigProvider.notifier)
+          .update((state) => state.copyWith.tun(enable: route.tun));
+    }
+    if (ref.read(networkSettingProvider).systemProxy != route.systemProxy) {
+      ref
+          .read(networkSettingProvider.notifier)
+          .update((state) => state.copyWith(systemProxy: route.systemProxy));
+    }
+  }
+
   void updateAutoLaunch() {
     ref
         .read(appSettingProvider.notifier)

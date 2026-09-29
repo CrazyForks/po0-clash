@@ -1,52 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 1820 1024">
   <defs>
-    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2E3192"/>
-      <stop offset="1" stop-color="#0A0C26"/>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4AA8FF"/>
+      <stop offset="1" stop-color="#0057D9"/>
     </linearGradient>
-    <radialGradient id="violet" cx="0.2" cy="0.16" r="0.62">
-      <stop offset="0" stop-color="#8E5CFF" stop-opacity="0.95"/>
-      <stop offset="1" stop-color="#8E5CFF" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="cyan" cx="0.9" cy="0.9" r="0.66">
-      <stop offset="0" stop-color="#22D3EE" stop-opacity="0.9"/>
-      <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="pink" cx="0.92" cy="0.1" r="0.46">
-      <stop offset="0" stop-color="#FF5C8A" stop-opacity="0.6"/>
-      <stop offset="1" stop-color="#FF5C8A" stop-opacity="0"/>
+    <radialGradient id="shine" cx="0.25" cy="0.12" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.07"/>
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
     </linearGradient>
     <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
-      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.18"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.55"/>
     </linearGradient>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#9DEBFF"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.82"/>
     </linearGradient>
-    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#7DE3FF" stop-opacity="0.9"/>
-      <stop offset="1" stop-color="#7DE3FF" stop-opacity="0"/>
-    </radialGradient>
     <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="18"/>
+      <feGaussianBlur stdDeviation="20"/>
     </filter>
-  
   </defs>
   <rect width="1820" height="1024" fill="url(#base)"/>
-  <rect width="1820" height="1024" fill="url(#violet)"/>
-  <rect width="1820" height="1024" fill="url(#cyan)"/>
-  <rect width="1820" height="1024" fill="url(#pink)"/>
-  <g transform="translate(120 112) scale(0.78125)">
+  <rect width="1820" height="1024" fill="url(#shine)"/>
+  <g transform="translate(120 112) scale(0.78125)"><circle cx="512" cy="540" r="300" fill="#001A4D" opacity="0.28" filter="url(#soft)"/>
     <circle cx="512" cy="512" r="300" fill="url(#glass)" stroke="url(#rim)" stroke-width="6"/>
     <path d="M706.06 463.62 A200 200 0 1 1 512 312" fill="none" stroke="url(#ring)" stroke-width="72" stroke-linecap="round"/>
-    <circle cx="635.13" cy="354.4" r="92" fill="url(#halo)"/>
-    <circle cx="635.13" cy="354.4" r="42" fill="#FFFFFF"/>
-  </g>
+    <circle cx="635.13" cy="354.4" r="42" fill="#FFFFFF"/></g>
   <text x="930" y="570" font-family="Noto Sans, Roboto, sans-serif" font-size="156" font-weight="800" fill="#FFFFFF">po0-clash</text>
 </svg>

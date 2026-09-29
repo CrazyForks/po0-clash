@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/app_ports.dart';
+import 'package:fl_clash/common/desktop_route.dart';
 import 'package:fl_clash/common/preferences.dart';
 import 'package:fl_clash/models/config.dart';
 import 'package:fl_clash/providers/action.dart';
@@ -329,6 +330,55 @@ void main() {
       container.read(systemActionProvider.notifier).updateAutoLaunch();
 
       expect(container.read(appSettingProvider).autoLaunch, !before);
+    });
+  });
+
+  group('desktop route', () {
+    late ProviderContainer container;
+
+    setUp(() {
+      container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.listen(networkSettingProvider, (_, _) {});
+      container.listen(patchClashConfigProvider, (_, _) {});
+    });
+
+    ({bool tun, bool systemProxy}) route() => (
+      tun: container.read(patchClashConfigProvider).tun.enable,
+      systemProxy: container.read(networkSettingProvider).systemProxy,
+    );
+
+    SystemAction action() => container.read(systemActionProvider.notifier);
+
+    test('useRoute turns on exactly the chosen route', () {
+      action().useRoute(DesktopRoute.tun);
+      expect(route(), (tun: true, systemProxy: false));
+      action().useRoute(DesktopRoute.systemProxy);
+      expect(route(), (tun: false, systemProxy: true));
+      action().useRoute(DesktopRoute.systemProxy);
+      expect(route(), (tun: false, systemProxy: true));
+    });
+
+    test('a fresh install starts on TUN once reconciled', () {
+      container
+          .read(networkSettingProvider.notifier)
+          .update((_) => defaultNetworkProps);
+      expect(route(), (tun: false, systemProxy: false));
+      action().reconcileRoute();
+      expect(route(), (tun: true, systemProxy: false));
+    });
+
+    test('flipping one route through its own setting moves the other', () {
+      action().useRoute(DesktopRoute.tun);
+      container
+          .read(networkSettingProvider.notifier)
+          .update((state) => state.copyWith(systemProxy: true));
+      action().reconcileRoute(changed: DesktopRoute.systemProxy);
+      expect(route(), (tun: false, systemProxy: true));
+
+      action().updateSystemProxy();
+      action().reconcileRoute(changed: DesktopRoute.systemProxy);
+      expect(route(), (tun: true, systemProxy: false));
     });
   });
 }

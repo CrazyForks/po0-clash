@@ -61,12 +61,40 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       }
     }, fireImmediately: true);
     po0Screen?.listen(ref.read(po0FirewallProvider.notifier).setScreenOn);
+    if (system.isDesktop) {
+      _keepOneDesktopRoute();
+    }
     final systemDns = systemDnsCoordinator;
     if (systemDns != null) {
       ref.listenManual(shouldPatchSystemDnsProvider, (prev, next) {
         unawaited(systemDns.sync(next));
       }, fireImmediately: true);
     }
+  }
+
+  void _keepOneDesktopRoute() {
+    final systemAction = ref.read(systemActionProvider.notifier);
+    ref.listenManual(
+      patchClashConfigProvider.select((state) => state.tun.enable),
+      (prev, next) {
+        if (prev != next) {
+          systemAction.reconcileRoute(changed: DesktopRoute.tun);
+        }
+      },
+    );
+    ref.listenManual(
+      networkSettingProvider.select((state) => state.systemProxy),
+      (prev, next) {
+        if (prev != next) {
+          systemAction.reconcileRoute(changed: DesktopRoute.systemProxy);
+        }
+      },
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        systemAction.reconcileRoute();
+      }
+    });
   }
 
   @override

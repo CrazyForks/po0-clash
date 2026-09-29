@@ -4,176 +4,41 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// Where the four aurora blobs sit, in fractions of the backdrop's size.
-@immutable
-class AuroraScene {
-  const AuroraScene(this.blobs);
-
-  final List<({Offset center, double radius})> blobs;
-
-  static const home = AuroraScene([
-    (center: Offset(0.08, 0.06), radius: 0.62),
-    (center: Offset(0.96, 0.22), radius: 0.5),
-    (center: Offset(0.28, 1.0), radius: 0.58),
-    (center: Offset(0.92, 0.96), radius: 0.36),
-  ]);
-  static const proxies = AuroraScene([
-    (center: Offset(0.9, 0.02), radius: 0.6),
-    (center: Offset(0.12, 0.36), radius: 0.46),
-    (center: Offset(0.72, 0.9), radius: 0.56),
-    (center: Offset(0.02, 0.98), radius: 0.34),
-  ]);
-  static const profiles = AuroraScene([
-    (center: Offset(0.5, -0.08), radius: 0.56),
-    (center: Offset(0.02, 0.7), radius: 0.52),
-    (center: Offset(1.0, 0.62), radius: 0.5),
-    (center: Offset(0.5, 1.06), radius: 0.3),
-  ]);
-  static const po0 = AuroraScene([
-    (center: Offset(0.0, 0.3), radius: 0.6),
-    (center: Offset(0.74, 0.08), radius: 0.44),
-    (center: Offset(0.88, 0.78), radius: 0.58),
-    (center: Offset(0.2, 0.98), radius: 0.3),
-  ]);
-  static const activity = AuroraScene([
-    (center: Offset(0.64, 0.0), radius: 0.5),
-    (center: Offset(0.98, 0.5), radius: 0.46),
-    (center: Offset(0.06, 0.82), radius: 0.62),
-    (center: Offset(0.46, 0.42), radius: 0.24),
-  ]);
-  static const settings = AuroraScene([
-    (center: Offset(0.14, 0.9), radius: 0.62),
-    (center: Offset(0.02, 0.06), radius: 0.4),
-    (center: Offset(0.96, 0.1), radius: 0.54),
-    (center: Offset(0.78, 1.0), radius: 0.32),
-  ]);
-
-  static AuroraScene lerp(AuroraScene a, AuroraScene b, double t) {
-    return AuroraScene([
-      for (var i = 0; i < a.blobs.length; i++)
-        (
-          center: Offset.lerp(a.blobs[i].center, b.blobs[i].center, t)!,
-          radius: ui.lerpDouble(a.blobs[i].radius, b.blobs[i].radius, t)!,
-        ),
-    ]);
-  }
-}
-
-class _AuroraPainter extends CustomPainter {
-  const _AuroraPainter({required this.palette, required this.scene});
-
-  final AuroraPalette palette;
-  final AuroraScene scene;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: palette.base,
-        ).createShader(rect),
-    );
-    final extent = size.longestSide;
-    for (var i = 0; i < scene.blobs.length; i++) {
-      final blob = scene.blobs[i];
-      final color = palette.blobs[i % palette.blobs.length];
-      final center = Offset(
-        blob.center.dx * size.width,
-        blob.center.dy * size.height,
-      );
-      final radius = blob.radius * extent;
-      canvas.drawCircle(
-        center,
-        radius,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [color, color.withValues(alpha: 0.5), color.withAlpha(0)],
-            stops: const [0, 0.42, 1],
-          ).createShader(Rect.fromCircle(center: center, radius: radius)),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_AuroraPainter oldDelegate) =>
-      palette != oldDelegate.palette || scene != oldDelegate.scene;
-}
-
-/// The ambient light every glass surface tints. Moving to another scene drifts
-/// the blobs instead of cutting, and lands at once under reduced motion.
-class AuroraBackdrop extends StatelessWidget {
-  const AuroraBackdrop({super.key, this.scene = AuroraScene.home, this.child});
-
-  static const drift = Duration(milliseconds: 900);
-
-  final AuroraScene scene;
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.glass.aurora;
-    return TweenAnimationBuilder<AuroraScene>(
-      tween: _AuroraSceneTween(end: scene),
-      duration: context.motionDuration(drift),
-      curve: Curves.easeInOutCubicEmphasized,
-      builder: (_, scene, child) => CustomPaint(
-        painter: _AuroraPainter(palette: palette, scene: scene),
-        isComplex: true,
-        child: child,
-      ),
-      child: child ?? const SizedBox.expand(),
-    );
-  }
-}
-
-class _AuroraSceneTween extends Tween<AuroraScene> {
-  _AuroraSceneTween({super.end});
-
-  @override
-  AuroraScene lerp(double t) => AuroraScene.lerp(begin ?? end!, end!, t);
-}
-
-/// Carries the scene the app backdrop shows, so a full-screen route can lay
-/// the same aurora under itself and slide in without a seam.
-class AuroraSceneScope extends InheritedWidget {
-  const AuroraSceneScope({
-    super.key,
-    required this.scene,
-    required super.child,
-  });
-
-  final AuroraScene scene;
-
-  static AuroraScene of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AuroraSceneScope>()?.scene ??
-      AuroraScene.home;
-
-  @override
-  bool updateShouldNotify(AuroraSceneScope oldWidget) =>
-      scene != oldWidget.scene;
-}
-
-/// An opaque aurora for routes that cover the whole window.
-class AuroraFloor extends StatelessWidget {
-  const AuroraFloor({super.key, required this.child});
+class AppFloor extends StatelessWidget {
+  const AppFloor({super.key, required this.child});
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return AuroraBackdrop(scene: AuroraSceneScope.of(context), child: child);
+    return ColoredBox(color: context.glass.background, child: child);
   }
 }
 
+/// [tile] is an opaque content cell; [panel] is a floating glass panel over
+/// the floor; [chrome] is glass that content scrolls beneath, so it blurs.
 enum GlassKind { panel, tile, chrome }
 
-/// A frosted surface: a translucent veil with a sheen on top, a light rim that
-/// fades toward the bottom edge, and a shadow drawn only outside the shape so
-/// it never darkens the glass itself.
+ui.ImageFilter _liquidFilter(double sigma) {
+  const s = GlassStyle.saturation;
+  const r = 0.2126 * (1 - s);
+  const g = 0.7152 * (1 - s);
+  const b = 0.0722 * (1 - s);
+  return ui.ImageFilter.compose(
+    outer: const ui.ColorFilter.matrix([
+      r + s, g, b, 0, 0, //
+      r, g + s, b, 0, 0, //
+      r, g, b + s, 0, 0, //
+      0, 0, 0, 1, 0, //
+    ]),
+    inner: ui.ImageFilter.blur(
+      sigmaX: sigma,
+      sigmaY: sigma,
+      tileMode: TileMode.mirror,
+    ),
+  );
+}
+
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
     super.key,
@@ -187,6 +52,7 @@ class GlassSurface extends StatelessWidget {
     this.blur,
     this.clip = true,
     this.circle = false,
+    this.plain = false,
     required this.child,
   });
 
@@ -200,7 +66,16 @@ class GlassSurface extends StatelessWidget {
   final bool? blur;
   final bool clip;
   final bool circle;
+
+  /// Only clips and hosts ink, drawing nothing of its own.
+  final bool plain;
   final Widget child;
+
+  static BorderRadius radiusOf(GlassKind kind) => switch (kind) {
+    GlassKind.panel => AppRadius.extraLarge,
+    GlassKind.tile => AppRadius.medium,
+    GlassKind.chrome => AppRadius.full,
+  };
 
   static OutlinedBorder shapeOf({
     required GlassKind kind,
@@ -210,12 +85,6 @@ class GlassSurface extends StatelessWidget {
       ? const CircleBorder()
       : RoundedSuperellipseBorder(borderRadius: borderRadius ?? radiusOf(kind));
 
-  static BorderRadius radiusOf(GlassKind kind) => switch (kind) {
-    GlassKind.panel => AppRadius.extraLarge,
-    GlassKind.tile => AppRadius.medium,
-    GlassKind.chrome => AppRadius.extraLarge,
-  };
-
   @override
   Widget build(BuildContext context) {
     final glass = context.glass;
@@ -224,102 +93,94 @@ class GlassSurface extends StatelessWidget {
       borderRadius: borderRadius,
       circle: circle,
     );
-    final fill =
-        color ??
-        (selected
-            ? Color.alphaBlend(glass.selected, glass.tile)
-            : switch (kind) {
-                GlassKind.panel => glass.panel,
-                GlassKind.tile => glass.tile,
-                GlassKind.chrome => glass.chrome,
-              });
-    final shouldBlur = blur ?? kind == GlassKind.chrome;
+    final padded = Padding(padding: padding, child: child);
+    if (plain) {
+      return ClipPath.shape(shape: shape, child: padded);
+    }
+    final isGlass = kind != GlassKind.tile;
+    final accent = context.colorScheme.primary;
+    final base = color ?? (isGlass ? glass.glass : glass.card);
+    final fill = selected
+        ? Color.alphaBlend(
+            accent.withValues(alpha: glass.isDark ? 0.2 : 0.1),
+            base,
+          )
+        : base;
+    final rim =
+        rimColor ??
+        (selected ? accent.withValues(alpha: 0.7) : null) ??
+        (isGlass ? null : Colors.transparent);
     Widget content = CustomPaint(
-      painter: _GlassFillPainter(shape: shape, fill: fill, sheen: glass.sheen),
-      foregroundPainter: _GlassRimPainter(
-        shape: shape,
-        light: rimColor ?? (selected ? glass.selectedRim : glass.rimLight),
-        shade: rimColor ?? (selected ? glass.selectedRim : glass.rimShade),
-      ),
-      child: Padding(padding: padding, child: child),
+      painter: _FillPainter(shape: shape, fill: fill),
+      foregroundPainter: rim == Colors.transparent
+          ? null
+          : _SpecularRimPainter(
+              shape: shape,
+              light: rim ?? glass.rimLight,
+              shade: rim ?? glass.rimShade,
+              width: selected ? 1.5 : 1,
+            ),
+      child: padded,
     );
-    if (shouldBlur) {
+    if (blur ?? kind == GlassKind.chrome) {
       content = BackdropFilter(
-        filter: ui.ImageFilter.blur(
-          sigmaX: glass.blurSigma,
-          sigmaY: glass.blurSigma,
-          tileMode: TileMode.mirror,
-        ),
+        filter: _liquidFilter(glass.blurSigma),
         child: content,
       );
     }
-    if (clip || shouldBlur) {
+    if (clip || (blur ?? kind == GlassKind.chrome)) {
       content = ClipPath.shape(shape: shape, child: content);
     }
-    if (!(elevated ?? kind != GlassKind.tile)) {
+    if (!(elevated ?? isGlass)) {
       return content;
     }
     return CustomPaint(
-      painter: _GlassShadowPainter(shape: shape, color: glass.shadow),
+      painter: _OuterShadowPainter(shape: shape, color: glass.shadow),
       child: content,
     );
   }
 }
 
-class _GlassFillPainter extends CustomPainter {
-  const _GlassFillPainter({
-    required this.shape,
-    required this.fill,
-    required this.sheen,
-  });
+class _FillPainter extends CustomPainter {
+  const _FillPainter({required this.shape, required this.fill});
 
   final ShapeBorder shape;
   final Color fill;
-  final Color sheen;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final path = shape.getOuterPath(rect);
-    canvas.drawPath(path, Paint()..color = fill);
     canvas.drawPath(
-      path,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [sheen, sheen.withAlpha(0)],
-          stops: const [0, 0.55],
-        ).createShader(rect),
+      shape.getOuterPath(Offset.zero & size),
+      Paint()..color = fill,
     );
   }
 
   @override
-  bool shouldRepaint(_GlassFillPainter oldDelegate) =>
-      shape != oldDelegate.shape ||
-      fill != oldDelegate.fill ||
-      sheen != oldDelegate.sheen;
+  bool shouldRepaint(_FillPainter oldDelegate) =>
+      shape != oldDelegate.shape || fill != oldDelegate.fill;
 }
 
-class _GlassRimPainter extends CustomPainter {
-  const _GlassRimPainter({
+class _SpecularRimPainter extends CustomPainter {
+  const _SpecularRimPainter({
     required this.shape,
     required this.light,
     required this.shade,
+    required this.width,
   });
 
   final ShapeBorder shape;
   final Color light;
   final Color shade;
+  final double width;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = (Offset.zero & size).deflate(0.5);
+    final rect = (Offset.zero & size).deflate(width / 2);
     canvas.drawPath(
       shape.getOuterPath(rect),
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
+        ..strokeWidth = width
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -327,25 +188,28 @@ class _GlassRimPainter extends CustomPainter {
             light,
             shade,
             shade,
-            light.withValues(alpha: light.a * 0.5),
+            light.withValues(alpha: light.a * 0.6),
           ],
-          stops: const [0, 0.4, 0.8, 1],
+          stops: const [0, 0.35, 0.7, 1],
         ).createShader(rect),
     );
   }
 
   @override
-  bool shouldRepaint(_GlassRimPainter oldDelegate) =>
+  bool shouldRepaint(_SpecularRimPainter oldDelegate) =>
       shape != oldDelegate.shape ||
       light != oldDelegate.light ||
-      shade != oldDelegate.shade;
+      shade != oldDelegate.shade ||
+      width != oldDelegate.width;
 }
 
-class _GlassShadowPainter extends CustomPainter {
-  const _GlassShadowPainter({required this.shape, required this.color});
+/// A shadow clipped to the outside of the shape, so translucent glass is not
+/// darkened by the shadow beneath it.
+class _OuterShadowPainter extends CustomPainter {
+  const _OuterShadowPainter({required this.shape, required this.color});
 
-  static const _blur = 24.0;
-  static const _offset = Offset(0, 10);
+  static const _blur = 20.0;
+  static const _offset = Offset(0, 6);
 
   final ShapeBorder shape;
   final Color color;
@@ -371,12 +235,10 @@ class _GlassShadowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_GlassShadowPainter oldDelegate) =>
+  bool shouldRepaint(_OuterShadowPainter oldDelegate) =>
       shape != oldDelegate.shape || color != oldDelegate.color;
 }
 
-/// A tappable [GlassSurface] whose hover, press and focus states light the
-/// glass from inside rather than laying a grey overlay on it.
 class GlassButton extends StatelessWidget {
   const GlassButton({
     super.key,
@@ -394,10 +256,12 @@ class GlassButton extends StatelessWidget {
     this.autofocus = false,
     this.tooltip,
     this.circle = false,
+    this.plain = false,
     required this.child,
   });
 
   final bool circle;
+  final bool plain;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onSecondaryTap;
@@ -415,12 +279,12 @@ class GlassButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glass = context.glass;
     final colorScheme = context.colorScheme;
     final button = GlassSurface(
       kind: kind,
       borderRadius: borderRadius,
       circle: circle,
+      plain: plain,
       selected: selected,
       color: color,
       rimColor: rimColor,
@@ -443,12 +307,10 @@ class GlassButton extends StatelessWidget {
               return colorScheme.onSurface.withValues(alpha: 0.08);
             }
             if (states.contains(WidgetState.focused)) {
-              return colorScheme.primary.withValues(alpha: 0.14);
+              return colorScheme.primary.withValues(alpha: 0.12);
             }
             if (states.contains(WidgetState.hovered)) {
-              return glass.isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.white.withValues(alpha: 0.35);
+              return colorScheme.onSurface.withValues(alpha: 0.04);
             }
             return null;
           }),
@@ -461,54 +323,41 @@ class GlassButton extends StatelessWidget {
   }
 }
 
-/// A tinted squircle holding an icon, the way glass tiles mark their kind.
 class GlassIconBadge extends StatelessWidget {
   const GlassIconBadge({
     super.key,
     required this.icon,
     this.color,
-    this.size = 40,
-    this.iconSize,
+    this.size = 30,
   });
 
   final IconData icon;
   final Color? color;
   final double size;
-  final double? iconSize;
 
   @override
   Widget build(BuildContext context) {
-    final accent = color ?? context.colorScheme.primary;
-    final glass = context.glass;
-    return Container(
-      width: size,
-      height: size,
+    return DecoratedBox(
       decoration: ShapeDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accent.withValues(alpha: glass.isDark ? 0.34 : 0.22),
-            accent.withValues(alpha: glass.isDark ? 0.16 : 0.1),
-          ],
-        ),
+        color: color ?? context.colorScheme.primary,
         shape: RoundedSuperellipseBorder(
-          borderRadius: AppRadius.all(size * 0.32),
-          side: BorderSide(color: accent.withValues(alpha: 0.28)),
+          borderRadius: AppRadius.all(size * 0.28),
         ),
       ),
-      child: Icon(icon, size: iconSize ?? size * 0.52, color: accent),
+      child: SizedBox.square(
+        dimension: size,
+        child: Icon(icon, size: size * 0.6, color: Colors.white),
+      ),
     );
   }
 }
 
-/// The small caps label above a group of glass tiles.
 class GlassSectionLabel extends StatelessWidget {
   const GlassSectionLabel(
     this.label, {
     super.key,
     this.trailing,
-    this.padding = const EdgeInsets.fromLTRB(6, 20, 6, 10),
+    this.padding = const EdgeInsets.fromLTRB(16, 22, 12, 8),
   });
 
   final String label;
@@ -525,10 +374,9 @@ class GlassSectionLabel extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: context.textTheme.labelLarge?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.6,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: context.glass.secondaryLabel,
+                fontSize: 13,
               ),
             ),
           ),
@@ -560,10 +408,8 @@ class GlassPill extends StatelessWidget {
     final icon = this.icon;
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: accent.withValues(alpha: context.glass.isDark ? 0.2 : 0.13),
-        shape: AppShape.full.copyWith(
-          side: BorderSide(color: accent.withValues(alpha: 0.3)),
-        ),
+        color: accent.withValues(alpha: context.glass.isDark ? 0.22 : 0.12),
+        shape: AppShape.full,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -585,6 +431,40 @@ class GlassPill extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class GlassIconButton extends StatelessWidget {
+  const GlassIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.size = 32,
+    this.color,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final double size;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: size * 0.56),
+      style: IconButton.styleFrom(
+        fixedSize: Size.square(size),
+        minimumSize: Size.square(size),
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.standard,
+        foregroundColor: color ?? context.glass.secondaryLabel,
       ),
     );
   }

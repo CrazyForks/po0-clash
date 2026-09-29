@@ -4,6 +4,7 @@ import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/core/desktop/model.dart';
 import 'package:fl_clash/core/interface.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
@@ -11,6 +12,7 @@ import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/core.dart';
 import 'package:fl_clash/providers/database.dart';
 import 'package:fl_clash/providers/state.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:riverpod/riverpod.dart';
@@ -740,7 +742,10 @@ void main() {
       );
     });
 
-    test('requests admin authorization once per app lifecycle', () async {
+    test('a declined authorization falls back to the system proxy and asks '
+        'again when TUN is turned back on', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      await AppLocalizations.load(const Locale('en'));
       late _AuthorizationSetupAction setupAction;
       final container = ProviderContainer(
         overrides: [
@@ -754,23 +759,33 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      container
+          .read(patchClashConfigProvider.notifier)
+          .update((state) => state.copyWith.tun(enable: true));
+      container
+          .read(networkSettingProvider.notifier)
+          .update((state) => state.copyWith(systemProxy: false));
       container.read(setupActionProvider);
 
       expect(await setupAction.requestAdmin(true), isTrue);
       expect(
         container.read(authorizedTunEnableProvider),
-        TunAuthorizationState.unauthorized,
+        TunAuthorizationState.none,
       );
+      expect(container.read(patchClashConfigProvider).tun.enable, isFalse);
+      expect(container.read(networkSettingProvider).systemProxy, isTrue);
 
-      expect(await setupAction.requestAdmin(true), isTrue);
-      expect(setupAction.authorizationRequestCount, 1);
+      expect(await setupAction.requestAdmin(true), isFalse);
+      expect(setupAction.authorizationRequestCount, 2);
       expect(
         container.read(authorizedTunEnableProvider),
-        TunAuthorizationState.unauthorized,
+        TunAuthorizationState.authorized,
       );
     });
 
     test('keeps tun disabled while authorization stays unauthorized', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      await AppLocalizations.load(const Locale('en'));
       late _AuthorizationSetupAction setupAction;
       final container = ProviderContainer(
         overrides: [

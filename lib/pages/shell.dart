@@ -12,17 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef OnDestinationSelected = void Function(PageLabel label);
 
-Color pageAccentOf(BuildContext context, PageLabel label) {
-  final colorScheme = context.colorScheme;
-  return switch (label) {
-    PageLabel.profiles => colorScheme.tertiary,
-    PageLabel.po0 => context.toneColor(GlassTone.success),
-    PageLabel.activity => context.toneColor(GlassTone.warning),
-    PageLabel.tools => colorScheme.onSurfaceVariant,
-    _ => colorScheme.primary,
-  };
-}
-
 IconData _iconOf(NavigationItem item) => item.icon.icon ?? Icons.circle;
 
 /// The floating capsule that navigates on phones. Pages scroll beneath it, so
@@ -66,6 +55,7 @@ class GlassDock extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(6),
               child: Stack(
+                fit: StackFit.expand,
                 children: [
                   if (count > 0)
                     AnimatedAlign(
@@ -82,6 +72,7 @@ class GlassDock extends StatelessWidget {
                       ),
                     ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       for (final (index, item) in items.indexed)
                         Expanded(
@@ -105,17 +96,17 @@ class GlassDock extends StatelessWidget {
 }
 
 class _SelectionPill extends StatelessWidget {
-  const _SelectionPill();
+  const _SelectionPill({this.borderRadius});
+
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
-    final glass = context.glass;
+    final borderRadius = this.borderRadius;
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: glass.selected,
-        shape: AppShape.full.copyWith(
-          side: BorderSide(color: glass.selectedRim),
-        ),
+        color: context.glass.selected,
+        shape: borderRadius == null ? AppShape.full : AppShape.of(borderRadius),
       ),
     );
   }
@@ -127,12 +118,14 @@ class _DockItem extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.borderRadius,
   });
 
   final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +136,9 @@ class _DockItem extends StatelessWidget {
       button: true,
       child: InkWell(
         onTap: onTap,
-        customBorder: AppShape.full,
+        customBorder: borderRadius == null
+            ? AppShape.full
+            : AppShape.of(borderRadius!),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -176,6 +171,7 @@ class GlassRail extends StatelessWidget {
 
   static const width = 84.0;
   static const _itemHeight = 64.0;
+  static const _pillInset = 2.0;
 
   final List<NavigationItem> items;
   final int currentIndex;
@@ -198,13 +194,14 @@ class GlassRail extends StatelessWidget {
                   AnimatedPositioned(
                     duration: duration,
                     curve: Easing.emphasizedDecelerate,
-                    top: currentIndex * _itemHeight,
-                    left: 0,
-                    right: 0,
-                    height: _itemHeight,
-                    child: const _SelectionPill(),
+                    top: currentIndex * _itemHeight + _pillInset,
+                    left: _pillInset,
+                    right: _pillInset,
+                    height: _itemHeight - _pillInset * 2,
+                    child: const _SelectionPill(borderRadius: AppRadius.medium),
                   ),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final (index, item) in items.indexed)
                       SizedBox(
@@ -213,6 +210,7 @@ class GlassRail extends StatelessWidget {
                           icon: _iconOf(item),
                           label: item.label.label,
                           selected: index == currentIndex,
+                          borderRadius: AppRadius.medium,
                           onTap: () => onSelected(item.label),
                         ),
                       ),
@@ -257,15 +255,19 @@ class ControlSidebar extends StatelessWidget {
             slivers: [
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(16, 16 + topInset, 16, 0),
-                sliver: const SliverList(
-                  delegate: SliverChildListDelegate.fixed([
-                    BrandHeader(dense: true),
-                    SizedBox(height: 12),
-                    Center(child: ConnectOrb(size: 176)),
-                    SizedBox(height: 12),
-                    OutboundModeSwitch(height: 40),
-                    SizedBox(height: 18),
-                  ]),
+                sliver: SliverList.list(
+                  children: [
+                    const BrandHeader(dense: true),
+                    const SizedBox(height: 12),
+                    const Center(child: ConnectOrb(size: 92)),
+                    const SizedBox(height: 12),
+                    const OutboundModeSwitch(height: 40),
+                    if (system.isDesktop) ...[
+                      const SizedBox(height: 8),
+                      const DesktopRouteSwitch(),
+                    ],
+                    const SizedBox(height: 18),
+                  ],
                 ),
               ),
               SliverPadding(
@@ -345,20 +347,21 @@ class _SidebarItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final subtitle = _subtitleOf(context, ref);
     final colorScheme = context.colorScheme;
+    final glass = context.glass;
     return GlassButton(
-      selected: selected,
+      plain: !selected,
+      color: glass.selected,
+      rimColor: Colors.transparent,
       elevated: false,
-      color: selected ? null : Colors.transparent,
-      rimColor: selected ? null : Colors.transparent,
-      borderRadius: AppRadius.medium,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      borderRadius: AppRadius.small,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       onTap: onTap,
       child: Row(
         children: [
-          GlassIconBadge(
-            icon: _iconOf(item),
-            color: pageAccentOf(context, item.label),
-            size: 34,
+          Icon(
+            _iconOf(item),
+            size: 20,
+            color: selected ? colorScheme.primary : glass.secondaryLabel,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -369,9 +372,7 @@ class _SidebarItem extends ConsumerWidget {
                   item.label.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.titleSmall?.copyWith(
-                    color: selected ? colorScheme.primary : null,
-                  ),
+                  style: context.textTheme.titleSmall,
                 ),
                 if (subtitle != null && subtitle.isNotEmpty)
                   EmojiText(
@@ -396,99 +397,49 @@ class _SidebarFooter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = context.colorScheme;
+    final glass = context.glass;
     final traffic = ref.watch(trafficsProvider).list.lastOrNull;
     final ipInfo = ref.watch(networkDetectionProvider).ipInfo;
     final style = context.textTheme.bodySmall?.copyWith(
-      color: colorScheme.onSurfaceVariant,
+      color: glass.secondaryLabel,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
-    return GlassSurface(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.north_rounded, size: 14, color: colorScheme.primary),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  '${(traffic?.up ?? 0).traffic.show}/s',
-                  maxLines: 1,
-                  style: style,
-                ),
-              ),
-              Icon(Icons.south_rounded, size: 14, color: colorScheme.tertiary),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  '${(traffic?.down ?? 0).traffic.show}/s',
-                  maxLines: 1,
-                  style: style,
-                ),
-              ),
-            ],
+    Widget line(IconData? icon, String text, {String? fontFamily}) => Row(
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 14, color: glass.secondaryLabel),
+          const SizedBox(width: 6),
+        ],
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style?.copyWith(fontFamily: fontFamily),
           ),
-          if (ipInfo != null) ...[
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Icon(
-                  Icons.public_rounded,
-                  size: 14,
-                  color: context.toneColor(GlassTone.success),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    '${ipInfo.countryCode} · ${ipInfo.ip}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: style?.copyWith(
-                      fontFamily: FontFamily.jetBrainsMono.value,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
-  }
-}
-
-/// The aurora behind the whole window, drifting to each space's own scene.
-class AppBackdrop extends ConsumerWidget {
-  const AppBackdrop({super.key, required this.child});
-
-  final Widget child;
-
-  static AuroraScene sceneOf(PageLabel label) => switch (label) {
-    PageLabel.dashboard => AuroraScene.home,
-    PageLabel.proxies => AuroraScene.proxies,
-    PageLabel.profiles => AuroraScene.profiles,
-    PageLabel.po0 => AuroraScene.po0,
-    PageLabel.activity ||
-    PageLabel.connections ||
-    PageLabel.requests ||
-    PageLabel.logs => AuroraScene.activity,
-    PageLabel.tools || PageLabel.resources => AuroraScene.settings,
-  };
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scene = sceneOf(ref.watch(currentPageLabelProvider));
-    return AuroraSceneScope(
-      scene: scene,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          RepaintBoundary(child: AuroraBackdrop(scene: scene)),
-          child,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Divider(height: 1, color: glass.separator),
+        const SizedBox(height: 10),
+        line(
+          null,
+          '↑ ${(traffic?.up ?? 0).traffic.show}/s   '
+          '↓ ${(traffic?.down ?? 0).traffic.show}/s',
+        ),
+        if (ipInfo != null) ...[
+          const SizedBox(height: 6),
+          line(
+            Icons.public_rounded,
+            '${ipInfo.countryCode} · ${ipInfo.ip}',
+            fontFamily: FontFamily.jetBrainsMono.value,
+          ),
         ],
-      ),
+      ],
     );
   }
 }

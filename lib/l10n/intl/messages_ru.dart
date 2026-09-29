@@ -1292,6 +1292,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт TProxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Статистика трафика"),
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
+    "tunAuthorizationFallbackTip": MessageLookupByLibrary.simpleMessage(
+      "TUN не получил разрешение, поэтому po0-clash переключился на системный прокси. Включите TUN снова, чтобы повторить запрос.",
+    ),
     "tunDesc": MessageLookupByLibrary.simpleMessage(
       "Работает только в режиме администратора",
     ),

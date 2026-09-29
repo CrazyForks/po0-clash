@@ -102,7 +102,7 @@ class _CoreStatusButtonState extends ConsumerState<CoreStatusButton> {
         tooltip: appLocalizations.coreStatus,
         borderRadius: AppRadius.full,
         color: color.withValues(alpha: context.glass.isDark ? 0.18 : 0.12),
-        rimColor: color.withValues(alpha: 0.35),
+        rimColor: Colors.transparent,
         padding: const EdgeInsets.fromLTRB(8, 5, 12, 5),
         onTap: _handleConnection,
         child: Row(
